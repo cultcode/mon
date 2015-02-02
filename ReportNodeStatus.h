@@ -23,5 +23,5 @@ struct NodeResourceStatus{
 
 };
 
-extern void ReportNodeStatus(struct NodeStatusList* nsl, struct NodeResourceStatus* nrs, char * ip, short port);
+extern void ReportNodeStatus(struct NodeStatusList* nsl, struct NodeResourceStatus* nrs, char * url);
 #endif

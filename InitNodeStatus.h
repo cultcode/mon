@@ -12,6 +12,6 @@ struct NodeStatus {
   int   NodeId;
 };
 
-extern void InitNodeStatus(struct NodeStatus* ns, char* ip, short port);
+extern void InitNodeStatus(struct NodeStatus* ns, char* url);
 
 #endif

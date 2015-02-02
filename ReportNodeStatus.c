@@ -78,11 +78,10 @@ void GetMemConcernedState(struct mem_data *data, float * usage) {
   *usage = pa->usage;
 }
 
-void ReportNodeStatus(struct NodeStatusList* nsl, struct NodeResourceStatus* nrs, char * ip, short port)
+void ReportNodeStatus(struct NodeStatusList* nsl, struct NodeResourceStatus* nrs, char * url)
 {
   static int sockfd=-1;
   char content[CONTENT_LEN];
-  char contentlen[CONTENTLEN_LEN];
   //char connection[CONNECTION_LEN] = "Keep-Alive";
   char connection[CONNECTION_LEN] = "Close";
   struct timeval tv={0};
@@ -94,6 +93,10 @@ void ReportNodeStatus(struct NodeStatusList* nsl, struct NodeResourceStatus* nrs
   static struct cpu_data cpu_data = {0};
   static struct mem_data mem_data = {0};
 
+  char ip[IP_LEN] = {0};
+  short port=0;
+
+  ParseUrl(url, NULL, ip, &port, NULL);
   //memset(proc,0,P_NUMBER*sizeof(struct proc));
 
 /*structure http request
@@ -166,8 +169,7 @@ void ReportNodeStatus(struct NodeStatusList* nsl, struct NodeResourceStatus* nrs
     sockfd = createHttp(ip,port);
   }
 
-  sprintf(contentlen, "%zu", strlen(content));
-  sendHttp(sockfd, "POST / HTTP/1.1", "www.baidu.com", "text/html", contentlen, connection, content);
+  sendHttp(sockfd, url, connection, content);
 
 /*analyze http content received
 {"Status":1,"StatusDesc":"success"}

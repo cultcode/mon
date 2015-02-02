@@ -27,7 +27,7 @@
 
 int main(int argc, char **argv)
 {
-  int  i=0,j=0, k=0;;
+  int  i=0;
 
   int sample_interval=1;  /*time interval to average */
   int refresh_interval=1; /*time interval to report data*/
@@ -58,14 +58,8 @@ int main(int argc, char **argv)
   struct NodeResourceStatus nrs = {0};
 
   char  url [3][URL_LEN]  = {{0}};
-  char  host[3][HOST_LEN] = {{0}};
-  char  ip  [3][IP_LEN]   = {{0}};
-  short port[3] = {0};
-  int state = 0;
 
   memset(url,0,sizeof(url));
-  memset(host,0,sizeof(host));
-  memset(ip,0,sizeof(ip));
 
 /********************************************************
  * get input variables
@@ -92,48 +86,6 @@ int main(int argc, char **argv)
   printf("init url: %s, get url: %s, report url: %s, refresh interval %d, sample interval:%d second(s)\n",url[0], url[1], url[2], refresh_interval, sample_interval);
 
 
-  printf("host\t\tip\t\tport\n");
-  for(i=0; i<(sizeof(url)/sizeof(url[0])); i++) {
-    j = 0;
-    k = 0;
-    state = 0;
-    //http://192.168.8.224:9000/ndas/NodeResMonServerInit
-    while(url[i][j]) {
-      switch(state) {
-        case 0://protocol
-          if(url[i][j] == ':') {
-            j+=2;
-            state = 1;
-          }
-          break;
-        case 1://host
-          if(url[i][j] == ':') {
-            state = 2;
-          }
-          else if(url[i][j] == '/') {
-            state = 3;
-          }
-          else {
-            host[i][k++] = url[i][j];
-          }
-          break;
-        case 2://port
-          if(!port[i]) {
-            port[i] = strtol(&url[i][j],NULL,0);
-          }
-
-          if(url[i][j] == '/') {
-            state = 3;
-          }
-          break;
-        case 3://path
-          break;
-      }
-      j++;
-    }
-  strcpy(ip[i], host[i]);
-  printf("%s\t%s\t%hd\n",host[i], ip[i], port[i]);
-  }
 
 #if 0
   else if((hptr = geturlbyname(host[0])) == NULL) {
@@ -159,12 +111,13 @@ int main(int argc, char **argv)
  ********************************************************/
 #ifdef STANDALONE
 #else
-  InitNodeStatus(&ns, ip[0], port[0]);
+  InitNodeStatus(&ns, url[0]);
   if(ns.Status == FAIL) {
     fprintf(stderr,"InitNodeStatus() received FAIL: %s\n", ns.StatusDesc);
     exit(1);
   }
 #endif
+
   return 0;
 
 /********************************************************
@@ -179,7 +132,7 @@ int main(int argc, char **argv)
   strcpy(nsl.HomeDir, "/");
 
 #else
-  GetNodeStatusList(&ns, &nsl, ip[1], port[1]);
+  GetNodeStatusList(&ns, &nsl, url[1]);
 
   if(nsl.Status == FAIL) {
     fprintf(stderr,"GetNodeStatusList() received FAIL: %s\n", nsl.StatusDesc);
@@ -193,7 +146,7 @@ int main(int argc, char **argv)
  ********************************************************/
 
   while(1) {
-    ReportNodeStatus(&nsl, &nrs, ip[2], port[2]);
+    ReportNodeStatus(&nsl, &nrs, url[2]);
 
 #ifdef STANDALONE
 #else

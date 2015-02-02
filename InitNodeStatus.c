@@ -19,20 +19,20 @@
 #include "SocketHttp.h"
 #include "InitNodeStatus.h"
 
-void InitNodeStatus(struct NodeStatus* ns, char* ip, short port)
+void InitNodeStatus(struct NodeStatus* ns, char* url)
 {
   static int sockfd=-1;
-  char content[CONTENT_LEN];
-  char contentlen[CONTENTLEN_LEN];
+  char content[CONTENT_LEN]={0};
   char connection[CONNECTION_LEN] = "Close";
   struct timeval tv={0};
   int ret=0;
+  char ip[IP_LEN] = {0};
+  short port=0;
 
+  ParseUrl(url,NULL, ip, &port, NULL);
 /*structure http request
 {"EpochTime":" 97d76a","NodeName":"Imgo-1","Version":"3.0"}
 */
-
-  memset(content, 0, sizeof(content));
 
   gettimeofday(&tv,NULL);
   ns->EpochTime = tv.tv_sec;
@@ -40,8 +40,6 @@ void InitNodeStatus(struct NodeStatus* ns, char* ip, short port)
   gethostname(ns->NodeName,NODENAME_LEN);
 
   sprintf(ns->Version,"%s",VERSION);
-
-  sprintf(contentlen, "%zu", strlen(content));
 
   sprintf(content,
     "EpochTime:%lx,"
@@ -56,7 +54,7 @@ void InitNodeStatus(struct NodeStatus* ns, char* ip, short port)
     sockfd = createHttp(ip,port);
   }
 
-  sendHttp(sockfd, "POST / HTTP/1.1", "www.baidu.com", "text/html", contentlen, connection, content);
+  sendHttp(sockfd, url, connection, content);
 
 /*analyze http content received
 {"Status":1,"StatusDesc":"success","NodeId":1}

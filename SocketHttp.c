@@ -6,7 +6,9 @@
 #include <sys/errno.h>
 #include <arpa/inet.h>
 #include "SocketHttp.h"
-//#include <openssl/des.h>
+#include "cbc.h"
+#include <openssl/des.h>
+#include "NodeStatus.h"
 
 /*
  * connect to server ip:port
@@ -49,27 +51,52 @@ void closeHttp(int sockfd)
   }
 }
   
-void sendHttp(int sockfd,char * request_line, char * host, char * content_type, char * content_len, char * connection, char * content)
+void sendHttp(int sockfd,char * url, char * connection, char * plain)
 {
-  char sendline[HTTP_LEN];
+  char sendline[HTTP_LEN]={0};
+  char content[CONTENT_LEN]={0};
+  char contentlen[CONTENTLEN_LEN] = {0};
   char newline[]={'\r','\n','\0'};
   int ret=-1;
+  char path[PATH_LEN]={0};
+  char host[HOST_LEN] = {0};
+  short port=0;
+  char  port_char[PORT_LEN] = {0};
+
+  ParseUrl(url, NULL, host, &port, path);
+
+  sprintf(port_char,"%hd", port);
+
+  cbc_encode(plain, content);
+
+  //memset(plain, 0, strlen(plain));
+  //call_cbc(content, plain, DES_DECRYPT);
+  //printf("self test: plain is \n%s\n",plain);
+
+  sprintf(contentlen, "%zu", strlen(content));
 
   memset(sendline, 0, sizeof(sendline));
 
-  strcat(sendline, request_line);
+  strcat(sendline, "POST ");
+  strcat(sendline, path);
+  strcat(sendline, " HTTP/1.1");
   strcat(sendline, newline);
 
   strcat(sendline, "Host: ");
   strcat(sendline, host);
+
+  if(port) {
+    strcat(sendline, ":");
+    strcat(sendline, port_char);
+  }
   strcat(sendline, newline);
 
   strcat(sendline, "Content-Type: ");
-  strcat(sendline, content_type);
+  strcat(sendline, "text/html");
   strcat(sendline, newline);
 
   strcat(sendline, "Content-Length: ");
-  strcat(sendline, content_len);
+  strcat(sendline, contentlen);
   strcat(sendline, newline);
 
   strcat(sendline, "Connection: ");
@@ -79,6 +106,8 @@ void sendHttp(int sockfd,char * request_line, char * host, char * content_type, 
   strcat(sendline, newline);
 
   strcat(sendline, content);
+
+//  printf("sendline:\n%s\n", sendline);
 
   printf("sendline:\n%s\n", sendline);
 
@@ -93,10 +122,11 @@ void sendHttp(int sockfd,char * request_line, char * host, char * content_type, 
 
 void recvHttp(int sockfd, char* str)
 {
-  char recvline[HTTP_LEN];
+  char recvline[HTTP_LEN] = {0};;
   char newline[]={'\r','\n','\r','\n','\0'};
   char * content=NULL;
   int length=0;
+  char plain[CONTENT_LEN]={0};
 
   memset(recvline, 0, sizeof(recvline));
 
@@ -104,20 +134,21 @@ void recvHttp(int sockfd, char* str)
 
   printf("recvline:\n%s\n",recvline);
 
-
   if (length == (sizeof(recvline)-1)) {
     fprintf(stderr,"http response is too large to store\n");
     exit(1);
   }
 
   if((content = strstr(recvline, newline)) == NULL) {
-    perror("strstr(), The following error occurred");
+    fprintf(stderr,"strstr failed, string is\n%s\n",recvline);
     exit(1);
   }
 
   content += 4;
 
-  strcpy(str, content);
+  cbc_decode(content, plain);
+
+  strcpy(str, plain);
 
   return;
 }

@@ -8,9 +8,14 @@
 
 #define STATUSDESC_LEN 128
 #define HOMEDIR_LEN 128
+
+#define PROTOCOL_LEN 16
 #define IP_LEN 32
+#define PORT_LEN 32
+#define HOST_LEN 64
+#define PATH_LEN 256
 #define URL_LEN 256
-#define HOST_LEN 256
+
 #define NODENAME_LEN 128
 #define VERSION_LEN 32
 #define VERSION "1.0"
@@ -22,7 +27,8 @@ enum {
 #define FAIL FAIL
 };
 
+#include "common.h"
 
-#define STANDALONE
+//#define STANDALONE
 
 #endif

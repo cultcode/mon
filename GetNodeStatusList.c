@@ -18,15 +18,18 @@
 #include "SocketHttp.h"
 #include "GetNodeStatusList.h"
 
-void GetNodeStatusList(struct NodeStatus* ns, struct NodeStatusList* nsl, char * ip, short port)
+void GetNodeStatusList(struct NodeStatus* ns, struct NodeStatusList* nsl, char * url)
 {
   static int sockfd=-1;
   char content[CONTENT_LEN];
-  char contentlen[CONTENTLEN_LEN];
   char connection[CONNECTION_LEN] = "Close";
   struct timeval tv={0};
   int ret=0;
 
+  char ip[IP_LEN] = {0};
+  short port=0;
+
+  ParseUrl(url, NULL, ip, &port, NULL);
 /*structure http request
 {"EpochTime":"97d76a","NodeId ":0}
 */
@@ -47,8 +50,7 @@ void GetNodeStatusList(struct NodeStatus* ns, struct NodeStatusList* nsl, char *
     sockfd = createHttp(ip,port);
   }
 
-  sprintf(contentlen, "%zu", strlen(content));
-  sendHttp(sockfd, "POST / HTTP/1.1", "www.baidu.com", "text/html", contentlen, connection, content);
+  sendHttp(sockfd, url, connection, content);
 
 /*analyze http content received
 {"Status":1,"StatusDesc":"success","HomeDir":"x:\Clips","LanIp":"192.168.1.1","WanIp":"10.0.0.1","LanPort":"21","WanPort":80}

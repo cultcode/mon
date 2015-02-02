@@ -16,5 +16,5 @@ struct NodeStatusList{
   short  WanPort;
 };
 
-extern void GetNodeStatusList(struct NodeStatus* ns, struct NodeStatusList* nsl, char * ip, short port);
+extern void GetNodeStatusList(struct NodeStatus* ns, struct NodeStatusList* nsl, char * url);
 #endif
