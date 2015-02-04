@@ -6,7 +6,7 @@
 #include "openssl/evp.h"
 #include "Security.h"
 
-int DesCbcEncode(char* enckey, char* encIv, char *input,  char *output, int length)
+static int DesCbcEncode(char* enckey, char* encIv, char *input,  char *output, int length)
 {
   DES_key_schedule ks1, ks2, ks3;
   DES_cblock ivec={0};
@@ -80,7 +80,7 @@ int DesCbcEncode(char* enckey, char* encIv, char *input,  char *output, int leng
   return encdata_len;
 }
 
-int DesCbcDecode(char * deckey,char * decIv,char * input, char *output, int length)
+static int DesCbcDecode(char * deckey,char * decIv,char * input, char *output, int length)
 {
   DES_key_schedule ks1, ks2, ks3;
   DES_cblock ivec={0};
@@ -152,7 +152,7 @@ int DesCbcDecode(char * deckey,char * decIv,char * input, char *output, int leng
   return decdata_len;
 }
 
-int Base64Encode(const char* message, char** buffer, int length) { //Encodes a string to base64
+static int Base64Encode(const char* message, char** buffer, int length) { //Encodes a string to base64
   BIO *bio, *b64;
   int ret=0;
   FILE* stream;
@@ -189,7 +189,7 @@ int Base64Encode(const char* message, char** buffer, int length) { //Encodes a s
   return encodeSize;
 }
 
-int calcDecodeLength(const char* b64input, int len) { //Calculates the length of a decoded base64 string
+static int calcDecodeLength(const char* b64input, int len) { //Calculates the length of a decoded base64 string
   int padding = 0;
  
   if (b64input[len-1] == '=' && b64input[len-2] == '=') //last two chars are =
@@ -200,7 +200,7 @@ int calcDecodeLength(const char* b64input, int len) { //Calculates the length of
   return (int)len*0.75 - padding;
 }
 
-int Base64Decode(char* b64message, char** buffer, int length) { //Decodes a base64 encoded string
+static int Base64Decode(char* b64message, char** buffer, int length) { //Decodes a base64 encoded string
   BIO *bio, *b64;
   int ret=0;
   FILE* stream;
