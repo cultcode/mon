@@ -6,9 +6,8 @@
 #include <sys/errno.h>
 #include <arpa/inet.h>
 #include "SocketHttp.h"
-#include "cbc.h"
-#include <openssl/des.h>
 #include "NodeStatus.h"
+#include "Security.h"
 
 /*
  * connect to server ip:port
@@ -51,29 +50,43 @@ void closeHttp(int sockfd)
   }
 }
   
-void sendHttp(int sockfd,char * url, char * connection, char * plain)
+void sendHttp(int sockfd,char * url, char * connection, char * input)
 {
   char sendline[HTTP_LEN]={0};
-  char content[CONTENT_LEN]={0};
+  char * cipher = NULL;
   char contentlen[CONTENTLEN_LEN] = {0};
   char newline[]={'\r','\n','\0'};
-  int ret=-1;
   char path[PATH_LEN]={0};
   char host[HOST_LEN] = {0};
   short port=0;
   char  port_char[PORT_LEN] = {0};
+  int length = 0;
+  int ret=-1;
 
   ParseUrl(url, NULL, host, &port, path);
 
   sprintf(port_char,"%hd", port);
 
-  cbc_encode(plain, content);
+  memset(sendline, 0, sizeof(sendline));
+
+//  if(((strlen(plain)/8+1)*8) >= sizeof(cipher)) {
+//    fprintf(stderr,"plain is too long to store\n");
+//    exit(1);
+//  }
+
+  length = ContentEncode(NODE_3DES_KEY, NODE_3DES_IV, input, &cipher, strlen(input));
+
+  if(length <= 0) {
+    fprintf(stderr,"ContentEncode failed\n");
+    free(cipher);
+    exit(1);
+  }
 
   //memset(plain, 0, strlen(plain));
   //call_cbc(content, plain, DES_DECRYPT);
   //printf("self test: plain is \n%s\n",plain);
 
-  sprintf(contentlen, "%zu", strlen(content));
+  sprintf(contentlen, "%d", length);
 
   memset(sendline, 0, sizeof(sendline));
 
@@ -92,7 +105,7 @@ void sendHttp(int sockfd,char * url, char * connection, char * plain)
   strcat(sendline, newline);
 
   strcat(sendline, "Content-Type: ");
-  strcat(sendline, "text/html");
+  strcat(sendline, "text/plain");
   strcat(sendline, newline);
 
   strcat(sendline, "Content-Length: ");
@@ -105,7 +118,11 @@ void sendHttp(int sockfd,char * url, char * connection, char * plain)
 
   strcat(sendline, newline);
 
-  strcat(sendline, content);
+  //strcat(sendline, content);
+
+  memcpy(&sendline[strlen(sendline)],cipher,length);
+
+  free(cipher);
 
 //  printf("sendline:\n%s\n", sendline);
 
@@ -120,13 +137,13 @@ void sendHttp(int sockfd,char * url, char * connection, char * plain)
   }
 }
 
-void recvHttp(int sockfd, char* str)
+void recvHttp(int sockfd, char* output)
 {
   char recvline[HTTP_LEN] = {0};;
+  char *plain = NULL;
   char newline[]={'\r','\n','\r','\n','\0'};
   char * content=NULL;
   int length=0;
-  char plain[CONTENT_LEN]={0};
 
   memset(recvline, 0, sizeof(recvline));
 
@@ -146,9 +163,12 @@ void recvHttp(int sockfd, char* str)
 
   content += 4;
 
-  cbc_decode(content, plain);
+  length = ContentDecode(NODE_3DES_KEY, NODE_3DES_IV, content, &plain, strlen(content));
 
-  strcpy(str, plain);
+  memcpy(output, plain, length);
+  output[length] = 0;
+
+  free(plain);
 
   return;
 }
