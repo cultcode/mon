@@ -46,7 +46,7 @@ int main(int argc, char **argv)
 
   char* const short_options = "b:i:g:p:r:c:m:d:n:";  
   struct option long_options[] = {  
-    { "debugl",  1,  NULL,  'i'},  
+    { "debugl",  1,  NULL,  'b'},  
     { "init",  1,  NULL,  'i'},  
     { "get",  1,  NULL,  'g'},  
     { "report",  1,  NULL,  'p'},  
@@ -103,8 +103,8 @@ int main(int argc, char **argv)
       break;
     }
   }
-if (debugl >= 3) {
-  printf("init url: %s\n, get url: %s\n, report url: %s\n, refresh interval %d\n, cpu_average_interval %d\n, mem_average_interval %d\n, dsk_average_interval %d\n, net_average_interval %d\n",url[0], url[1], url[2], refresh_interval, cpu_average_interval, mem_average_interval, dsk_average_interval, net_average_interval);
+if (debugl >= 1) {
+  printf("debugl: %d\ninit url: %s\nget url: %s\nreport url: %s\nrefresh interval %d\ncpu_average_interval %d\nmem_average_interval %d\ndsk_average_interval %d\nnet_average_interval %d\n",debugl, url[0], url[1], url[2], refresh_interval, cpu_average_interval, mem_average_interval, dsk_average_interval, net_average_interval);
 }
 
 
