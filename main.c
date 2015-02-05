@@ -98,7 +98,9 @@ int main(int argc, char **argv)
       break;
     }
   }
+#if DEBUGL >= 3
   printf("init url: %s\n, get url: %s\n, report url: %s\n, refresh interval %d\n, cpu_average_interval %d\n, mem_average_interval %d\n, dsk_average_interval %d\n, net_average_interval %d\n",url[0], url[1], url[2], refresh_interval, cpu_average_interval, mem_average_interval, dsk_average_interval, net_average_interval);
+#endif
 
 
 #if 0

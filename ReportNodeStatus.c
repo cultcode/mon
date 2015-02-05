@@ -57,12 +57,14 @@ void GetFsDiskConcernedState(struct dsk_data * data, char *HomeDir, long long *D
     }
   }
   if(i >= data->jfses) {
-    fprintf(stderr,"ERROR: can't find directory %s from fstatfs()\n",HomeDir);
     *DiskTotalSpace = 0;
     *DiskFreeSpace  = 0;
     *IoUsage        = 0;
-#if DEBUGL == 0
-    exit(1);
+#if DEBUGL >= 2
+    fprintf(stderr,"WARNING: can't find directory %s from fstatfs()\n",HomeDir);
+//#elif DEBUGL <= 1
+//    fprintf(stderr,"ERROR: can't find directory %s from fstatfs()\n",HomeDir);
+//    exit(1);
 #endif
   }
 }
@@ -87,8 +89,8 @@ void ReportNodeStatus(struct NodeStatusList* nsl, struct NodeResourceStatus* nrs
 {
   static int sockfd=-1;
   char content[CONTENT_LEN];
-  //char connection[CONNECTION_LEN] = "Keep-Alive";
-  char connection[CONNECTION_LEN] = "Close";
+  char connection[CONNECTION_LEN] = "Keep-Alive";
+  //char connection[CONNECTION_LEN] = "Close";
   int ret=0;
 
   static int first_time=1;
@@ -195,7 +197,7 @@ void ReportNodeStatus(struct NodeStatusList* nsl, struct NodeResourceStatus* nrs
 #endif
 
   if(sockfd == -1) {
-    sockfd = createHttp(ip,port);
+    sockfd = createHttp(ip,port,SOCK_STREAM);
   }
 
   sendHttp(sockfd, url, connection, content);
@@ -211,14 +213,14 @@ void ReportNodeStatus(struct NodeStatusList* nsl, struct NodeResourceStatus* nrs
 
   ret = sscanf(content,
     "{"
-    "\"Status\":\"%d\","
+    "\"Status\":%d,"
     "\"StatusDesc\":\"%[^\"]\""
     "}",
     &nrs->Status,
     nrs->StatusDesc
   );
 
-#if DEBUGL >=2
+#if DEBUGL >= 3
   printf("ReportNodeStatus()\n"
     "{"
     "\"Status\":%d,"
@@ -237,10 +239,12 @@ void ReportNodeStatus(struct NodeStatusList* nsl, struct NodeResourceStatus* nrs
 
 #ifdef STANDALONE
 #else
+#if DEBUGL >= 2
     if(nrs->Status == FAIL) {
       fprintf(stderr,"ReportNodeStatus() received FAIL: %s\n", nrs->StatusDesc);
-      exit(1);
+    //  exit(1);
     }
+#endif
 #endif
 
 }

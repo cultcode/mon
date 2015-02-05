@@ -79,7 +79,7 @@ void ParseUrl(char * url, char * protocol, char * host, short * port, char* path
     j++;
   }
 
-#if DEBUGL >= 2
+#if DEBUGL >= 3
   printf("url:%s\nprotocol:%s\tip:%s\tport:%hd,path:%s\n",url, protocol, host, *port, path);
 #endif
 

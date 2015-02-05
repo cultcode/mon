@@ -3,7 +3,7 @@
 
 #define HTTP_LEN 4096
 
-extern int createHttp(char * ip, short port);
+extern int createHttp(char * ip, short port, int type);
 
 extern void closeHttp(int sockfd);
 

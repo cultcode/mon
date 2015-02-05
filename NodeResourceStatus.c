@@ -647,8 +647,10 @@ void socket_net(struct net_data *data)
         //p->ifnets[i].duplex = DUPLEX_UNKNOWN;
         //perror("socket");
         //exit(EXIT_FAILURE);
+#if DEBUGL >= 2
         perror("ioctl SIOCETHTOOL");
-        fprintf(stderr,"WARNING:ethtool cant report bandwidth/duplex of NIC %s\n",p->ifnets[i].if_name);
+        fprintf(stderr,"WARNING: ethtool cant report bandwidth/duplex of NIC %s\n",p->ifnets[i].if_name);
+#endif
 
         pa[i].bandwidth = -1L;
         pa[i].duplex= DUPLEX_UNKNOWN;
@@ -1021,7 +1023,9 @@ void GetDiskState(struct dsk_data *data){
     } 
 
     if(i >= data->disks){
-      fprintf(stderr,"WARNNING:can't find  %s\tfrom /proc/diskstats\n",dk_name);
+#if DEBUGL >= 2
+      fprintf(stderr,"WARNING: can't find  %s\tfrom /proc/diskstats\n",dk_name);
+#endif
       continue;
       //exit(1);
     }
@@ -1042,12 +1046,12 @@ void GetDiskState(struct dsk_data *data){
 #if DEBUGL >= 3
     printf("\n/proc/diskstats\nDiskName Busy Read(KB/s) Write(KB/s) Xfers(t/s)\n");
     printf("%s %3.1f%% %8.1f %8.1f %8.1f\n",
-#endif
       p->dk[i].dk_name, 
       disk_busy,
       disk_read,
       disk_write,
       disk_xfers / elapsed);
+#endif
 
     data->jfs[k].io = disk_busy;
 
@@ -1164,7 +1168,6 @@ void GetNetworkState(struct net_data *data) {
 
 #if DEBUGL >= 3
         printf("%s\t%.1f\t%.1f\t%.1f\t%.1f\t%.1f\t%.1f\t%.1f\t%.1f\n",
-#endif
         pa[j].name,
         pa[j].speed_ib*8/1024,
         pa[j].speed_ob*8/1024,
@@ -1175,6 +1178,7 @@ void GetNetworkState(struct net_data *data) {
         pa[j].peak_i*8/1024,
         pa[j].peak_o*8/1024
       );
+#endif
 
   //    if(!strcmp(pa[i].ip, ip)) {
   //      break;
@@ -1196,7 +1200,6 @@ void GetNetworkState(struct net_data *data) {
 
 #if DEBUGL >= 3
     printf("%s\t%hd\t%ld\t%d\t%s\t%7.3f%%\n",
-#endif
         pa[j].name,
         pa[j].flags,
         pa[j].bandwidth,
@@ -1204,6 +1207,7 @@ void GetNetworkState(struct net_data *data) {
         pa[j].ip,
         pa[j].usage
     );
+#endif
   }
 
 }

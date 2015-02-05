@@ -57,7 +57,7 @@ void InitNodeStatus(struct NodeStatus* ns, char* url)
   );
 
   if(sockfd == -1) {
-    sockfd = createHttp(ip,port);
+    sockfd = createHttp(ip,port,SOCK_STREAM);
   }
 
   sendHttp(sockfd, url, connection, content);
@@ -69,7 +69,9 @@ void InitNodeStatus(struct NodeStatus* ns, char* url)
   memset(content, 0, sizeof(content));
   recvHttp(sockfd,content);
 
+#if DEBUGL >= 3
   printf("InitNodeStatus() http content received:\n%s\n",content);
+#endif
 
   ret = sscanf(content,
     "{"
@@ -82,7 +84,7 @@ void InitNodeStatus(struct NodeStatus* ns, char* url)
     &ns->NodeId
   );
 
-#if DEBUGL >=2
+#if DEBUGL >= 3
   printf("InitNodeStatus()\n"
     "{"
     "\"Status\":%d,"

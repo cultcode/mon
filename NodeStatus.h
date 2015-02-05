@@ -21,10 +21,8 @@
 #define VERSION "1.0"
 
 enum {
-  SUCESS=1,
-#define SUCESS SUCESS
-  FAIL=0
-#define FAIL FAIL
+  FAIL=0,
+  SUCESS=1
 };
 
 #include "common.h"

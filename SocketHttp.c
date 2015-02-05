@@ -12,7 +12,7 @@
 /*
  * connect to server ip:port
  */
-int createHttp(char * ip, short port)
+int createHttp(char * ip, short port, int type)
 {
   int    sockfd=-1;
   struct sockaddr_in    servaddr={0};
@@ -25,7 +25,7 @@ int createHttp(char * ip, short port)
     exit(1);
   }
 
-  if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+  if((sockfd = socket(AF_INET, type, 0)) < 0) {
     perror("socket() The following error occurred");
     exit(1);
   }
@@ -74,8 +74,8 @@ void sendHttp(int sockfd,char * url, char * connection, char * input)
 //    exit(1);
 //  }
 
-#if DEBUGL >=1 
-  printf("sendHttp() content plain:%s==========\n", input);
+#if DEBUGL >= 1
+  printf("HTTP content to  send:%s\n", input);
 #endif
 
   length = ContentEncode(NODE_3DES_KEY, NODE_3DES_IV, input, &cipher, strlen(input));
@@ -130,14 +130,18 @@ void sendHttp(int sockfd,char * url, char * connection, char * input)
 
 //  printf("sendline:\n%s\n", sendline);
 
+#if DEBUGL >= 3
   printf("sendline:\n%s\n", sendline);
+#endif
 
   ret = write(sockfd,sendline,strlen(sendline));
   if (ret < 0) {
           perror("write() The following error occurred");
           exit(1);
   }else{
+#if DEBUGL >= 3
           printf("Successfully, %d bytes content has been sent!\n", ret);
+#endif
   }
 }
 
@@ -153,12 +157,19 @@ void recvHttp(int sockfd, char* output)
 
   length = read(sockfd, recvline, sizeof(recvline)-1);
 
-  printf("recvline:\n%s\n",recvline);
+  if(length == -1) {
+    perror("read()");
+    exit(1);
+  }
 
   if (length == (sizeof(recvline)-1)) {
     fprintf(stderr,"http response is too large to store\n");
     exit(1);
   }
+
+#if DEBUGL >= 3
+  printf("recvline:\n%s\n",recvline);
+#endif
 
   if((content = strstr(recvline, newline)) == NULL) {
     fprintf(stderr,"strstr failed, string is\n%s\n",recvline);
@@ -171,6 +182,10 @@ void recvHttp(int sockfd, char* output)
 
   memcpy(output, plain, length);
   output[length] = 0;
+
+#if DEBUGL >= 1
+  printf("HTTP content received:%s\n", output);
+#endif
 
   free(plain);
 
