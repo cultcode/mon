@@ -665,12 +665,12 @@ if (debugl >= 2) {
       if(pa[i].flags & IFF_MASTER) {
         strcpy(fn_slaves, "/sys/class/net/");
         strcat(fn_slaves, pa[i].name);
-        strcat(fn_slaves, "/bonding/buf");
+        strcat(fn_slaves, "/bonding/slaves");
 
         fd_slaves = fopen(fn_slaves, "r");
 
         if (fd_slaves == NULL) {
-            perror("Can't open /sys/class/net/xx/bonding/buf for bond interface");
+            perror("Can't open /sys/class/net/xx/bonding/slaves for bond interface");
             exit(1);
         }
 
