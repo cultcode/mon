@@ -21,14 +21,19 @@
 #define VERSION "1.0"
 
 enum {
-  SUCESS=0,
+  SUCESS=1,
 #define SUCESS SUCESS
-  FAIL=1
+  FAIL=0
 #define FAIL FAIL
 };
 
 #include "common.h"
 
-//#define STANDALONE
+#define SERVER_VERSION 1
+
+extern int cpu_average_interval;  /*time interval to average */
+extern int mem_average_interval;  /*time interval to average */
+extern int dsk_average_interval;  /*time interval to average */
+extern int net_average_interval;  /*time interval to average */
 
 #endif

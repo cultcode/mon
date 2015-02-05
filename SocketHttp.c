@@ -74,6 +74,10 @@ void sendHttp(int sockfd,char * url, char * connection, char * input)
 //    exit(1);
 //  }
 
+#if DEBUGL >=1 
+  printf("sendHttp() content plain:%s==========\n", input);
+#endif
+
   length = ContentEncode(NODE_3DES_KEY, NODE_3DES_IV, input, &cipher, strlen(input));
 
   if(length <= 0) {

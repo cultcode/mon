@@ -23,7 +23,6 @@ void GetNodeStatusList(struct NodeStatus* ns, struct NodeStatusList* nsl, char *
   static int sockfd=-1;
   char content[CONTENT_LEN];
   char connection[CONNECTION_LEN] = "Close";
-  struct timeval tv={0};
   int ret=0;
 
   char ip[IP_LEN] = {0};
@@ -35,13 +34,14 @@ void GetNodeStatusList(struct NodeStatus* ns, struct NodeStatusList* nsl, char *
 */
   memset(content, 0, sizeof(content));
 
-  gettimeofday(&tv,NULL);
-  nsl->EpochTime = tv.tv_sec;
+  nsl->EpochTime = GetLocaltimeSeconds();
   nsl->NodeId = ns->NodeId;
 
   sprintf(content,
-    "EpochTime:%lx,"
-    "NodeId:%d",
+    "{"
+    "\"EpochTime\":\"%lx\","
+    "\"NodeId\":%d"
+    "}",
     nsl->EpochTime,
     nsl->NodeId
   );
@@ -63,13 +63,15 @@ void GetNodeStatusList(struct NodeStatus* ns, struct NodeStatusList* nsl, char *
   printf("GetNodeStatusList() http content received:\n%s\n",content);
 
   ret = sscanf(content,
-    "Status:%d,"
-    "StatusDesc:%[^,],"
-    "HomeDir:%[^,],"
-    "LanIp:%[^,],"
-    "WanIp:%[^,],"
-    "LanPort:%hd,"
-    "WanPort:%hd",
+    "{"
+    "\"Status\":%d,"
+    "\"StatusDesc\":\"%[^\"]\","
+    "\"HomeDir\":\"%[^\"]\","
+    "\"LanIp\":\"%[^\"]\","
+    "\"WanIp\":\"%[^\"]\","
+    "\"LanPort\":%hd,"
+    "\"WanPort\":%hd"
+    "}",
     &nsl->Status,
     nsl->StatusDesc,
     nsl->HomeDir,
@@ -79,9 +81,40 @@ void GetNodeStatusList(struct NodeStatus* ns, struct NodeStatusList* nsl, char *
     &nsl->WanPort
   );
 
+#if DEBUGL >=2
+  printf("GetNodeStatusList()\n"
+    "{"
+    "\"Status\":%d,"
+    "\"StatusDesc\":\"%s\","
+    "\"HomeDir\":\"%s\","
+    "\"LanIp\":\"%s\","
+    "\"WanIp\":\"%s\","
+    "\"LanPort\":%hd,"
+    "\"WanPort\":%hd"
+    "}"
+    "\n",
+    nsl->Status,
+    nsl->StatusDesc,
+    nsl->HomeDir,
+    nsl->LanIp,
+    nsl->WanIp,
+    nsl->LanPort,
+    nsl->WanPort
+  );
+#endif
+
   if(!strcasecmp(connection, "Close")){
     closeHttp(sockfd);
     sockfd = -1;
   }
+
+#ifdef STANDALONE
+#else
+  if(nsl->Status == FAIL) {
+    fprintf(stderr,"GetNodeStatusList() received FAIL: %s\n", nsl->StatusDesc);
+    exit(1);
+  }
+#endif
+
 }
 

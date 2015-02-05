@@ -10,7 +10,6 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <sys/errno.h>
-#include <sys/time.h>
 #include <net/if.h>
 #include <sys/ioctl.h>
 #include <linux/ethtool.h>
@@ -24,7 +23,6 @@ void InitNodeStatus(struct NodeStatus* ns, char* url)
   static int sockfd=-1;
   char content[CONTENT_LEN]={0};
   char connection[CONNECTION_LEN] = "Close";
-  struct timeval tv={0};
   int ret=0;
   char ip[IP_LEN] = {0};
   short port=0;
@@ -34,20 +32,28 @@ void InitNodeStatus(struct NodeStatus* ns, char* url)
 {"EpochTime":" 97d76a","NodeName":"Imgo-1","Version":"3.0"}
 */
 
-  gettimeofday(&tv,NULL);
-  ns->EpochTime = tv.tv_sec;
+  ns->EpochTime = GetLocaltimeSeconds();
 
   gethostname(ns->NodeName,NODENAME_LEN);
 
   sprintf(ns->Version,"%s",VERSION);
 
   sprintf(content,
-    "EpochTime:%lx,"
-    "NodeName:%s,"
-    "Version:%s",
+    "{"
+    "\"EpochTime\":\"%lx\","
+    "\"NodeName\":\"%s\""
+#if SERVER_VERSION==2
+    ","
+    "\"Version\":\"%s\""
+#endif
+    "}",
     ns->EpochTime,
-    ns->NodeName,
+    ns->NodeName
+#if SERVER_VERSION==2
+    ,
     ns->Version
+#endif
+
   );
 
   if(sockfd == -1) {
@@ -66,17 +72,42 @@ void InitNodeStatus(struct NodeStatus* ns, char* url)
   printf("InitNodeStatus() http content received:\n%s\n",content);
 
   ret = sscanf(content,
-    "Status:%d,"
-    "StatusDesc:%[^,],"
-    "NodeId:%d",
+    "{"
+    "\"Status\":%d,"
+    "\"StatusDesc\":\"%[^\"]\","
+    "\"NodeId\":%d"
+    "}",
     &ns->Status,
      ns->StatusDesc,
     &ns->NodeId
   );
 
+#if DEBUGL >=2
+  printf("InitNodeStatus()\n"
+    "{"
+    "\"Status\":%d,"
+    "\"StatusDesc\":\"%s\","
+    "\"NodeId\":%d"
+    "}"
+    "\n",
+    ns->Status,
+    ns->StatusDesc,
+    ns->NodeId
+  );
+#endif
+
   if(!strcasecmp(connection, "Close")){
     closeHttp(sockfd);
     sockfd = -1;
   }
+
+#ifdef STANDALONE
+#else
+  if(ns->Status == FAIL) {
+    fprintf(stderr,"InitNodeStatus() received FAIL: %s\n", ns->StatusDesc);
+    exit(1);
+  }
+#endif
+
 }
 

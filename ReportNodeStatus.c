@@ -30,7 +30,7 @@ void GetNetworkConcernedStatus(struct net_data *data, char * ip, short port, flo
       *usage   = pa[i].usage;
       *ipstate =(pa[i].flags & IFF_RUNNING) >0;
       if(bandwidth != NULL) {
-        *bandwidth = (pa[i].speed_ib + pa[i].speed_ob)*8;
+        *bandwidth = (/*pa[i].speed_ib +*/ pa[i].speed_ob)*8;
       }
       break;
     }
@@ -50,15 +50,20 @@ void GetFsDiskConcernedState(struct dsk_data * data, char *HomeDir, long long *D
   int i=0;
   for(i = 0; i<data->jfses; i++) {
     if(!strcmp(HomeDir, data->jfs[i].name)) {
-      *DiskTotalSpace = data->jfs[i].size;
-      *DiskFreeSpace  = data->jfs[i].free;
+      *DiskTotalSpace = data->jfs[i].size*1024*1024;
+      *DiskFreeSpace  = data->jfs[i].free*1024*1024;
       *IoUsage        = data->jfs[i].io;
       break;
     }
   }
   if(i >= data->jfses) {
     fprintf(stderr,"ERROR: can't find directory %s from fstatfs()\n",HomeDir);
+    *DiskTotalSpace = 0;
+    *DiskFreeSpace  = 0;
+    *IoUsage        = 0;
+#if DEBUGL == 0
     exit(1);
+#endif
   }
 }
 
@@ -84,20 +89,36 @@ void ReportNodeStatus(struct NodeStatusList* nsl, struct NodeResourceStatus* nrs
   char content[CONTENT_LEN];
   //char connection[CONNECTION_LEN] = "Keep-Alive";
   char connection[CONNECTION_LEN] = "Close";
-  struct timeval tv={0};
   int ret=0;
 
+  static int first_time=1;
   static struct proc proc[P_NUMBER] = {{0}};
   static struct net_data net_data = {0};
   static struct dsk_data dsk_data = {0};
   static struct cpu_data cpu_data = {0};
   static struct mem_data mem_data = {0};
 
-  char ip[IP_LEN] = {0};
-  short port=0;
+  static char ip[IP_LEN] = {0};
+  static short port=0;
 
-  ParseUrl(url, NULL, ip, &port, NULL);
-  //memset(proc,0,P_NUMBER*sizeof(struct proc));
+  if(first_time) {
+    first_time = 0;
+
+    ParseUrl(url, NULL, ip, &port, NULL);
+    //memset(proc,0,P_NUMBER*sizeof(struct proc));
+
+    cpu_data.p = &cpu_data.cpu_stats[0];
+    cpu_data.q = &cpu_data.cpu_stats[1];
+
+    dsk_data.p = &dsk_data.dk[0];
+    dsk_data.q = &dsk_data.dk[1];
+
+    mem_data.p = &mem_data.mem_stats[0];
+    mem_data.q = &mem_data.mem_stats[1];
+
+    net_data.p = &net_data.net_stats[0];
+    net_data.q = &net_data.net_stats[1];
+  }
 
 /*structure http request
 
@@ -108,62 +129,70 @@ void ReportNodeStatus(struct NodeStatusList* nsl, struct NodeResourceStatus* nrs
 
   proc_init(proc);
 
-  gettimeofday(&tv,NULL);
-  nrs->EpochTime = tv.tv_sec;
+  nrs->EpochTime = GetLocaltimeSeconds();
 
   nrs->NodeId = nsl->NodeId;
 
 
   //Networks
-  GetNetworkState(&net_data);
-
-  GetNetworkConcernedStatus(&net_data, nsl->WanIp, nsl->WanPort, &nrs->WanUsage, &nrs->WanIpState, &nrs->CurrentBandwidth, &nrs->CurrentConn);
-                                                               
-  GetNetworkConcernedStatus(&net_data, nsl->LanIp, nsl->LanPort, &nrs->LanUsage, &nrs->LanIpState, NULL, NULL);
+  if((doubletime() - net_data.p->time) >= net_average_interval) {
+    GetNetworkState(&net_data);
+    GetNetworkConcernedStatus(&net_data, nsl->WanIp, nsl->WanPort, &nrs->WanUsage, &nrs->WanIpState, &nrs->CurrentBandwidth, &nrs->CurrentConn);
+    GetNetworkConcernedStatus(&net_data, nsl->LanIp, nsl->LanPort, &nrs->LanUsage, &nrs->LanIpState, NULL, NULL);
+  }
 
   //Disk & Filesystem
-  GetDiskState(&dsk_data);
-
-  GetFsDiskConcernedState(&dsk_data, nsl->HomeDir, &nrs->DiskTotalSpace, &nrs->DiskFreeSpace, &nrs->IoUsage);
+  if((doubletime() - dsk_data.p->time) >= dsk_average_interval) {
+    GetDiskState(&dsk_data);
+    GetFsDiskConcernedState(&dsk_data, nsl->HomeDir, &nrs->DiskTotalSpace, &nrs->DiskFreeSpace, &nrs->IoUsage);
+  }
 
   //Cpu
-  GetCpuState(&cpu_data, proc);
-
-  GetCpuConcernedState(&cpu_data, &nrs->CpuUsage);
+  if((doubletime() - cpu_data.p->time) >= cpu_average_interval) {
+    GetCpuState(&cpu_data, proc);
+    GetCpuConcernedState(&cpu_data, &nrs->CpuUsage);
+  }
 
   //Mem
-  GetMemState(&mem_data, proc);
-
-  GetMemConcernedState(&mem_data, &nrs->MemUsage);
+  if((doubletime() - mem_data.p->time) >= mem_average_interval) {
+    GetMemState(&mem_data, proc);
+    GetMemConcernedState(&mem_data, &nrs->MemUsage);
+  }
 
   sprintf(content,
-    "EpochTime:%lx,"
-    "NodeId:%d,"
-    "CurrentConn:%lld,"
-    "CurrentBandwidth:%d,"
-    "DiskTotalSpace:%lld,"
-    "DiskFreeSpace:%lld,"
-    "CpuUsage:%f,"
-    "MemUsage:%f,"
-    "WanUsage:%f,"
-    "LanUsage:%f,"
-    "IoUsage:%f,"
-    "LanIpState:%d,"
-    "WanIpState:%d",
+    "{"
+    "\"EpochTime\":\"%lx\","
+    "\"NodeId\":%d,"
+    "\"CurrentConn\":%lld,"
+    "\"CurrentBandwidth\":%d,"
+    "\"DiskTotalSpace\":%lld,"
+    "\"DiskFreeSpace\":%lld,"
+    "\"CpuUsage\":%d,"
+    "\"MemUsage\":%d,"
+    "\"WanUsage\":%d,"
+    "\"LanUsage\":%d,"
+    "\"IoUsage\":%d,"
+    "\"LanIpState\":%d,"
+    "\"WanIpState\":%d"
+    "}",
     nrs->EpochTime,
     nrs->NodeId,
     nrs->CurrentConn,     
     nrs->CurrentBandwidth,
     nrs->DiskTotalSpace,
     nrs->DiskFreeSpace,
-    nrs->CpuUsage,
-    nrs->MemUsage,
-    nrs->WanUsage,
-    nrs->LanUsage,
-    nrs->IoUsage,
+    (int)nrs->CpuUsage,
+    (int)nrs->MemUsage,
+    (int)nrs->WanUsage,
+    (int)nrs->LanUsage,
+    (int)nrs->IoUsage,
     nrs->LanIpState,
     nrs->WanIpState
   );
+
+#ifdef STANDALONE
+  return;
+#endif
 
   if(sockfd == -1) {
     sockfd = createHttp(ip,port);
@@ -181,15 +210,38 @@ void ReportNodeStatus(struct NodeStatusList* nsl, struct NodeResourceStatus* nrs
   //printf("ReportNodeStatusList() http content received:\n%s\n",content);
 
   ret = sscanf(content,
-    "Status:%d,"
-    "StatusDesc:%[^,]",
+    "{"
+    "\"Status\":\"%d\","
+    "\"StatusDesc\":\"%[^\"]\""
+    "}",
     &nrs->Status,
     nrs->StatusDesc
   );
+
+#if DEBUGL >=2
+  printf("ReportNodeStatus()\n"
+    "{"
+    "\"Status\":%d,"
+    "\"StatusDesc\":\"%s\""
+    "}"
+    "\n",
+    nrs->Status,
+    nrs->StatusDesc
+  );
+#endif
 
   if(!strcasecmp(connection, "Close")){
     closeHttp(sockfd);
     sockfd = -1;
   }
+
+#ifdef STANDALONE
+#else
+    if(nrs->Status == FAIL) {
+      fprintf(stderr,"ReportNodeStatus() received FAIL: %s\n", nrs->StatusDesc);
+      exit(1);
+    }
+#endif
+
 }
 

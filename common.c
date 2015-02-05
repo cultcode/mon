@@ -1,6 +1,26 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>     /* strtol */
+#include <sys/time.h>
+#include "common.h"
+
+long GetLocaltimeSeconds()
+{
+  long t=0;
+  struct timeval tv={0};
+  struct timezone tz={0};
+
+  gettimeofday(&tv,&tz);
+
+  t += tv.tv_sec;
+  t -= tz.tz_minuteswest*60;
+
+#if DEBUGL >= 3
+  printf("GetLocaltimeSeconds() %ld %#lx\n",t,t);
+#endif
+
+  return t;
+}
 
 void ParseUrl(char * url, char * protocol, char * host, short * port, char* path) {
   int j=0, k=0;
@@ -59,6 +79,8 @@ void ParseUrl(char * url, char * protocol, char * host, short * port, char* path
     j++;
   }
 
+#if DEBUGL >= 2
   printf("url:%s\nprotocol:%s\tip:%s\tport:%hd,path:%s\n",url, protocol, host, *port, path);
+#endif
 
 }
