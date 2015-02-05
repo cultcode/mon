@@ -110,13 +110,12 @@ if (debugl >= 3) {
     sockfd = -1;
   }
 
-#ifdef STANDALONE
-#else
+if(! standalone) {
   if(nsl->Status == FAIL) {
     fprintf(stderr,"GetNodeStatusList() received FAIL: %s\n", nsl->StatusDesc);
     exit(1);
   }
-#endif
+}
 
 }
 

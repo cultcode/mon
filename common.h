@@ -2,8 +2,7 @@
 #define COMMON_H
 
 extern int debugl;
-
-//#define STANDALONE
+extern int standalone;
 
 extern long GetLocaltimeSeconds();
 

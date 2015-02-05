@@ -192,9 +192,9 @@ void ReportNodeStatus(struct NodeStatusList* nsl, struct NodeResourceStatus* nrs
     nrs->WanIpState
   );
 
-#ifdef STANDALONE
+if(standalone) {
   return;
-#endif
+}
 
   if(sockfd == -1) {
     sockfd = createHttp(ip,port,SOCK_STREAM);
@@ -220,7 +220,7 @@ void ReportNodeStatus(struct NodeStatusList* nsl, struct NodeResourceStatus* nrs
     nrs->StatusDesc
   );
 
-#if DEBUGL >= 3
+if (debugl >= 3) {
   printf("ReportNodeStatus()\n"
     "{"
     "\"Status\":%d,"
@@ -230,22 +230,20 @@ void ReportNodeStatus(struct NodeStatusList* nsl, struct NodeResourceStatus* nrs
     nrs->Status,
     nrs->StatusDesc
   );
-#endif
+}
 
   if(!strcasecmp(connection, "Close")){
     closeHttp(sockfd);
     sockfd = -1;
   }
 
-#ifdef STANDALONE
-#else
-#if DEBUGL >= 2
+if(!standalone) {
+if(debugl >= 2) {
     if(nrs->Status == FAIL) {
       fprintf(stderr,"ReportNodeStatus() received FAIL: %s\n", nrs->StatusDesc);
     //  exit(1);
     }
-#endif
-#endif
-
+}
+}
 }
 

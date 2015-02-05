@@ -28,6 +28,7 @@ int cpu_average_interval=1;  /*time interval to average */
 int mem_average_interval=1;  /*time interval to average */
 int dsk_average_interval=1;  /*time interval to average */
 int net_average_interval=1;  /*time interval to average */
+int standalone = 0;
 int debugl = 1;
 
 int main(int argc, char **argv)
@@ -44,8 +45,9 @@ int main(int argc, char **argv)
 //    char **h_addr_list;       /* list of addresses */
 //}
 
-  char* const short_options = "b:i:g:p:r:c:m:d:n:";  
+  char* const short_options = "a:b:i:g:p:r:c:m:d:n:";  
   struct option long_options[] = {  
+    { "standalone",  1,  NULL,  'a'},  
     { "debugl",  1,  NULL,  'b'},  
     { "init",  1,  NULL,  'i'},  
     { "get",  1,  NULL,  'g'},  
@@ -58,10 +60,7 @@ int main(int argc, char **argv)
     {  0,  0,  0,  0},  
   };
 
-#ifdef STANDALONE
-#else
   struct NodeStatus ns = {0};
-#endif
   struct NodeStatusList nsl = {0};
   struct NodeResourceStatus nrs = {0};
 
@@ -74,6 +73,9 @@ int main(int argc, char **argv)
  ********************************************************/
   while ( -1 != (i = getopt_long(argc, argv, short_options, long_options, NULL))) {
     switch (i) {
+    case 'a':
+      standalone = atoi(optarg);
+      break;
     case 'b':
       debugl = atoi(optarg);
       break;
@@ -130,27 +132,26 @@ if (debugl >= 1) {
 /********************************************************
  * InitNodeStatus
  ********************************************************/
-#ifdef STANDALONE
-#else
+if(!standalone){
   InitNodeStatus(&ns, url[0]);
-#endif
+}
 
 
 /********************************************************
  * GetNodeStatusList
  ********************************************************/
 
-#ifdef STANDALONE
+if(standalone){
   strcpy(nsl.WanIp, "192.168.8.72");
   strcpy(nsl.LanIp, "192.168.8.72");
   nsl.WanPort = 22;
   nsl.LanPort = 22;
   strcpy(nsl.HomeDir, "/");
 
-#else
+} else {
 
   GetNodeStatusList(&ns, &nsl, url[1]);
-#endif
+}
 
 
 /********************************************************

@@ -103,13 +103,12 @@ if (debugl >= 3) {
     sockfd = -1;
   }
 
-#ifdef STANDALONE
-#else
+if(!standalone) {
   if(ns->Status == FAIL) {
     fprintf(stderr,"InitNodeStatus() received FAIL: %s\n", ns->StatusDesc);
     exit(1);
   }
-#endif
+}
 
 }
 
