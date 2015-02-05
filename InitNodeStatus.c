@@ -69,9 +69,9 @@ void InitNodeStatus(struct NodeStatus* ns, char* url)
   memset(content, 0, sizeof(content));
   recvHttp(sockfd,content);
 
-#if DEBUGL >= 3
+if (debugl >= 3) {
   printf("InitNodeStatus() http content received:\n%s\n",content);
-#endif
+}
 
   ret = sscanf(content,
     "{"
@@ -84,7 +84,7 @@ void InitNodeStatus(struct NodeStatus* ns, char* url)
     &ns->NodeId
   );
 
-#if DEBUGL >= 3
+if (debugl >= 3) {
   printf("InitNodeStatus()\n"
     "{"
     "\"Status\":%d,"
@@ -96,7 +96,7 @@ void InitNodeStatus(struct NodeStatus* ns, char* url)
     ns->StatusDesc,
     ns->NodeId
   );
-#endif
+}
 
   if(!strcasecmp(connection, "Close")){
     closeHttp(sockfd);

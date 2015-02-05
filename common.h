@@ -1,7 +1,8 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-#define DEBUGL 1
+extern int debugl;
+
 //#define STANDALONE
 
 extern long GetLocaltimeSeconds();

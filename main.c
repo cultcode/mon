@@ -28,6 +28,7 @@ int cpu_average_interval=1;  /*time interval to average */
 int mem_average_interval=1;  /*time interval to average */
 int dsk_average_interval=1;  /*time interval to average */
 int net_average_interval=1;  /*time interval to average */
+int debugl = 1;
 
 int main(int argc, char **argv)
 {
@@ -43,8 +44,9 @@ int main(int argc, char **argv)
 //    char **h_addr_list;       /* list of addresses */
 //}
 
-  char* const short_options = "i:g:p:r:c:m:d:n:";  
+  char* const short_options = "b:i:g:p:r:c:m:d:n:";  
   struct option long_options[] = {  
+    { "debugl",  1,  NULL,  'i'},  
     { "init",  1,  NULL,  'i'},  
     { "get",  1,  NULL,  'g'},  
     { "report",  1,  NULL,  'p'},  
@@ -72,6 +74,9 @@ int main(int argc, char **argv)
  ********************************************************/
   while ( -1 != (i = getopt_long(argc, argv, short_options, long_options, NULL))) {
     switch (i) {
+    case 'b':
+      debugl = atoi(optarg);
+      break;
     case 'i':
       strcpy(url[0], optarg);
       break;
@@ -98,9 +103,9 @@ int main(int argc, char **argv)
       break;
     }
   }
-#if DEBUGL >= 3
+if (debugl >= 3) {
   printf("init url: %s\n, get url: %s\n, report url: %s\n, refresh interval %d\n, cpu_average_interval %d\n, mem_average_interval %d\n, dsk_average_interval %d\n, net_average_interval %d\n",url[0], url[1], url[2], refresh_interval, cpu_average_interval, mem_average_interval, dsk_average_interval, net_average_interval);
-#endif
+}
 
 
 #if 0

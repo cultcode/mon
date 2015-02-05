@@ -15,9 +15,9 @@ long GetLocaltimeSeconds()
   t += tv.tv_sec;
   t -= tz.tz_minuteswest*60;
 
-#if DEBUGL >= 3
+if (debugl >= 3) {
   printf("GetLocaltimeSeconds() %ld %#lx\n",t,t);
-#endif
+}
 
   return t;
 }
@@ -79,8 +79,8 @@ void ParseUrl(char * url, char * protocol, char * host, short * port, char* path
     j++;
   }
 
-#if DEBUGL >= 3
+if (debugl >= 3) {
   printf("url:%s\nprotocol:%s\tip:%s\tport:%hd,path:%s\n",url, protocol, host, *port, path);
-#endif
+}
 
 }

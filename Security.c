@@ -1,6 +1,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
+#include "common.h"
 #include "openssl/des.h"
 #include "openssl/bio.h"
 #include "openssl/evp.h"
@@ -15,9 +16,9 @@ static int DesCbcEncode(char* enckey, char* encIv, char *input,  char *output, i
   unsigned int data_rst=0,encdata_len=0,txtdata_len=0;
   size_t i=0,count=0;
        
-#if DEBUGL >= 3
+if (debugl >= 3) {
   printf("3des cbc encode, original length is %d\n",length);
-#endif
+}
 
   //deal key
   if(strlen(enckey) >= LEN_OF_KEY)
@@ -92,9 +93,9 @@ static int DesCbcDecode(char * deckey,char * decIv,char * input, char *output, i
  
   size_t i=0,count=0;
 
-#if DEBUGL >= 3
+if (debugl >= 3) {
   printf("3des cbc decode, original length is %d\n",length);
-#endif
+}
 
   //deal key
   if(strlen(deckey) >= LEN_OF_KEY)
@@ -163,9 +164,9 @@ static int Base64Encode(const char* message, char** buffer, int length) { //Enco
 
   int encodeSize = 4*ceil((double)length/3);
 
-#if DEBUGL >= 3
+if (debugl >= 3) {
   printf("Base64Encode(), origian  is %d,processed length is %d \n",length,encodeSize);
-#endif
+}
 
   if((*buffer = malloc(encodeSize+1)) ==NULL) {
     perror("malloc() failed");
@@ -238,9 +239,9 @@ static int Base64Decode(char* b64message, char** buffer, int length) { //Decodes
   BIO_free_all(b64);
   fclose(stream);
 
-#if DEBUGL >= 3
+if (debugl >= 3) {
   printf("Base64Decode(), origian length is %d,processed length is %d\n",length ,decodeSize);
-#endif
+}
 
   return decodeSize; //success
 }
@@ -251,9 +252,9 @@ int ContentEncode(char* enckey, char* encIv, char *input, char **output, int len
   int length_after_b64=0;
   char * middle=NULL;
 
-#if DEBUGL >= 3
+if (debugl >= 3) {
   printf("ContentEncode(), origian length is %d string is \n%s\n",length ,input);
-#endif
+}
 
   if((middle = malloc(length)) == NULL) {
     perror("malloc() failed");
@@ -281,9 +282,9 @@ int ContentDecode(char * deskey,char * desIv,char * input, char **output, int le
   int length_after_des=0;
   char * middle=NULL;
 
-#if DEBUGL >= 3
+if (debugl >= 3) {
   printf("ContentDecode(), origian length is %d string is \n%s\n",length ,input);
-#endif
+}
 
   length_after_b64 = Base64Decode(input, &middle, length);
 

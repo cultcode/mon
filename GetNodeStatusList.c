@@ -60,9 +60,9 @@ void GetNodeStatusList(struct NodeStatus* ns, struct NodeStatusList* nsl, char *
   memset(content, 0, sizeof(content));
   recvHttp(sockfd,content);
 
-#if DEBUGL >= 3
+if (debugl >= 3) {
   printf("GetNodeStatusList() http content received:\n%s\n",content);
-#endif
+}
 
   ret = sscanf(content,
     "{"
@@ -83,7 +83,7 @@ void GetNodeStatusList(struct NodeStatus* ns, struct NodeStatusList* nsl, char *
     &nsl->WanPort
   );
 
-#if DEBUGL >= 3
+if (debugl >= 3) {
   printf("GetNodeStatusList()\n"
     "{"
     "\"Status\":%d,"
@@ -103,7 +103,7 @@ void GetNodeStatusList(struct NodeStatus* ns, struct NodeStatusList* nsl, char *
     nsl->LanPort,
     nsl->WanPort
   );
-#endif
+}
 
   if(!strcasecmp(connection, "Close")){
     closeHttp(sockfd);

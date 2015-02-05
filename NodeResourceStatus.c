@@ -53,9 +53,9 @@ int found=0;
     proc[num].size +=1024;
     proc[num].buf = realloc(proc[num].buf,proc[num].size);
     rewind(proc[num].fp);
-#if DEBUGL >= 3
+if (debugl >= 3) {
     printf("\n\n+++++++++++++++++++++++++++++++++++++++++++++++1\n\n");
-#endif
+}
   }
 
   proc[num].buf[size]=0;
@@ -647,10 +647,10 @@ void socket_net(struct net_data *data)
         //p->ifnets[i].duplex = DUPLEX_UNKNOWN;
         //perror("socket");
         //exit(EXIT_FAILURE);
-#if DEBUGL >= 2
+if (debugl >= 2) {
         perror("ioctl SIOCETHTOOL");
         fprintf(stderr,"WARNING: ethtool cant report bandwidth/duplex of NIC %s\n",p->ifnets[i].if_name);
-#endif
+}
 
         pa[i].bandwidth = -1L;
         pa[i].duplex= DUPLEX_UNKNOWN;
@@ -909,10 +909,10 @@ void GetCpuState(struct cpu_data * data,struct proc * proc){
   cpu_idle = p->cpu_total.idle - q->cpu_total.idle; 
   cpu_usage = (cpu_sum-cpu_idle)*100.0/cpu_sum;
   
-#if DEBUGL >= 3
+if (debugl >= 3) {
   printf("\nCpu_usage  Cpu_sum(jiffies),Cpu_idle(jiffies)\n");
   printf("%.1f%%\t%lld\t%lld\n",cpu_usage,cpu_sum,cpu_idle);
-#endif
+}
 
   pa->total_usage = cpu_usage;
 
@@ -931,9 +931,9 @@ void GetFsState(struct dsk_data *data) {
  ********************************************************/
   data->jfses = jfs_load(data->jfs,LOAD);
 
-#if DEBUGL >= 3
+if (debugl >= 3) {
   printf("\nfstatfs()\nDevice Usage Free(MB) Sum(MB)\n");
-#endif
+}
   for (k = 0; k < data->jfses; k++) {
 
     //printf("filesystem %s mounted on %s\n", jfs[k].device, jfs[k].name); 
@@ -962,9 +962,9 @@ void GetFsState(struct dsk_data *data) {
     data->jfs[k].free  = fs_free;
     data->jfs[k].usage = fs_size?((fs_size-fs_free)*100/fs_size):0;
 
-#if DEBUGL >= 3
+if (debugl >= 3) {
     printf("%s\t%.1f%%\t%.1f\t%.1f\n",data->jfs[k].device,data->jfs[k].usage, data->jfs[k].free, data->jfs[k].size);
-#endif
+}
   }
 
   jfs_load(data->jfs,UNLOAD);
@@ -1023,9 +1023,9 @@ void GetDiskState(struct dsk_data *data){
     } 
 
     if(i >= data->disks){
-#if DEBUGL >= 2
+if (debugl >= 2) {
       fprintf(stderr,"WARNING: can't find  %s\tfrom /proc/diskstats\n",dk_name);
-#endif
+}
       continue;
       //exit(1);
     }
@@ -1043,7 +1043,7 @@ void GetDiskState(struct dsk_data *data){
 //    total_disk_write +=disk_write;
 //    total_disk_xfers +=disk_xfers;
 
-#if DEBUGL >= 3
+if (debugl >= 3) {
     printf("\n/proc/diskstats\nDiskName Busy Read(KB/s) Write(KB/s) Xfers(t/s)\n");
     printf("%s %3.1f%% %8.1f %8.1f %8.1f\n",
       p->dk[i].dk_name, 
@@ -1051,7 +1051,7 @@ void GetDiskState(struct dsk_data *data){
       disk_read,
       disk_write,
       disk_xfers / elapsed);
-#endif
+}
 
     data->jfs[k].io = disk_busy;
 
@@ -1097,10 +1097,10 @@ void GetMemState(struct mem_data *data,struct proc * proc) {
   mem_free = p->mem_stat.memfree + p->mem_stat.buffers + p->mem_stat.cached;
   mem_usage = (mem_total-mem_free)*100.0/mem_total;
 
-#if DEBUGL >= 3
+if (debugl >= 3) {
   printf("\nMemory_usage Sum(KB) Free(KB) (free(KB) + buffers(KB) + cached(KB))\n");
   printf("%.1f%%\t%lld\t%lld(%lld + %lld +%lld)\n",mem_usage, mem_total, mem_free, p->mem_stat.memfree, p->mem_stat.buffers, p->mem_stat.cached);
-#endif
+}
   
   pa->usage =  mem_usage;
 }
@@ -1134,9 +1134,9 @@ void GetNetworkState(struct net_data *data) {
 
   proc_net(data);
 
-#if DEBUGL >= 3
+if (debugl >= 3) {
   printf("\n/proc/net/dev\nIF_Name Recv=Kb/s Trans=Kb/s packin(p/s) packout(p/s) inpacksize(B) outpacksize(B) Peak->Recv(Kb/s) Peak->Trans(Kb/s)\n");
-#endif
+}
   for(j=0; j<data->nets; j++) {
     for(i=0; i<data->networks; i++) {
       if(!strcmp(pa[j].name, p->ifnets[i].if_name)) {
@@ -1166,7 +1166,7 @@ void GetNetworkState(struct net_data *data) {
       pa[j].peak_o = pa[j].speed_ob;
     }
 
-#if DEBUGL >= 3
+if (debugl >= 3) {
         printf("%s\t%.1f\t%.1f\t%.1f\t%.1f\t%.1f\t%.1f\t%.1f\t%.1f\n",
         pa[j].name,
         pa[j].speed_ib*8/1024,
@@ -1178,7 +1178,7 @@ void GetNetworkState(struct net_data *data) {
         pa[j].peak_i*8/1024,
         pa[j].peak_o*8/1024
       );
-#endif
+}
 
   //    if(!strcmp(pa[i].ip, ip)) {
   //      break;
@@ -1192,13 +1192,13 @@ void GetNetworkState(struct net_data *data) {
 
   }
 
-#if DEBUGL >= 3
+if (debugl >= 3) {
   printf("\nioctl():\nI/F_Name Flags Bandwidth(Mb) Duplex Ip Ipstate Usage\n");
-#endif
+}
 
   for(j=0; j<data->nets; j++) {
 
-#if DEBUGL >= 3
+if (debugl >= 3) {
     printf("%s\t%hd\t%ld\t%d\t%s\t%7.3f%%\n",
         pa[j].name,
         pa[j].flags,
@@ -1207,7 +1207,7 @@ void GetNetworkState(struct net_data *data) {
         pa[j].ip,
         pa[j].usage
     );
-#endif
+}
   }
 
 }
@@ -1247,9 +1247,9 @@ unsigned long long GetCurrentConn(char* ip_char, short port){
 
   cons = proc_cons("tcp",ip_int,port);
 
-#if DEBUGL >= 3
+if (debugl >= 3) {
   printf("\nNumber of conncetions to (ip: %s(%#x) port: %d(%#x)) is %llu\n",ip_char, ip_int, port,port, cons);
-#endif
+}
 
   return cons;
 }

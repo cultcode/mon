@@ -74,9 +74,9 @@ void sendHttp(int sockfd,char * url, char * connection, char * input)
 //    exit(1);
 //  }
 
-#if DEBUGL >= 1
+if (debugl >= 1) {
   printf("HTTP content to  send:%s\n", input);
-#endif
+}
 
   length = ContentEncode(NODE_3DES_KEY, NODE_3DES_IV, input, &cipher, strlen(input));
 
@@ -130,18 +130,18 @@ void sendHttp(int sockfd,char * url, char * connection, char * input)
 
 //  printf("sendline:\n%s\n", sendline);
 
-#if DEBUGL >= 3
+if (debugl >= 3) {
   printf("sendline:\n%s\n", sendline);
-#endif
+}
 
   ret = write(sockfd,sendline,strlen(sendline));
   if (ret < 0) {
           perror("write() The following error occurred");
           exit(1);
   }else{
-#if DEBUGL >= 3
+if (debugl >= 3) {
           printf("Successfully, %d bytes content has been sent!\n", ret);
-#endif
+}
   }
 }
 
@@ -167,9 +167,9 @@ void recvHttp(int sockfd, char* output)
     exit(1);
   }
 
-#if DEBUGL >= 3
+if (debugl >= 3) {
   printf("recvline:\n%s\n",recvline);
-#endif
+}
 
   if((content = strstr(recvline, newline)) == NULL) {
     fprintf(stderr,"strstr failed, string is\n%s\n",recvline);
@@ -183,9 +183,9 @@ void recvHttp(int sockfd, char* output)
   memcpy(output, plain, length);
   output[length] = 0;
 
-#if DEBUGL >= 1
+if (debugl >= 1) {
   printf("HTTP content received:%s\n", output);
-#endif
+}
 
   free(plain);
 

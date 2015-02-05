@@ -60,12 +60,12 @@ void GetFsDiskConcernedState(struct dsk_data * data, char *HomeDir, long long *D
     *DiskTotalSpace = 0;
     *DiskFreeSpace  = 0;
     *IoUsage        = 0;
-#if DEBUGL >= 2
+if (debugl >= 2) {
     fprintf(stderr,"WARNING: can't find directory %s from fstatfs()\n",HomeDir);
 //#elif DEBUGL <= 1
 //    fprintf(stderr,"ERROR: can't find directory %s from fstatfs()\n",HomeDir);
 //    exit(1);
-#endif
+}
   }
 }
 
