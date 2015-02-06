@@ -1189,7 +1189,7 @@ if (debugl >= 3) {
     pa[j].size_i   = IFDELTA_ZERO(if_ibytes, if_ipackets);
     pa[j].size_o   = IFDELTA_ZERO(if_obytes, if_opackets);
 
-    pa[j].usage = (/*MAX(pa[i].speed_ib,*/ pa[i].speed_ob/*)*/*8*100)/(pa[i].bandwidth*1000*1000);
+    pa[j].usage = (pa[i].bandwidth <= 0) ? 0:(/*MAX(pa[i].speed_ib,*/ pa[i].speed_ob/*)*/*8*100)/(pa[i].bandwidth*1000*1000);
 
     if (pa[j].peak_i < pa[j].speed_ib) {
       pa[j].peak_i = pa[j].speed_ib;
