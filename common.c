@@ -4,6 +4,22 @@
 #include <sys/time.h>
 #include "common.h"
 
+
+void StripNewLine(char *buf)
+{
+  int i=0;
+  //strip the character of line feed / carrier return
+  for (i = (strlen(buf) -1); i>=0; i--) {
+    if((buf[i] == '\n') || (buf[i] == '\r')) {
+      buf[i] = 0;
+    }
+    else {
+      break;
+    }
+  }
+
+}
+
 long GetLocaltimeSeconds()
 {
   long t=0;
@@ -27,6 +43,10 @@ void ParseUrl(char * url, char * protocol, char * host, short * port, char* path
   int state = 0;
 
   *port = 0;
+
+  if(protocol == NULL) {
+    state = 1;
+  }
 
   //http://192.168.8.224:9000/ndas/NodeResMonServerInit
   while(url[j]) {

@@ -45,7 +45,7 @@ int main(int argc, char **argv)
 //    char **h_addr_list;       /* list of addresses */
 //}
 
-  char* const short_options = "a:b:i:g:p:r:c:m:d:n:";  
+  char* const short_options = "a:b:i:g:p:r:c:m:d:n:w:l:h:";  
   struct option long_options[] = {  
     { "standalone",  1,  NULL,  'a'},  
     { "debugl",  1,  NULL,  'b'},  
@@ -57,6 +57,9 @@ int main(int argc, char **argv)
     { "mem_average_interval",  1,  NULL,  'm'},  
     { "dsk_average_interval", 1,  NULL,  'd'},  
     { "net_average_interval",  1,  NULL,  'n'},  
+    { "wanip",  1,  NULL,  'w'},  
+    { "lanip",  1,  NULL,  'l'},  
+    { "homedir",  1,  NULL,  'h'},  
     {  0,  0,  0,  0},  
   };
 
@@ -103,12 +106,24 @@ int main(int argc, char **argv)
     case 'n':
       net_average_interval = atoi(optarg);
       break;
+    case 'w':
+      standalone  = 1;
+      ParseUrl(optarg,NULL,nsl.WanIp,&nsl.WanPort,NULL);
+      break;
+    case 'l':
+      standalone  = 1;
+      ParseUrl(optarg,NULL,nsl.LanIp,&nsl.LanPort,NULL);
+      break;
+    case 'h':
+      standalone  = 1;
+      strcpy(nsl.HomeDir, optarg);
+      break;
     }
   }
-if (debugl >= 1) {
-  printf("debugl: %d\ninit url: %s\nget url: %s\nreport url: %s\nrefresh interval %d\ncpu_average_interval %d\nmem_average_interval %d\ndsk_average_interval %d\nnet_average_interval %d\n",debugl, url[0], url[1], url[2], refresh_interval, cpu_average_interval, mem_average_interval, dsk_average_interval, net_average_interval);
-}
 
+if (debugl >= 1) {
+  printf("debugl: %d\ninit url: %s\nget url: %s\nreport url: %s\nrefresh interval %d\ncpu_average_interval %d\nmem_average_interval %d\ndsk_average_interval %d\nnet_average_interval %d\nwanip:%s, wanport %hd, lanip %s, lanport %hd, homedir %s\n",debugl, url[0], url[1], url[2], refresh_interval, cpu_average_interval, mem_average_interval, dsk_average_interval, net_average_interval,nsl.WanIp,nsl.WanPort,nsl.LanIp,nsl.LanPort,nsl.HomeDir);
+}
 
 #if 0
   else if((hptr = geturlbyname(host[0])) == NULL) {
@@ -133,6 +148,7 @@ if (debugl >= 1) {
  * InitNodeStatus
  ********************************************************/
 if(!standalone){
+
   InitNodeStatus(&ns, url[0]);
 }
 
@@ -141,14 +157,7 @@ if(!standalone){
  * GetNodeStatusList
  ********************************************************/
 
-if(standalone){
-  strcpy(nsl.WanIp, "192.168.8.72");
-  strcpy(nsl.LanIp, "192.168.8.72");
-  nsl.WanPort = 22;
-  nsl.LanPort = 22;
-  strcpy(nsl.HomeDir, "/");
-
-} else {
+if(!standalone){
 
   GetNodeStatusList(&ns, &nsl, url[1]);
 }
