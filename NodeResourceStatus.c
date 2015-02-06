@@ -940,7 +940,8 @@ void GetCpuState(struct cpu_data * data,struct proc * proc){
   cpu_usage = (cpu_sum-cpu_idle)*100.0/cpu_sum;
   
 if (debugl >= 3) {
-  printf("\nCpu_usage  Cpu_sum(jiffies),Cpu_idle(jiffies)\n");
+  printf("\n/proc/stat\n");
+  printf("Cpu_usage  Cpu_sum(jiffies),Cpu_idle(jiffies)\n");
   printf("%.1f%%\t%lld\t%lld\n",cpu_usage,cpu_sum,cpu_idle);
 }
 
@@ -1131,7 +1132,8 @@ void GetMemState(struct mem_data *data,struct proc * proc) {
   mem_usage = (mem_total-mem_free)*100.0/mem_total;
 
 if (debugl >= 3) {
-  printf("\nMemory_usage Sum(KB) Free(KB) (free(KB) + buffers(KB) + cached(KB))\n");
+  printf("\n/proc/meminfo\n");
+  printf("Memory_usage Sum(KB) Free(KB) (free(KB) + buffers(KB) + cached(KB))\n");
   printf("%.1f%%\t%lld\t%lld(%lld + %lld +%lld)\n",mem_usage, mem_total, mem_free, p->mem_stat.memfree, p->mem_stat.buffers, p->mem_stat.cached);
 }
   
