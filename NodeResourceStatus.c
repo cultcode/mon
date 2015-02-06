@@ -56,7 +56,7 @@ int found=0;
     proc[num].size +=1024;
     proc[num].buf = realloc(proc[num].buf,proc[num].size);
     rewind(proc[num].fp);
-if (debugl >= 3) {
+if (debugl >= 4) {
     printf("\n\n+++++++++++++++++++++++++++++++++++++++++++++++1\n\n");
 }
   }
@@ -1038,6 +1038,10 @@ void GetDiskState(struct dsk_data *data){
 
   proc_disk(data);
 
+if (debugl >= 3) {
+    printf("\n/proc/diskstats\nDiskName Busy Read(KB/s) Write(KB/s) Xfers(t/s)\n");
+}
+
   for (k = 0; k < data->jfses; k++) {
     dk_name = strrchr(data->jfs[k].device,'/');
 
@@ -1074,7 +1078,6 @@ if (debugl >= 2) {
 //    total_disk_xfers +=disk_xfers;
 
 if (debugl >= 3) {
-    printf("\n/proc/diskstats\nDiskName Busy Read(KB/s) Write(KB/s) Xfers(t/s)\n");
     printf("%s %3.1f%% %8.1f %8.1f %8.1f\n",
       p->dk[i].dk_name, 
       disk_busy,
