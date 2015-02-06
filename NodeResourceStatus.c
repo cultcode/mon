@@ -724,7 +724,7 @@ void sys_net(struct net_data *data)
           exit(1);
         }
 
-        pa[i].bandwidth += pa[j].bandwidth;
+        pa[i].bandwidth += MAX(pa[j].bandwidth,0);
         result = strtok(NULL, delims);
       }
 

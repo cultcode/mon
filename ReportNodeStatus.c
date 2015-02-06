@@ -129,6 +129,11 @@ void ReportNodeStatus(struct NodeStatusList* nsl, struct NodeResourceStatus* nrs
 
   memset(content, 0, sizeof(content));
 
+if(debugl >= 3) {
+  printf("====================================================================================\n");
+  printf("===========================   ReportNodeStatus() START   ===========================\n");
+  printf("====================================================================================\n");
+}
   proc_init(proc);
 
   nrs->EpochTime = GetLocaltimeSeconds();

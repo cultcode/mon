@@ -31,7 +31,7 @@ long GetLocaltimeSeconds()
   t += tv.tv_sec;
   t -= tz.tz_minuteswest*60;
 
-if (debugl >= 3) {
+if (debugl >= 4) {
   printf("GetLocaltimeSeconds() %ld %#lx\n",t,t);
 }
 
