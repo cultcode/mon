@@ -57,7 +57,7 @@ int found=0;
     proc[num].buf = realloc(proc[num].buf,proc[num].size);
     rewind(proc[num].fp);
 if (debugl >= 4) {
-    printf("\n\n+++++++++++++++++++++++++++++++++++++++++++++++1\n\n");
+    printf("the %d(th) time to fread %s\n", i,proc[num].filename);
 }
   }
 
