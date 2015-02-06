@@ -16,6 +16,8 @@
 #define PATH_LEN 256
 #define URL_LEN 256
 
+#define FILE_LINE_BUFFER 1024
+#define FN_LEN 1024
 #define NODENAME_LEN 128
 #define VERSION_LEN 32
 #define VERSION "1.0"

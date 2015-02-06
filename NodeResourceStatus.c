@@ -21,6 +21,9 @@
 #include "SocketHttp.h"
 #include "NodeStatus.h"
 #include "NodeResourceStatus.h"
+#include <dirent.h>
+#include <ifaddrs.h>
+#include <netdb.h>
 
 void proc_read(struct proc *proc, int num)
 {
@@ -561,146 +564,171 @@ void proc_mem(struct mem_stats *p, struct proc * proc)
   p->mem_stat.cached     = proc_mem_search("Cached",proc);
 }
 
-void socket_net(struct net_data *data)
+void sys_net_single_para(char * nic, char * parameter, char * buf)
 {
-    int i=0, j=0;
-    int fd=-1;         //socket fd
-    int count=0;
-    struct ifconf ifc={0};
-    struct ifreq req[NETMAX];
-    struct ethtool_cmd  cmd={0};
+  int size=0;
+  FILE * fd = NULL;
+  char fn[FN_LEN] = {0};
+  char fn_header[FN_LEN] = "/sys/class/net/";
 
-    struct net_stats *p = data->p;
-    struct net_param *pa=(struct net_param *)&data->net_param;
-  
-    FILE *fd_slaves = NULL;
-    char fn_slaves[128]={0};
-    char buf[1024] = {0};
-    char delims[] = " ";
-    char *result = NULL;
+  memset(buf,0,FILE_LINE_BUFFER);
 
-    //if(ifc.ifc_len != 0) goto init_nic_end;
+  strcpy(fn, fn_header);
+  strcat(fn, nic);
+  strcat(fn, "/");
+  strcat(fn, parameter);
 
-    ifc.ifc_len = NETMAX*sizeof(struct ifreq);
-    memset(req, 0, ifc.ifc_len);
-    ifc.ifc_req = req;
+  if((fd = fopen(fn, "r")) == NULL) {
+    perror("fopen");
+    fprintf(stderr, "%s\n",fn);
+    exit(1);
+  }
 
-    //create socket fd
-    if ((fd = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
-    {
-      perror("The following error occurred");
-      exit(1);
-    }
+  size = fread(buf, 1, FILE_LINE_BUFFER-1, fd);
 
-    //get nics
-    if (ioctl(fd, SIOCGIFCONF, &ifc) < 0)
-    {
-      perror("The following error occurred");
-      exit(1);
-    }
+  if(ferror(fd)) {
+    fprintf(stderr, "WARNING: fread() %s\n",fn);
 
-    count = ifc.ifc_len/sizeof(struct ifreq);
-    data->nets = count;
+    clearerr(fd);
+    //exit(1);
+  }
 
+  fclose(fd);
 
-    for (i=0; i<data->nets; i++)
-    {
-
-//      for(j=0;j<networks;j++) {
-//        if(!strcmp(p->ifnets[j].if_name,ifc.ifc_req[i].ifr_name)) break;
-//      }
-//
-//      if(j>=networks) {
-//        fprintf(stderr,"can't find NIC %s in /proc/net/dev\n",ifc.ifc_req[i].ifr_name);
-//        exit(1);
-//      }
-
-      strcpy(pa[i].name,ifc.ifc_req[i].ifr_name);
-
-      if(ioctl(fd,SIOCGIFADDR,ifc.ifc_req+i)<0){
-        perror("ioctl error");
-        exit(1);
-      }       
-      else {
-        strcpy(pa[i].ip, inet_ntoa(((struct sockaddr_in*)&((ifc.ifc_req+i)->ifr_addr))->sin_addr));
-      }
-
-      if(ioctl(fd, SIOCGIFFLAGS, ifc.ifc_req+i) < 0) {
-        perror("The following error occurred");
-        exit(1);
-      }
-      else {
-        pa[i].flags = (ifc.ifc_req+i)->ifr_flags;
-      }
-
-      //if it's MASTER, don't call ethtool to get bandwidth
-      if(pa[i].flags & IFF_MASTER) {
-        continue;
-      }
-
-      (ifc.ifc_req+i)->ifr_data = (void *)&cmd;
-      cmd.cmd = ETHTOOL_GSET; /* "Get settings" */
-
-      if (ioctl(fd, SIOCETHTOOL, ifc.ifc_req+i) == -1) {
-        /* Unknown */
-        //p->ifnets[i].bandwidth = -1L;
-        //p->ifnets[i].duplex = DUPLEX_UNKNOWN;
-        //perror("socket");
-        //exit(EXIT_FAILURE);
-if (debugl >= 2) {
-        perror("ioctl SIOCETHTOOL");
-        fprintf(stderr,"WARNING: ethtool cant report bandwidth/duplex of NIC %s\n",p->ifnets[i].if_name);
+  return;
 }
 
-        pa[i].bandwidth = -1L;
-        pa[i].duplex= DUPLEX_UNKNOWN;
-      } else {
-        pa[i].bandwidth = ethtool_cmd_speed(&cmd);
-        pa[i].duplex= cmd.duplex;
+void sys_net_single(struct net_param * pa)
+{
+  char buf[FILE_LINE_BUFFER] = {0};
+
+  sys_net_single_para(pa->name, "flags", buf);
+  pa->flags = strtol(buf,NULL,0);
+
+  sys_net_single_para(pa->name, "duplex", buf);
+  pa->duplex = strtol(buf,NULL,0);
+
+  sys_net_single_para(pa->name, "speed", buf);
+  pa->bandwidth = strtol(buf,NULL,0);
+
+}
+
+void sys_net(struct net_data *data)
+{
+  int i=0, j=0;
+  DIR *dirptr=NULL;
+  int count=0;
+  char buf[FILE_LINE_BUFFER] = {0};
+
+//  struct net_stats *p = data->p;
+  struct net_param *pa=(struct net_param *)&data->net_param;
+  struct dirent *entry=NULL;
+
+  char delims[] = " ";
+  char *result = NULL;
+
+  struct ifaddrs *ifaddr=NULL, *ifa=NULL;
+  int family=0, s=0;
+  char host[NI_MAXHOST]={0};
+
+  if((dirptr = opendir("/sys/class/net"))==NULL)
+  {
+    printf("opendir()");
+    exit(1);
+  }
+
+  while((entry=(readdir(dirptr))))
+  {
+    if(!strncmp(entry->d_name ,".",1)) continue;
+    if(!(entry->d_type & DT_LNK)) continue;
+
+    strcpy(pa[count].name,entry->d_name);
+
+    sys_net_single(pa+count);
+
+    count++;
+  }
+
+  data->nets = count;
+  closedir(dirptr);
+
+  if(!data->nets) {
+    fprintf(stderr,"ERROR: readdir /sys/class/net failed\n");
+    exit(1);
+  }
+
+  if (getifaddrs(&ifaddr) == -1) {
+     perror("getifaddrs");
+     exit(1);
+  }
+
+  /* Walk through linked list, maintaining head pointer so we
+     can free list later */
+
+  for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next) {
+    if (ifa->ifa_addr == NULL)
+      continue;
+
+    family = ifa->ifa_addr->sa_family;
+
+    /* For an AF_INET* interface address, display the address */
+
+    if (family == AF_INET /*|| family == AF_INET6*/) {
+      s = getnameinfo(ifa->ifa_addr,
+          (family == AF_INET) ? sizeof(struct sockaddr_in) :
+                    sizeof(struct sockaddr_in6),
+          host, NI_MAXHOST,
+          NULL, 0, NI_NUMERICHOST);
+      if (s != 0) {
+        printf("getnameinfo() failed: %s\n", gai_strerror(s));
+        freeifaddrs(ifaddr);
+        exit(EXIT_FAILURE);
       }
+
+      for(j=0; j<data->nets; j++)
+      {
+        if(strcmp(pa[j].name, ifa->ifa_name)) continue;
+
+        strcpy(pa[j].ip,host);
+        break;
+      }
+
+      if(j >= data->nets) {
+        fprintf(stderr,"ERROR: can't find NIC %s from /sys/class/net/",ifa->ifa_name);
+        freeifaddrs(ifaddr);
+        exit(1);
+      }
+
     }
 
-    for (i=0; i<data->nets; i++)
-    {
-      if(pa[i].flags & IFF_MASTER) {
-        strcpy(fn_slaves, "/sys/class/net/");
-        strcat(fn_slaves, pa[i].name);
-        strcat(fn_slaves, "/bonding/slaves");
+  }
 
-        fd_slaves = fopen(fn_slaves, "r");
+  freeifaddrs(ifaddr);
 
-        if (fd_slaves == NULL) {
-            perror("Can't open /sys/class/net/xx/bonding/slaves for bond interface");
-            exit(1);
+  for (i=0; i<data->nets; i++)
+  {
+    if(pa[i].flags & IFF_MASTER) {
+      sys_net_single_para(pa[i].name, "bonding/slaves", buf);
+
+      result = strtok(buf, delims);
+
+      while (result != NULL) {
+        for(j=0;j<data->nets;j++) {
+          if(!strcmp(result, pa[j].name)) break;
         }
 
-        if(fgets(buf, sizeof(buf), fd_slaves) == NULL) {
-          perror("fgets()");
+        if(j >= data->nets) {
+          fprintf(stderr,"ERROR: can't find nic %s\n",result);
           exit(1);
         }
 
-        result = strtok(buf, delims);
-
-        while (result != NULL) {
-          for(j=0;j<data->nets;j++) {
-            if(!strcmp(result, pa[j].name)) break;
-          }
-
-          if(j >= data->nets) {
-            fprintf(stderr,"ERROR: can't find nic %s\n",result);
-            exit(1);
-          }
-
-          pa[i].bandwidth += pa[j].bandwidth;
-          result = strtok(NULL, delims);
-        }
-
-      fclose(fd_slaves);
-      fd_slaves = NULL;
+        pa[i].bandwidth += pa[j].bandwidth;
+        result = strtok(NULL, delims);
       }
-    }
 
-    close(fd);
+    }
+  }
+
 }
 
 void proc_net(struct net_data *data)
@@ -1115,7 +1143,7 @@ void GetNetworkState(struct net_data *data) {
 /********************************************************
  * net statistics 
  ********************************************************/
-  socket_net(data);
+  sys_net(data);
 
   if(data->p == NULL) {
     data->p = &data->net_stats[0];
