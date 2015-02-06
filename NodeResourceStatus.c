@@ -1226,7 +1226,7 @@ if (debugl >= 3) {
   }
 
 if (debugl >= 3) {
-  printf("\nioctl():\nI/F_Name Flags Bandwidth(Mb) Duplex Ip Ipstate Usage\n");
+  printf("\n/proc/class/net\nI/F_Name Flags Bandwidth(Mb) Duplex Ip Ipstate Usage\n");
 }
 
   for(j=0; j<data->nets; j++) {
@@ -1281,7 +1281,8 @@ unsigned long long GetCurrentConn(char* ip_char, short port){
   cons = proc_cons("tcp",ip_int,port);
 
 if (debugl >= 3) {
-  printf("\nNumber of conncetions to (ip: %s(%#x) port: %d(%#x)) is %llu\n",ip_char, ip_int, port,port, cons);
+  printf("\n/proc/net/tcp\n");
+  printf("Number of conncetions to (ip: %s(%#x) port: %d(%#x)) is %llu\n",ip_char, ip_int, port,port, cons);
 }
 
   return cons;
