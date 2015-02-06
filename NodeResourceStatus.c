@@ -587,7 +587,9 @@ void sys_net_single_para(char * nic, char * parameter, char * buf)
   size = fread(buf, 1, FILE_LINE_BUFFER-1, fd);
 
   if(ferror(fd)) {
+if(debugl >= 2) {
     fprintf(stderr, "WARNING: fread() %s failed\n",fn);
+}
 
     clearerr(fd);
     //exit(1);
@@ -1134,7 +1136,7 @@ void GetMemState(struct mem_data *data,struct proc * proc) {
 if (debugl >= 3) {
   printf("\n/proc/meminfo\n");
   printf("Memory_usage Sum(KB) Free(KB) (free(KB) + buffers(KB) + cached(KB))\n");
-  printf("%.1f%%\t%lld\t%lld(%lld + %lld +%lld)\n",mem_usage, mem_total, mem_free, p->mem_stat.memfree, p->mem_stat.buffers, p->mem_stat.cached);
+  printf("%.1f%%\t%lld\t%lld(%lld + %lld + %lld)\n",mem_usage, mem_total, mem_free, p->mem_stat.memfree, p->mem_stat.buffers, p->mem_stat.cached);
 }
   
   pa->usage =  mem_usage;
