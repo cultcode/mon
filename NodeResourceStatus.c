@@ -639,8 +639,8 @@ void sys_net(struct net_data *data)
 
   while((entry=(readdir(dirptr))))
   {
+    if(!((entry->d_type == DT_DIR) || (entry->d_type == DT_LNK))) continue;
     if(!strncmp(entry->d_name ,".",1)) continue;
-    if(!(entry->d_type & DT_LNK)) continue;
 
     strcpy(pa[count].name,entry->d_name);
 
