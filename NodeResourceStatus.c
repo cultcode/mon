@@ -566,7 +566,7 @@ void proc_mem(struct mem_stats *p, struct proc * proc)
 
 void sys_net_single_para(char * nic, char * parameter, char * buf)
 {
-  int size=0;
+  int i=0,size=0;
   FILE * fd = NULL;
   char fn[FN_LEN] = {0};
   char fn_header[FN_LEN] = "/sys/class/net/";
@@ -594,6 +594,16 @@ void sys_net_single_para(char * nic, char * parameter, char * buf)
   }
 
   fclose(fd);
+
+  //strip the character of line feed / carrier return
+  for (i = (strlen(buf) -1); i>=0; i--) {
+    if((buf[i] == '\n') || (buf[i] == '\r')) {
+      buf[i] = 0;
+    }
+    else {
+      break;
+    }
+  }
 
   return;
 }
