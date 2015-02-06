@@ -41,42 +41,52 @@ if (debugl >= 4) {
 void ParseUrl(char * url, char * protocol, char * host, short * port, char* path) {
   int j=0, k=0;
   int state = 0;
+  char field[URL_LEN]={0};
 
   *port = 0;
-
-  if(protocol == NULL) {
-    state = 1;
-  }
 
   //http://192.168.8.224:9000/ndas/NodeResMonServerInit
   while(url[j]) {
     switch(state) {
       case 0://protocol
-        if(url[j] == ':') {
-          j+=2;
-          state = 1;
-          if(protocol) {protocol[k] = 0;}
+        if((url[j] == ':') || (url[j] == '/')) {
+          field[k] = 0;
           k=0;
-
+          if(strchr(field, '.')) {  //is host/host
+            if(host) {strcpy(host,field);}
+            if(url[j] == '/') {
+              state = 3;
+              j--;
+            }
+            else {
+              state = 2;
+            }
+          }
+          else {  // is protocol
+            if(protocol) {strcpy(protocol,field);}
+            j+=2;
+            state = 1;
+          }
         }
         else {
-          if(protocol) {protocol[k++] = url[j];}
+          field[k++] = url[j];
         }
         break;
       case 1://host
-        if(url[j] == ':') {
-          state = 2;
-          host[k] = 0;
+        if((url[j] == ':') || (url[j] == '/')) {
+          field[k] = 0;
           k = 0;
-        }
-        else if(url[j] == '/') {
-          state = 3;
-          j--;
-          host[k] = 0;
-          k = 0;
+          if(host) {strcpy(host,field);}
+          if(url[j] == '/') {
+            state = 3;
+            j--;
+          }
+          else {
+            state = 2;
+          }
         }
         else {
-          host[k++] = url[j];
+          field[k++] = url[j];
         }
         break;
       case 2://port
@@ -99,8 +109,13 @@ void ParseUrl(char * url, char * protocol, char * host, short * port, char* path
     j++;
   }
 
+  if(state == 1) {
+    field[k] = 0;
+    if(host) {strcpy(host,field);}
+  }
+
 if (debugl >= 3) {
-  printf("url:%s\nprotocol:%s\tip:%s\tport:%hd,path:%s\n",url, protocol, host, *port, path);
+  printf("url:%s\nprotocol:%s\thost:%s\tport:%hd,path:%s\n",url, protocol, host, *port, path);
 }
 
 }

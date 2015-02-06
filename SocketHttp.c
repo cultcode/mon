@@ -21,7 +21,7 @@ int createHttp(char * ip, short port, int type)
   servaddr.sin_port = htons(port);
 
   if( inet_pton(AF_INET, ip, &servaddr.sin_addr) <= 0){
-    perror("inet_pton() The following error occurred");
+    fprintf(stderr,"inet_pton() failed when convert ip:[%s]\n",ip);
     exit(1);
   }
 

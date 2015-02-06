@@ -1,7 +1,10 @@
 #ifndef COMMON_H
 #define COMMON_H
 
+#define URL_LEN 1024
+
 extern int debugl;
+
 extern int standalone;
 
 extern void StripNewLine(char *buf);

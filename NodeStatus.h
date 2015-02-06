@@ -14,7 +14,6 @@
 #define PORT_LEN 32
 #define HOST_LEN 64
 #define PATH_LEN 256
-#define URL_LEN 256
 
 #define FILE_LINE_BUFFER 1024
 #define FN_LEN 1024
