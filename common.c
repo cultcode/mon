@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>     /* strtol */
-#include <sys/time.h>
+#include <time.h>
 #include "common.h"
 
 
@@ -22,20 +22,14 @@ void StripNewLine(char *buf)
 
 long GetLocaltimeSeconds()
 {
-  long t=0;
-  struct timeval tv={0};
-  struct timezone tz={0};
+  time_t t=time(NULL);
 
-  gettimeofday(&tv,&tz);
-
-  t += tv.tv_sec;
-  t -= tz.tz_minuteswest*60;
-
+  t += servertimezone * 3600;
 if (debugl >= 4) {
   printf("GetLocaltimeSeconds() %ld %#lx\n",t,t);
 }
 
-  return t;
+  return (long)t;
 }
 
 void ParseUrl(char * url, char * protocol, char * host, short * port, char* path) {

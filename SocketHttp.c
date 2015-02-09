@@ -5,6 +5,7 @@
 #include <sys/socket.h>
 #include <sys/errno.h>
 #include <arpa/inet.h>
+#include <time.h>
 #include "SocketHttp.h"
 #include "NodeStatus.h"
 #include "Security.h"
@@ -62,6 +63,8 @@ void sendHttp(int sockfd,char * url, char * connection, char * input)
   char  port_char[PORT_LEN] = {0};
   int length = 0;
   int ret=-1;
+  char buf[128] = {0};
+  time_t t=time(NULL);
 
   ParseUrl(url, NULL, host, &port, path);
 
@@ -75,7 +78,8 @@ void sendHttp(int sockfd,char * url, char * connection, char * input)
 //  }
 
 if (debugl >= 1) {
-  printf("HTTP content to  send:%s\n", input);
+  strftime(buf, 64, "%Y-%m-%d %H:%M:%S", localtime(&t));  
+  printf("[%s] sent:\t%s\n",buf,input);
 }
 
   length = ContentEncode(NODE_3DES_KEY, NODE_3DES_IV, input, &cipher, strlen(input));
@@ -152,6 +156,8 @@ void recvHttp(int sockfd, char* output)
   char newline[]={'\r','\n','\r','\n','\0'};
   char * content=NULL;
   int length=0;
+  char buf[128] = {0};
+  time_t t=time(NULL);
 
   memset(recvline, 0, sizeof(recvline));
 
@@ -184,7 +190,8 @@ if (debugl >= 3) {
   output[length] = 0;
 
 if (debugl >= 1) {
-  printf("HTTP content received:%s\n", output);
+  strftime(buf, 64, "%Y-%m-%d %H:%M:%S", localtime(&t));  
+  printf("[%s] received:\t%s\n",buf, output);
 }
 
   free(plain);

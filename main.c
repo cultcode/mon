@@ -30,6 +30,7 @@ int dsk_average_interval=1;  /*time interval to average */
 int net_average_interval=1;  /*time interval to average */
 int standalone = 0;
 int debugl = 1;
+int servertimezone = 8;
 
 int main(int argc, char **argv)
 {
@@ -45,7 +46,7 @@ int main(int argc, char **argv)
 //    char **h_addr_list;       /* list of addresses */
 //}
 
-  char* const short_options = "a:b:i:g:p:r:c:m:d:n:w:l:h:";  
+  char* const short_options = "a:b:i:g:p:r:c:m:d:n:w:l:h:z:";  
   struct option long_options[] = {  
     { "standalone",  1,  NULL,  'a'},  
     { "debugl",  1,  NULL,  'b'},  
@@ -60,6 +61,7 @@ int main(int argc, char **argv)
     { "wanip",  1,  NULL,  'w'},  
     { "lanip",  1,  NULL,  'l'},  
     { "homedir",  1,  NULL,  'h'},  
+    { "zone",  1,  NULL,  'z'},  
     {  0,  0,  0,  0},  
   };
 
@@ -116,6 +118,10 @@ int main(int argc, char **argv)
       break;
     case 'h':
       standalone  = 1;
+      strcpy(nsl.HomeDir, optarg);
+      break;
+    case 'z':
+      servertimezone  = 8;
       strcpy(nsl.HomeDir, optarg);
       break;
     }
