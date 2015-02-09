@@ -33,7 +33,7 @@ int createHttp(char * ip, short port, int type)
 
 
   if (debugl >= 1) {
-    printf("Connecting to server......");
+    printf("Connecting to server[%s:%hd]......",ip,port);
   }
 
   if( connect(sockfd, (struct sockaddr*)&servaddr, sizeof(servaddr)) < 0){
