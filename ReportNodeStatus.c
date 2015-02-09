@@ -18,6 +18,7 @@
 #include "SocketHttp.h"
 #include "ReportNodeStatus.h"
 #include "NodeResourceStatus.h"
+#include "cJSON.h"
 
 void GetNetworkConcernedStatus(struct net_data *data, char * ip, short port, float * usage, int * ipstate, int * bandwidth, long long * cons) {
   int i=0;
@@ -91,7 +92,7 @@ void ReportNodeStatus(struct NodeStatusList* nsl, struct NodeResourceStatus* nrs
   char content[CONTENT_LEN];
   char connection[CONNECTION_LEN] = "Keep-Alive";
   //char connection[CONNECTION_LEN] = "Close";
-  int ret=0;
+  //int ret=0;
 
   static int first_time=1;
   static struct proc proc[P_NUMBER] = {{0}};
@@ -102,6 +103,10 @@ void ReportNodeStatus(struct NodeStatusList* nsl, struct NodeResourceStatus* nrs
 
   static char ip[IP_LEN] = {0};
   static short port=0;
+
+  char *out=NULL;
+  char EpochTime[16]={0};
+  cJSON *root=NULL, *item=NULL;
 
   if(first_time) {
     first_time = 0;
@@ -166,36 +171,59 @@ if(debugl >= 3) {
     GetMemConcernedState(&mem_data, &nrs->MemUsage);
   }
 
-  sprintf(content,
-    "{"
-    "\"EpochTime\":\"%lx\","
-    "\"NodeId\":%d,"
-    "\"CurrentConn\":%lld,"
-    "\"CurrentBandwidth\":%d,"
-    "\"DiskTotalSpace\":%lld,"
-    "\"DiskFreeSpace\":%lld,"
-    "\"CpuUsage\":%d,"
-    "\"MemUsage\":%d,"
-    "\"WanUsage\":%d,"
-    "\"LanUsage\":%d,"
-    "\"IoUsage\":%d,"
-    "\"LanIpState\":%d,"
-    "\"WanIpState\":%d"
-    "}",
-    nrs->EpochTime,
-    nrs->NodeId,
-    nrs->CurrentConn,     
-    nrs->CurrentBandwidth,
-    nrs->DiskTotalSpace,
-    nrs->DiskFreeSpace,
-    (int)nrs->CpuUsage,
-    (int)nrs->MemUsage,
-    (int)nrs->WanUsage,
-    (int)nrs->LanUsage,
-    (int)nrs->IoUsage,
-    nrs->LanIpState,
-    nrs->WanIpState
-  );
+//  sprintf(content,
+//    "{"
+//    "\"EpochTime\":\"%lx\","
+//    "\"NodeId\":%d,"
+//    "\"CurrentConn\":%lld,"
+//    "\"CurrentBandwidth\":%d,"
+//    "\"DiskTotalSpace\":%lld,"
+//    "\"DiskFreeSpace\":%lld,"
+//    "\"CpuUsage\":%d,"
+//    "\"MemUsage\":%d,"
+//    "\"WanUsage\":%d,"
+//    "\"LanUsage\":%d,"
+//    "\"IoUsage\":%d,"
+//    "\"LanIpState\":%d,"
+//    "\"WanIpState\":%d"
+//    "}",
+//    nrs->EpochTime,
+//    nrs->NodeId,
+//    nrs->CurrentConn,     
+//    nrs->CurrentBandwidth,
+//    nrs->DiskTotalSpace,
+//    nrs->DiskFreeSpace,
+//    (int)nrs->CpuUsage,
+//    (int)nrs->MemUsage,
+//    (int)nrs->WanUsage,
+//    (int)nrs->LanUsage,
+//    (int)nrs->IoUsage,
+//    nrs->LanIpState,
+//    nrs->WanIpState
+//  );
+
+  root=cJSON_CreateObject();
+
+  sprintf(EpochTime,"%lx",nrs->EpochTime);
+  cJSON_AddStringToObject(root, "EpochTime"         , EpochTime);
+  cJSON_AddNumberToObject(root, "NodeId"            , nrs->NodeId);
+  cJSON_AddNumberToObject(root, "CurrentConn"       , nrs->CurrentConn);
+  cJSON_AddNumberToObject(root, "CurrentBandwidth"  , nrs->CurrentBandwidth);
+  cJSON_AddNumberToObject(root, "DiskTotalSpace"    , nrs->DiskTotalSpace);
+  cJSON_AddNumberToObject(root, "DiskFreeSpace"     , nrs->DiskFreeSpace);
+  cJSON_AddNumberToObject(root, "CpuUsage"          , (int)nrs->CpuUsage);
+  cJSON_AddNumberToObject(root, "MemUsage"          , (int)nrs->MemUsage);
+  cJSON_AddNumberToObject(root, "WanUsage"          , (int)nrs->WanUsage);
+  cJSON_AddNumberToObject(root, "LanUsage"          , (int)nrs->LanUsage);
+  cJSON_AddNumberToObject(root, "IoUsage"           , (int)nrs->IoUsage);
+  cJSON_AddNumberToObject(root, "LanIpState"        , nrs->LanIpState);
+  cJSON_AddNumberToObject(root, "WanIpState"        , nrs->WanIpState);
+
+  strcpy(content, out=cJSON_PrintUnformatted(root));
+
+  cJSON_Delete(root);
+
+  free(out);
 
 if(standalone) {
   return;
@@ -216,15 +244,28 @@ if(standalone) {
   recvHttp(sockfd,content);
   //printf("ReportNodeStatusList() http content received:\n%s\n",content);
 
-  ret = sscanf(content,
-    "{"
-    "\"Status\":%d,"
-    "\"StatusDesc\":\"%[^\"]\""
-    "}",
-    &nrs->Status,
-    nrs->StatusDesc
-  );
+//  ret = sscanf(content,
+//    "{"
+//    "\"Status\":%d,"
+//    "\"StatusDesc\":\"%[^\"]\""
+//    "}",
+//    &nrs->Status,
+//    nrs->StatusDesc
+//  );
 
+  if((root = cJSON_Parse(content)) == NULL) {
+    fprintf(stderr,"Error before: [%s]\n",cJSON_GetErrorPtr());
+    exit(1);
+  }
+
+  item = root->child;
+  nrs->Status = item->valueint;
+
+  item = item->next;
+  strcpy(nrs->StatusDesc, item->valuestring);
+
+  cJSON_Delete(root);
+  
 if (debugl >= 3) {
   printf("ReportNodeStatus()\n"
     "{"

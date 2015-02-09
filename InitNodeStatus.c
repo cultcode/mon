@@ -17,15 +17,20 @@
 #include <netinet/in.h>
 #include "SocketHttp.h"
 #include "InitNodeStatus.h"
+#include "cJSON.h"
 
 void InitNodeStatus(struct NodeStatus* ns, char* url)
 {
   static int sockfd=-1;
   char content[CONTENT_LEN]={0};
   char connection[CONNECTION_LEN] = "Close";
-  int ret=0;
+  //int ret=0;
   char ip[IP_LEN] = {0};
   short port=0;
+
+  char *out=NULL;
+  char EpochTime[16]={0};
+  cJSON *root=NULL, *item=NULL;
 
   ParseUrl(url,NULL, ip, &port, NULL);
 /*structure http request
@@ -38,23 +43,38 @@ void InitNodeStatus(struct NodeStatus* ns, char* url)
 
   sprintf(ns->Version,"%s",VERSION);
 
-  sprintf(content,
-    "{"
-    "\"EpochTime\":\"%lx\","
-    "\"NodeName\":\"%s\""
+//  sprintf(content,
+//    "{"
+//    "\"EpochTime\":\"%lx\","
+//    "\"NodeName\":\"%s\""
+//#if SERVER_VERSION==2
+//    ","
+//    "\"Version\":\"%s\""
+//#endif
+//    "}",
+//    ns->EpochTime,
+//    ns->NodeName
+//#if SERVER_VERSION==2
+//    ,
+//    ns->Version
+//#endif
+//
+//  );
+
+  root=cJSON_CreateObject();
+
+  sprintf(EpochTime,"%lx",ns->EpochTime);
+  cJSON_AddStringToObject(root,"EpochTime",EpochTime);
+  cJSON_AddStringToObject(root,"NodeName",ns->NodeName);
 #if SERVER_VERSION==2
-    ","
-    "\"Version\":\"%s\""
-#endif
-    "}",
-    ns->EpochTime,
-    ns->NodeName
-#if SERVER_VERSION==2
-    ,
-    ns->Version
+  cJSON_AddStringToObject(root,"Version",ns->Version);
 #endif
 
-  );
+  strcpy(content, out=cJSON_PrintUnformatted(root));
+
+  cJSON_Delete(root);
+
+  free(out);
 
   if(sockfd == -1) {
     sockfd = createHttp(ip,port,SOCK_STREAM);
@@ -73,17 +93,33 @@ if (debugl >= 3) {
   printf("InitNodeStatus() http content received:\n%s\n",content);
 }
 
-  ret = sscanf(content,
-    "{"
-    "\"Status\":%d,"
-    "\"StatusDesc\":\"%[^\"]\","
-    "\"NodeId\":%d"
-    "}",
-    &ns->Status,
-     ns->StatusDesc,
-    &ns->NodeId
-  );
+//  ret = sscanf(content,
+//    "{"
+//    "\"Status\":%d,"
+//    "\"StatusDesc\":\"%[^\"]\","
+//    "\"NodeId\":%d"
+//    "}",
+//    &ns->Status,
+//     ns->StatusDesc,
+//    &ns->NodeId
+//  );
 
+  if((root = cJSON_Parse(content)) == NULL) {
+    fprintf(stderr,"Error before: [%s]\n",cJSON_GetErrorPtr());
+    exit(1);
+  }
+
+  item = root->child;
+  ns->Status = item->valueint;
+
+  item = item->next;
+  strcpy(ns->StatusDesc, item->valuestring);
+
+  item = item->next;
+  ns->NodeId = item->valueint;
+
+  cJSON_Delete(root);
+  
 if (debugl >= 3) {
   printf("InitNodeStatus()\n"
     "{"

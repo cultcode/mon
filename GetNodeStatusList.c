@@ -17,16 +17,21 @@
 #include <netinet/in.h>
 #include "SocketHttp.h"
 #include "GetNodeStatusList.h"
+#include "cJSON.h"
 
 void GetNodeStatusList(struct NodeStatus* ns, struct NodeStatusList* nsl, char * url)
 {
   static int sockfd=-1;
   char content[CONTENT_LEN];
   char connection[CONNECTION_LEN] = "Close";
-  int ret=0;
+  //int ret=0;
 
   char ip[IP_LEN] = {0};
   short port=0;
+
+  char *out=NULL;
+  char EpochTime[16]={0};
+  cJSON *root=NULL, *item=NULL;
 
   ParseUrl(url, NULL, ip, &port, NULL);
 /*structure http request
@@ -37,14 +42,26 @@ void GetNodeStatusList(struct NodeStatus* ns, struct NodeStatusList* nsl, char *
   nsl->EpochTime = GetLocaltimeSeconds();
   nsl->NodeId = ns->NodeId;
 
-  sprintf(content,
-    "{"
-    "\"EpochTime\":\"%lx\","
-    "\"NodeId\":%d"
-    "}",
-    nsl->EpochTime,
-    nsl->NodeId
-  );
+//  sprintf(content,
+//    "{"
+//    "\"EpochTime\":\"%lx\","
+//    "\"NodeId\":%d"
+//    "}",
+//    nsl->EpochTime,
+//    nsl->NodeId
+//  );
+
+  root=cJSON_CreateObject();
+
+  sprintf(EpochTime,"%lx",nsl->EpochTime);
+  cJSON_AddStringToObject(root,"EpochTime",EpochTime);
+  cJSON_AddNumberToObject(root,"NodeId",nsl->NodeId);
+
+  strcpy(content, out=cJSON_PrintUnformatted(root));
+
+  cJSON_Delete(root);
+
+  free(out);
 
   if(sockfd == -1) {
     sockfd = createHttp(ip,port,SOCK_STREAM);
@@ -64,24 +81,52 @@ if (debugl >= 3) {
   printf("GetNodeStatusList() http content received:\n%s\n",content);
 }
 
-  ret = sscanf(content,
-    "{"
-    "\"Status\":%d,"
-    "\"StatusDesc\":\"%[^\"]\","
-    "\"HomeDir\":\"%[^\"]\","
-    "\"LanIp\":\"%[^\"]\","
-    "\"WanIp\":\"%[^\"]\","
-    "\"LanPort\":%hd,"
-    "\"WanPort\":%hd"
-    "}",
-    &nsl->Status,
-    nsl->StatusDesc,
-    nsl->HomeDir,
-    nsl->LanIp,
-    nsl->WanIp,
-    &nsl->LanPort,
-    &nsl->WanPort
-  );
+//  ret = sscanf(content,
+//    "{"
+//    "\"Status\":%d,"
+//    "\"StatusDesc\":\"%[^\"]\","
+//    "\"HomeDir\":\"%[^\"]\","
+//    "\"LanIp\":\"%[^\"]\","
+//    "\"WanIp\":\"%[^\"]\","
+//    "\"LanPort\":%hd,"
+//    "\"WanPort\":%hd"
+//    "}",
+//    &nsl->Status,
+//    nsl->StatusDesc,
+//    nsl->HomeDir,
+//    nsl->LanIp,
+//    nsl->WanIp,
+//    &nsl->LanPort,
+//    &nsl->WanPort
+//  );
+
+  if((root = cJSON_Parse(content)) == NULL) {
+    fprintf(stderr,"Error before: [%s]\n",cJSON_GetErrorPtr());
+    exit(1);
+  }
+
+  item = root->child;
+  nsl->Status = item->valueint;
+
+  item = item->next;
+  strcpy(nsl->StatusDesc, item->valuestring);
+
+  item = item->next;
+  strcpy(nsl->HomeDir, item->valuestring);
+
+  item = item->next;
+  strcpy( nsl->LanIp, item->valuestring);
+
+  item = item->next;
+  strcpy( nsl->WanIp, item->valuestring);
+
+  item = item->next;
+  nsl->LanPort = item->valueint;
+
+  item = item->next;
+  nsl->WanPort = item->valueint;
+
+  cJSON_Delete(root);
 
 if (debugl >= 3) {
   printf("GetNodeStatusList()\n"
