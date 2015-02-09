@@ -32,8 +32,8 @@ int createHttp(char * ip, short port, int type)
   }
 
 
-  if (debugl >= 3) {
-    printf("Connecting to server...\n");
+  if (debugl >= 1) {
+    printf("Connecting to server......");
   }
 
   if( connect(sockfd, (struct sockaddr*)&servaddr, sizeof(servaddr)) < 0){
@@ -41,7 +41,7 @@ int createHttp(char * ip, short port, int type)
     exit(1);
   }
 
-  if (debugl >= 3) {
+  if (debugl >= 1) {
     printf("Connected\n");
   }
 
