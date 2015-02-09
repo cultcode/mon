@@ -31,10 +31,20 @@ int createHttp(char * ip, short port, int type)
     exit(1);
   }
 
+
+  if (debugl >= 3) {
+    printf("Connecting to server...\n");
+  }
+
   if( connect(sockfd, (struct sockaddr*)&servaddr, sizeof(servaddr)) < 0){
     perror("connect() The following error occurred");
     exit(1);
   }
+
+  if (debugl >= 3) {
+    printf("Connected\n");
+  }
+
 
   return sockfd;
 }

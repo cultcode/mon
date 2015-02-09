@@ -1266,7 +1266,7 @@ unsigned ConvertIpC2I(char * ip_char) {
   }
 
   if(i!=0) {
-    fprintf(stderr,"ERROR: ip %s is illegal\n",ip_char);
+    fprintf(stderr,"ERROR: ip [%s] is illegal\n",ip_char);
     exit(1);
   }
 
