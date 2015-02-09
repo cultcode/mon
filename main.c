@@ -121,8 +121,7 @@ int main(int argc, char **argv)
       strcpy(nsl.HomeDir, optarg);
       break;
     case 'z':
-      servertimezone  = 8;
-      strcpy(nsl.HomeDir, optarg);
+      servertimezone  = atoi(optarg);
       break;
     }
   }
