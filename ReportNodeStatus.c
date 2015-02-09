@@ -36,7 +36,7 @@ void GetNetworkConcernedStatus(struct net_data *data, char * ip, short port, flo
     }
   }
   if(i >= data->nets) {
-    fprintf(stderr,"ERROR: can't find ip %s from getifaddrs()\n",ip);
+    fprintf(stderr,"ERROR: can't find ip [%s] from getifaddrs()\n",ip);
     exit(1);
   }
 
