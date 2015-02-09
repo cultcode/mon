@@ -609,9 +609,6 @@ void sys_net_single(struct net_param * pa)
   sys_net_single_para(pa->name, "flags", buf);
   pa->flags = strtol(buf,NULL,0);
 
-  sys_net_single_para(pa->name, "duplex", buf);
-  pa->duplex = strtol(buf,NULL,0);
-
   sys_net_single_para(pa->name, "speed", buf);
   pa->bandwidth = strtol(buf,NULL,0);
 
@@ -713,6 +710,7 @@ void sys_net(struct net_data *data)
   {
     if(pa[i].flags & IFF_MASTER) {
       sys_net_single_para(pa[i].name, "bonding/slaves", buf);
+      strcpy(pa[i].slaves,buf);
 
       result = strtok(buf, delims);
 
@@ -1230,17 +1228,17 @@ if (debugl >= 3) {
   }
 
 if (debugl >= 3) {
-  printf("\n/proc/class/net\nI/F_Name Flags Bandwidth(Mb) Duplex Ip Ipstate Usage\n");
+  printf("\n/proc/class/net\nI/F_Name Flags Bandwidth(Mb) Slaves Ip Ipstate Usage\n");
 }
 
   for(j=0; j<data->nets; j++) {
 
 if (debugl >= 3) {
-    printf("%s\t%hd\t%ld\t%d\t%s\t%7.3f%%\n",
+    printf("%s\t%hd\t%ld\t%s\t%s\t%7.3f%%\n",
         pa[j].name,
         pa[j].flags,
         pa[j].bandwidth,
-        pa[j].duplex,
+        pa[j].slaves,
         pa[j].ip,
         pa[j].usage
     );

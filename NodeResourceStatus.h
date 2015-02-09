@@ -182,7 +182,7 @@ struct net_param {
   char name[32];
   short flags;
   long bandwidth;
-  int duplex;
+  char slaves[FILE_LINE_BUFFER];
   char ip[IP_LEN];
   float speed_ib;
   float speed_ob;
