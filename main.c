@@ -32,6 +32,29 @@ int standalone = 0;
 int debugl = 1;
 int servertimezone = 8;
 int looptimes = 0;
+int servegoal=3;
+
+void usage() {
+  printf(
+    "-a  --standalone :run in standalone mode\n"
+    "-b  --debugl     :debug info level, default to 1\n"
+    "-r  --refresh    :interval of reporting status, unit is second. default to 1\n"
+    "-i  --init       :specify URL for NodeStatusInit, like http://XXXX/ndas/NodeStatusInit\n"
+    "-g  --get        :specify URL for GetNodeStatusList, like http://XXXX/ndas/GetNodeStatusList\n"
+    "-p  --report     :specify URL for NodeStatusReport, like http://XXXX/ndas/NodeStatusReport\n"
+    "-c  --cpu        :specify period for average cpu usage, unit is second\n"
+    "-m  --mem        :specify period for average mem usage, unit is second\n"
+    "-d  --dsk        :specify period for average dsk usage, unit is second\n"
+    "-n  --net        :specify period for average net usage, unit is second\n"
+    "-w  --wanip      :when in standalone mode, specify local ip:port\n"
+    "-l  --lanip      :when in standalone mode, specify wide  ip:port\n"
+    "-h  --homedir    :when in standalone mode, specify home direcotry\n"
+    "-z  --zone       :specify timezone if necessary\n"
+    "-t  --looptimes  :specify report times if necessary, default to dead-while\n"
+    "-s  --servegoal  :specify server program type, 2 is for 2nd CDN server, 3 is for 3rd CDN server, default to 3\n"
+    "-h  --help       :print this help info\n"
+    );
+}
 
 int main(int argc, char **argv)
 {
@@ -47,23 +70,25 @@ int main(int argc, char **argv)
 //    char **h_addr_list;       /* list of addresses */
 //}
 
-  char* const short_options = "a:b:i:g:p:r:c:m:d:n:w:l:h:z:t:";  
+  char* const short_options = "a:b:r:i:g:p:c:m:d:n:w:l:o:z:t:s:h";  
   struct option long_options[] = {  
     { "standalone",  1,  NULL,  'a'},  
     { "debugl",  1,  NULL,  'b'},  
+    { "refresh",  1,  NULL,  'r'},  
     { "init",  1,  NULL,  'i'},  
     { "get",  1,  NULL,  'g'},  
     { "report",  1,  NULL,  'p'},  
-    { "refresh_interval",  1,  NULL,  'r'},  
-    { "cpu_average_interval",  1,  NULL,  'c'},  
-    { "mem_average_interval",  1,  NULL,  'm'},  
-    { "dsk_average_interval", 1,  NULL,  'd'},  
-    { "net_average_interval",  1,  NULL,  'n'},  
+    { "cpu",  1,  NULL,  'c'},  
+    { "mem",  1,  NULL,  'm'},  
+    { "dsk", 1,  NULL,  'd'},  
+    { "net",  1,  NULL,  'n'},  
     { "wanip",  1,  NULL,  'w'},  
     { "lanip",  1,  NULL,  'l'},  
-    { "homedir",  1,  NULL,  'h'},  
+    { "homedir",  1,  NULL,  'o'},  
     { "zone",  1,  NULL,  'z'},  
     { "looptimes",  1,  NULL,  't'},  
+    { "servegoal",  1,  NULL,  's'},  
+    { "help",  0,  NULL,  'h'},  
     {  0,  0,  0,  0},  
   };
 
@@ -86,6 +111,9 @@ int main(int argc, char **argv)
     case 'b':
       debugl = atoi(optarg);
       break;
+    case 'r':
+      refresh_interval = atoi(optarg);
+      break;
     case 'i':
       strcpy(url[0], optarg);
       break;
@@ -94,9 +122,6 @@ int main(int argc, char **argv)
       break;
     case 'p':
       strcpy(url[2], optarg);
-      break;
-    case 'r':
-      refresh_interval = atoi(optarg);
       break;
     case 'c':
       cpu_average_interval = atoi(optarg);
@@ -118,7 +143,7 @@ int main(int argc, char **argv)
       standalone  = 1;
       ParseUrl(optarg,NULL,nsl.LanIp,&nsl.LanPort,NULL);
       break;
-    case 'h':
+    case 'o':
       standalone  = 1;
       strcpy(nsl.HomeDir, optarg);
       break;
@@ -127,6 +152,13 @@ int main(int argc, char **argv)
       break;
     case 't':
       looptimes  = atoi(optarg);
+      break;
+    case 'h':
+      usage();
+      exit(1);
+      break;
+    case 's':
+      servegoal  = atoi(optarg);
       break;
     }
   }

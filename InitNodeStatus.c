@@ -66,9 +66,9 @@ void InitNodeStatus(struct NodeStatus* ns, char* url)
   sprintf(EpochTime,"%lx",ns->EpochTime);
   cJSON_AddStringToObject(root,"EpochTime",EpochTime);
   cJSON_AddStringToObject(root,"NodeName",ns->NodeName);
-#if SERVER_VERSION==2
+if(servegoal == 3) {
   cJSON_AddStringToObject(root,"Version",ns->Version);
-#endif
+}
 
   strcpy(content, out=cJSON_PrintUnformatted(root));
 

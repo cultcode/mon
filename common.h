@@ -7,6 +7,8 @@ extern int debugl;
 
 extern int servertimezone;
 
+extern int servegoal;
+
 extern int standalone;
 
 extern void StripNewLine(char *buf);
