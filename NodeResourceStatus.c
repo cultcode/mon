@@ -1018,6 +1018,10 @@ void GetDiskState(struct dsk_data *data){
 
   char *dk_name=NULL;
 
+  char *linkname=NULL;
+  struct stat sb={0};
+  ssize_t r;
+
 /********************************************************
  * disk io statistics 
  ********************************************************/
@@ -1044,6 +1048,39 @@ if (debugl >= 3) {
 }
 
   for (k = 0; k < data->jfses; k++) {
+    if (lstat(data->jfs[k].device, &sb) == -1) {
+      //fprintf(stderr,"%s",data->jfs[k].device);
+      //perror("lstat()");
+      //exit(1);
+    }
+
+    else if(S_ISLNK(sb.st_mode)) {
+
+      if((linkname = malloc(sb.st_size + 1)) == NULL) {
+        perror("malloc()");
+        exit(1);
+      }
+
+      r = readlink(data->jfs[k].device, linkname, sb.st_size + 1);
+
+      if (r < 0) {
+           perror("readlink()");
+           exit(1);
+      }
+
+      if (r > sb.st_size) {
+           fprintf(stderr, "symlink increased in size "
+                           "between lstat() and readlink()\n");
+           exit(1);
+      }
+
+      linkname[sb.st_size] = '\0';
+
+      strcpy(data->jfs[k].device, linkname);
+
+      free(linkname);
+    }
+
     dk_name = strrchr(data->jfs[k].device,'/');
 
     if(dk_name==NULL) {
