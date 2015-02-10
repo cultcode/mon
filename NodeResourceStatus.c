@@ -458,12 +458,21 @@ double  doubletime(void)
 
 int jfs_load(struct jfs* jfs,int load)
 {
-int i=0;
+int i=0,k=0;
 struct stat stat_buffer={0};
 static FILE * mfp = NULL; /* FILE pointer for mtab file*/
 struct mntent *mp=NULL; /* mnt point stats */
 //static int jfs_loaded = 0;
 int jfses = 0;
+
+  char *linkname=NULL;
+  struct stat sb={0};
+  ssize_t r;
+
+  DIR *dirptr=NULL;
+  struct dirent *entry=NULL;
+  char fn[FN_LEN]={0};
+  char *dk_name=NULL;
 
   if(load==LOAD) { 
     if(mfp == NULL) { 
@@ -512,6 +521,72 @@ int jfses = 0;
   }
 
   //endmntent(mfp);
+
+  for (k = 0; k < jfses; k++) {
+    if (lstat(jfs[k].device, &sb) == -1) {
+      //fprintf(stderr,"%s",jfs[k].device);
+      //perror("lstat()");
+      //exit(1);
+    }
+
+    else if(S_ISLNK(sb.st_mode)) {
+
+      if((linkname = malloc(sb.st_size + 1)) == NULL) {
+        perror("malloc()");
+        exit(1);
+      }
+
+      r = readlink(jfs[k].device, linkname, sb.st_size + 1);
+
+      if (r < 0) {
+           perror("readlink()");
+           exit(1);
+      }
+
+      if (r > sb.st_size) {
+           fprintf(stderr, "symlink increased in size "
+                           "between lstat() and readlink()\n");
+           exit(1);
+      }
+
+      linkname[sb.st_size] = '\0';
+
+      strcpy(jfs[k].device, linkname);
+
+      free(linkname);
+    }
+
+
+    dk_name = strrchr(jfs[k].device,'/');
+
+    if(dk_name==NULL) {
+      dk_name = jfs[k].device;
+    }
+    else {
+      dk_name+=1;
+    }
+
+    strcpy(fn, "/sys/block/");
+    strcat(fn, dk_name);
+    strcat(fn, "/slaves");
+
+    if((dirptr = opendir(fn))==NULL)
+    {
+if(debugl >= 4) {
+      fprintf(stderr,"WARNING: opendir() %s\n",fn);
+}
+      //exit(1);
+    }
+    else {
+      while((entry=(readdir(dirptr))))
+      {
+        if(!strncmp(entry->d_name ,".",1)) continue;
+
+        strcat(jfs[k].slaves,entry->d_name);
+        strcat(jfs[k].slaves," ");
+      }
+    }
+  }
 
   return jfses;
 }
@@ -963,7 +1038,7 @@ void GetFsState(struct dsk_data *data) {
   data->jfses = jfs_load(data->jfs,LOAD);
 
 if (debugl >= 3) {
-  printf("\nfstatfs()\nDevice Usage Free(MB) Sum(MB)\n");
+  printf("\nfstatfs()\nDevice Usage Free(MB) Sum(MB) Slaves\n");
 }
   for (k = 0; k < data->jfses; k++) {
 
@@ -994,7 +1069,7 @@ if (debugl >= 3) {
     data->jfs[k].usage = fs_size?((fs_size-fs_free)*100/fs_size):0;
 
 if (debugl >= 3) {
-    printf("%s\t%.1f%%\t%.1f\t%.1f\n",data->jfs[k].device,data->jfs[k].usage, data->jfs[k].free, data->jfs[k].size);
+    printf("%s\t%.1f%%\t%.1f\t%.1f\t%s\n",data->jfs[k].device,data->jfs[k].usage, data->jfs[k].free, data->jfs[k].size, data->jfs[k].slaves);
 }
   }
 
@@ -1003,7 +1078,7 @@ if (debugl >= 3) {
 }
 
 void GetDiskState(struct dsk_data *data){
-  int i =0, k=0;
+  int k=0, i =0, j=0;
   double disk_busy=0;
   double disk_read=0;
   double disk_write=0;
@@ -1018,9 +1093,9 @@ void GetDiskState(struct dsk_data *data){
 
   char *dk_name=NULL;
 
-  char *linkname=NULL;
-  struct stat sb={0};
-  ssize_t r;
+  char delims[] = " ";
+  char *result = NULL;
+  char buf[FILE_LINE_BUFFER] = {0};
 
 /********************************************************
  * disk io statistics 
@@ -1048,39 +1123,6 @@ if (debugl >= 3) {
 }
 
   for (k = 0; k < data->jfses; k++) {
-    if (lstat(data->jfs[k].device, &sb) == -1) {
-      //fprintf(stderr,"%s",data->jfs[k].device);
-      //perror("lstat()");
-      //exit(1);
-    }
-
-    else if(S_ISLNK(sb.st_mode)) {
-
-      if((linkname = malloc(sb.st_size + 1)) == NULL) {
-        perror("malloc()");
-        exit(1);
-      }
-
-      r = readlink(data->jfs[k].device, linkname, sb.st_size + 1);
-
-      if (r < 0) {
-           perror("readlink()");
-           exit(1);
-      }
-
-      if (r > sb.st_size) {
-           fprintf(stderr, "symlink increased in size "
-                           "between lstat() and readlink()\n");
-           exit(1);
-      }
-
-      linkname[sb.st_size] = '\0';
-
-      strcpy(data->jfs[k].device, linkname);
-
-      free(linkname);
-    }
-
     dk_name = strrchr(data->jfs[k].device,'/');
 
     if(dk_name==NULL) {
@@ -1100,6 +1142,47 @@ if (debugl >= 2) {
 }
       continue;
       //exit(1);
+    }
+
+    if(data->jfs[k].slaves) {
+      strcpy(buf, data->jfs[k].slaves);
+      result = strtok(buf, delims);
+
+      while (result != NULL) {
+
+        dk_name = result;
+
+        for(j = 0; j< data->disks; j++) {
+          if(!strcmp(dk_name, p->dk[j].dk_name))  break;
+        } 
+
+        if(j >= data->disks){
+          fprintf(stderr,"WARNING: can't find  %s\tfrom /proc/diskstats\n",dk_name);
+          exit(1);
+        }
+        else {
+          DKBONDMAX(dk_reads);
+          DKBONDMAX(dk_rmerge);
+          DKBONDMAX(dk_rmsec);
+          DKBONDMAX(dk_rkb);
+          DKBONDMAX(dk_writes);
+          DKBONDMAX(dk_wmerge);
+          DKBONDMAX(dk_wmsec);
+          DKBONDMAX(dk_wkb);
+          DKBONDMAX(dk_xfers);
+          DKBONDMAX(dk_bsize);
+          DKBONDMAX(dk_time);
+          DKBONDMAX(dk_inflight);
+          DKBONDMAX(dk_11);
+          DKBONDMAX(dk_partition);
+          DKBONDMAX(dk_blocks);
+          DKBONDMAX(dk_use);
+          DKBONDMAX(dk_aveq);
+        }
+
+        result = strtok(NULL, delims);
+      }
+
     }
 
   /*

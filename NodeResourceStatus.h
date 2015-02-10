@@ -29,6 +29,10 @@
 
 #define DKDELTA(member) ( (q->dk[i].member > p->dk[i].member) ? 0 : (p->dk[i].member - q->dk[i].member))
 
+#define DKBONDMAX(member) \
+p->dk[i].member = MAX(p->dk[i].member, p->dk[j].member)
+
+
 #define DISKMAX 256
 #define DISK_MODE_DISKSTATS 1
 #define DISK_MODE_PARTITIONS 2
@@ -91,6 +95,7 @@ struct jfs {
   float free;
   float usage;
   float io;
+  char slaves[FILE_LINE_BUFFER];
 };
 
 struct dsk_stat { 
