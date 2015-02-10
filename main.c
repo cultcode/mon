@@ -163,6 +163,10 @@ int main(int argc, char **argv)
     }
   }
 
+  if(standalone) {
+    debugl = 3;
+  }
+
 if (debugl >= 1) {
   printf("debugl: %d\ninit url: %s\nget url: %s\nreport url: %s\nrefresh interval %d\ncpu_average_interval %d\nmem_average_interval %d\ndsk_average_interval %d\nnet_average_interval %d\nwanip:%s, wanport %hd, lanip %s, lanport %hd, homedir %s\n",debugl, url[0], url[1], url[2], refresh_interval, cpu_average_interval, mem_average_interval, dsk_average_interval, net_average_interval,nsl.WanIp,nsl.WanPort,nsl.LanIp,nsl.LanPort,nsl.HomeDir);
 }
