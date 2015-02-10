@@ -31,6 +31,7 @@ int net_average_interval=1;  /*time interval to average */
 int standalone = 0;
 int debugl = 1;
 int servertimezone = 8;
+int looptimes = 0;
 
 int main(int argc, char **argv)
 {
@@ -46,7 +47,7 @@ int main(int argc, char **argv)
 //    char **h_addr_list;       /* list of addresses */
 //}
 
-  char* const short_options = "a:b:i:g:p:r:c:m:d:n:w:l:h:z:";  
+  char* const short_options = "a:b:i:g:p:r:c:m:d:n:w:l:h:z:t:";  
   struct option long_options[] = {  
     { "standalone",  1,  NULL,  'a'},  
     { "debugl",  1,  NULL,  'b'},  
@@ -62,6 +63,7 @@ int main(int argc, char **argv)
     { "lanip",  1,  NULL,  'l'},  
     { "homedir",  1,  NULL,  'h'},  
     { "zone",  1,  NULL,  'z'},  
+    { "looptimes",  1,  NULL,  't'},  
     {  0,  0,  0,  0},  
   };
 
@@ -123,6 +125,9 @@ int main(int argc, char **argv)
     case 'z':
       servertimezone  = atoi(optarg);
       break;
+    case 't':
+      looptimes  = atoi(optarg);
+      break;
     }
   }
 
@@ -172,12 +177,22 @@ if(!standalone){
  * ReportNodeStatus
  ********************************************************/
 
+if(looptimes) {
+  while(looptimes--) {
+    ReportNodeStatus(&nsl, &nrs, url[2]);
+
+    sleep(refresh_interval);
+
+  }
+}
+else {
   while(1) {
     ReportNodeStatus(&nsl, &nrs, url[2]);
 
     sleep(refresh_interval);
 
   }
+}
 
   return 0;
 }
