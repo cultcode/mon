@@ -235,7 +235,7 @@ if(standalone) {
     sockfd = createHttp(ip,port,SOCK_STREAM);
   }
 
-  sendHttp(sockfd, url, connection, content);
+  sendHttp(sockfd, url, connection, content, 1, NULL);
 
 /*analyze http content received
 {"Status":1,"StatusDesc":"success"}
@@ -243,7 +243,7 @@ if(standalone) {
 {"Status":0,"StatusDesc":"CheckFailed"}
 */
   memset(content, 0, sizeof(content));
-  recvHttp(sockfd,content);
+  recvHttp(sockfd,content,1);
   //printf("ReportNodeStatusList() http content received:\n%s\n",content);
 
 //  ret = sscanf(content,

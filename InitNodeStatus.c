@@ -80,14 +80,14 @@ if(servegoal == 3) {
     sockfd = createHttp(ip,port,SOCK_STREAM);
   }
 
-  sendHttp(sockfd, url, connection, content);
+  sendHttp(sockfd, url, connection, content, 1, NULL);
 
 /*analyze http content received
 {"Status":1,"StatusDesc":"success","NodeId":1}
 {"Status":0,"StatusDesc":"CheckFailed","NodeId ":0}
 */
   memset(content, 0, sizeof(content));
-  recvHttp(sockfd,content);
+  recvHttp(sockfd,content,1);
 
 if (debugl >= 3) {
   printf("InitNodeStatus() http content received:\n%s\n",content);

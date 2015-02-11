@@ -1424,6 +1424,54 @@ unsigned ConvertIpC2I(char * ip_char) {
 
 }
 
+unsigned long long http_cons(char* ip, short port)
+{
+  static int sockfd=-1;
+  char content[CONTENT_LEN];
+  char connection[CONNECTION_LEN] = "Keep-Alive";
+  char url[URL_LEN]={0};
+  char port_s[PORT_LEN]={0};
+  unsigned long long cons=0;
+  char extra_header[HTTP_HEADER_LEN]={0};
+
+  strcat(extra_header,"stat: sessioncount");
+  strcat(extra_header, HTTP_NEWLINE);
+
+  if(sockfd == -1) {
+    sockfd = createHttp(ip,port,SOCK_STREAM);
+  }
+
+  strcpy(url,ip);
+
+  if(port) {
+    strcat(url,":");
+    sprintf(port_s,"%hd",port);
+    strcat(url,port_s);
+  }
+
+  strcat(url,"/admin.info");
+
+  sendHttp(sockfd, url, connection, "", 0, extra_header);
+
+  memset(content, 0, sizeof(content));
+
+  recvHttp(sockfd,content,0);
+
+  if(!strcasecmp(connection, "Close")){
+    closeHttp(sockfd);
+    sockfd = -1;
+  }
+
+  errno = 0;
+  cons = strtol(content,NULL,0);
+  if(errno) {
+    perror("strtol() of receved connections");
+    cons = -1;
+  }
+
+  return cons;
+}
+
 unsigned long long GetCurrentConn(char* ip_char, short port){
   unsigned long long cons=0;
   unsigned int ip_int=0;
@@ -1432,7 +1480,11 @@ unsigned long long GetCurrentConn(char* ip_char, short port){
  ********************************************************/
   ip_int = ConvertIpC2I(ip_char);
 
-  cons = proc_cons("tcp",ip_int,port);
+  cons = http_cons("127.0.0.1", 80);
+
+  if(cons == -1) {
+    cons = proc_cons("tcp",ip_int,port);
+  }
 
 if (debugl >= 3) {
   printf("\n/proc/net/tcp\n");

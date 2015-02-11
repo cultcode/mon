@@ -67,7 +67,7 @@ void GetNodeStatusList(struct NodeStatus* ns, struct NodeStatusList* nsl, char *
     sockfd = createHttp(ip,port,SOCK_STREAM);
   }
 
-  sendHttp(sockfd, url, connection, content);
+  sendHttp(sockfd, url, connection, content, 1, NULL);
 
 /*analyze http content received
 {"Status":1,"StatusDesc":"success","HomeDir":"x:\Clips","LanIp":"192.168.1.1","WanIp":"10.0.0.1","LanPort":"21","WanPort":80}
@@ -75,7 +75,7 @@ void GetNodeStatusList(struct NodeStatus* ns, struct NodeStatusList* nsl, char *
 {"Status":0,"StatusDesc":"CheckFailed","HomeDir":"",",anIp":"","WanIp":"","LanPort":0,"WanPort":0}
 */
   memset(content, 0, sizeof(content));
-  recvHttp(sockfd,content);
+  recvHttp(sockfd,content, 1);
 
 if (debugl >= 3) {
   printf("GetNodeStatusList() http content received:\n%s\n",content);

@@ -61,12 +61,11 @@ void closeHttp(int sockfd)
   }
 }
   
-void sendHttp(int sockfd,char * url, char * connection, char * input)
+void sendHttp(int sockfd, char * url, char * connection, char * input, int encode, char *extra_header)
 {
   char sendline[HTTP_LEN]={0};
   char * cipher = NULL;
   char contentlen[CONTENTLEN_LEN] = {0};
-  char newline[]={'\r','\n','\0'};
   char path[PATH_LEN]={0};
   char host[HOST_LEN] = {0};
   short port=0;
@@ -92,9 +91,18 @@ if (debugl >= 1) {
   printf("[%s] sent:\t%s\n",buf,input);
 }
 
-  length = ContentEncode(NODE_3DES_KEY, NODE_3DES_IV, input, &cipher, strlen(input));
+  if(encode){
+    length = ContentEncode(NODE_3DES_KEY, NODE_3DES_IV, input, &cipher, strlen(input));
+  }else{
+    if((cipher = malloc(strlen(input)+1)) == NULL) {
+      perror("malloc()");
+      exit(1);
+    }
+    strcpy(cipher,input);
+    length = strlen(cipher);
+  }
 
-  if(length <= 0) {
+  if(length < 0) {
     fprintf(stderr,"ContentEncode failed\n");
     free(cipher);
     exit(1);
@@ -111,7 +119,7 @@ if (debugl >= 1) {
   strcat(sendline, "POST ");
   strcat(sendline, path);
   strcat(sendline, " HTTP/1.1");
-  strcat(sendline, newline);
+  strcat(sendline, HTTP_NEWLINE);
 
   strcat(sendline, "Host: ");
   strcat(sendline, host);
@@ -120,21 +128,25 @@ if (debugl >= 1) {
     strcat(sendline, ":");
     strcat(sendline, port_char);
   }
-  strcat(sendline, newline);
+  strcat(sendline, HTTP_NEWLINE);
+
+  if(extra_header) {
+    strcat(sendline, extra_header);
+  }
 
   strcat(sendline, "Content-Type: ");
   strcat(sendline, "text/plain");
-  strcat(sendline, newline);
+  strcat(sendline, HTTP_NEWLINE);
 
   strcat(sendline, "Content-Length: ");
   strcat(sendline, contentlen);
-  strcat(sendline, newline);
+  strcat(sendline, HTTP_NEWLINE);
 
   strcat(sendline, "Connection: ");
   strcat(sendline, connection);
-  strcat(sendline, newline);
+  strcat(sendline, HTTP_NEWLINE);
 
-  strcat(sendline, newline);
+  strcat(sendline, HTTP_NEWLINE);
 
   //strcat(sendline, content);
 
@@ -144,7 +156,7 @@ if (debugl >= 1) {
 
 //  printf("sendline:\n%s\n", sendline);
 
-if (debugl >= 3) {
+if (debugl >= 4) {
   printf("sendline:\n%s\n", sendline);
 }
 
@@ -159,15 +171,18 @@ if (debugl >= 3) {
   }
 }
 
-void recvHttp(int sockfd, char* output)
+void recvHttp(int sockfd, char* output, int encode)
 {
   char recvline[HTTP_LEN] = {0};;
   char *plain = NULL;
-  char newline[]={'\r','\n','\r','\n','\0'};
+  char newline[16]={0};
   char * content=NULL;
   int length=0;
   char buf[128] = {0};
   time_t t=time(NULL);
+
+  strcat(newline, HTTP_NEWLINE);
+  strcat(newline, HTTP_NEWLINE);
 
   memset(recvline, 0, sizeof(recvline));
 
@@ -183,9 +198,17 @@ void recvHttp(int sockfd, char* output)
     exit(1);
   }
 
-if (debugl >= 3) {
+if (debugl >= 4) {
   printf("recvline:\n%s\n",recvline);
 }
+
+  if(strstr(recvline,"OK") == NULL) {
+if (debugl < 4) {
+    printf("recvline:\n%s\n",recvline);
+}
+    fprintf(stderr,"wrong HTTP response received\n");
+    exit(1);
+  }
 
   if((content = strstr(recvline, newline)) == NULL) {
     fprintf(stderr,"strstr failed, string is\n%s\n",recvline);
@@ -194,7 +217,16 @@ if (debugl >= 3) {
 
   content += 4;
 
-  length = ContentDecode(NODE_3DES_KEY, NODE_3DES_IV, content, &plain, strlen(content));
+  if(encode){
+    length = ContentDecode(NODE_3DES_KEY, NODE_3DES_IV, content, &plain, strlen(content));
+  }else{
+    if((plain = malloc(strlen(content)+1)) == NULL) {
+      perror("malloc()");
+      exit(1);
+    }
+    strcpy(plain,content);
+    length = strlen(content);
+  }
 
   memcpy(output, plain, length);
   output[length] = 0;

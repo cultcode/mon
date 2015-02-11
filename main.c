@@ -24,12 +24,14 @@
 #include "ReportNodeStatus.h"
 #include "SocketHttp.h"
 
+#define DEFAULT_DEBUGL 1
+
 int cpu_average_interval=1;  /*time interval to average */
 int mem_average_interval=1;  /*time interval to average */
 int dsk_average_interval=1;  /*time interval to average */
 int net_average_interval=1;  /*time interval to average */
 int standalone = 0;
-int debugl = 1;
+int debugl = DEFAULT_DEBUGL;
 int servertimezone = 8;
 int looptimes = -1;
 int servegoal=3;
@@ -163,7 +165,7 @@ int main(int argc, char **argv)
     }
   }
 
-  if(standalone) {
+  if(standalone & (debugl==DEFAULT_DEBUGL)) {
     debugl = 3;
   }
 
