@@ -111,7 +111,9 @@ void ReportNodeStatus(struct NodeStatusList* nsl, struct NodeResourceStatus* nrs
   if(first_time) {
     first_time = 0;
 
-    ParseUrl(url, NULL, ip, &port, NULL);
+    if(!standalone) {
+      ParseUrl(url, NULL, ip, &port, NULL);
+    }
     //memset(proc,0,P_NUMBER*sizeof(struct proc));
 
     cpu_data.p = &cpu_data.cpu_stats[0];

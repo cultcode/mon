@@ -943,7 +943,7 @@ sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid 
     con.rem_address.ip = ntohl(con.rem_address.ip);
     con.local_address.ip = ntohl(con.local_address.ip);
 
-#if 1
+#if 0
     if((con.rem_address.ip == ip) 
         && (con.rem_address.port == port)) {
       cons++;
@@ -1380,7 +1380,7 @@ if (debugl >= 3) {
   }
 
 if (debugl >= 3) {
-  printf("\n/proc/class/net\nI/F_Name Flags Bandwidth(Mb) Slaves Ip Ipstate Usage\n");
+  printf("\n/sys/class/net\nI/F_Name Flags Bandwidth(Mb) Slaves Ip Ipstate Usage\n");
 }
 
   for(j=0; j<data->nets; j++) {

@@ -1,6 +1,8 @@
 #ifndef COMMON_H
 #define COMMON_H
 
+#define IP_LEN 32
+#define PORT_LEN 32
 #define URL_LEN 1024
 
 extern int debugl;

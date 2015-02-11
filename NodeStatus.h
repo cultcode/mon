@@ -10,7 +10,6 @@
 #define HOMEDIR_LEN 128
 
 #define PROTOCOL_LEN 16
-#define IP_LEN 32
 #define PORT_LEN 32
 #define HOST_LEN 64
 #define PATH_LEN 256

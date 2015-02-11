@@ -1,3 +1,3 @@
 #!/bin/bash
 set -x
-./NodeStatusSvr -i http://192.168.8.224:9000/ndas/NodeResMonServerInit -g http://192.168.8.224:9000/ndas/NodeResMonGetList -p http://192.168.8.224:9000/ndas/NodeResMonReport $*
+./NodeStatusSvr -i http://dbagent.cdn.imgo.tv/ndas/NodeResMonServerInit -g http://dbagent.cdn.imgo.tv/ndas/NodeResMonGetList -p http://dbagent.cdn.imgo.tv/ndas/NodeResMonReport $*

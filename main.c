@@ -31,7 +31,7 @@ int net_average_interval=1;  /*time interval to average */
 int standalone = 0;
 int debugl = 1;
 int servertimezone = 8;
-int looptimes = 0;
+int looptimes = -1;
 int servegoal=3;
 
 void usage() {
@@ -168,7 +168,7 @@ int main(int argc, char **argv)
   }
 
 if (debugl >= 1) {
-  printf("debugl: %d\ninit url: %s\nget url: %s\nreport url: %s\nrefresh interval %d\ncpu_average_interval %d\nmem_average_interval %d\ndsk_average_interval %d\nnet_average_interval %d\nwanip:%s, wanport %hd, lanip %s, lanport %hd, homedir %s\n",debugl, url[0], url[1], url[2], refresh_interval, cpu_average_interval, mem_average_interval, dsk_average_interval, net_average_interval,nsl.WanIp,nsl.WanPort,nsl.LanIp,nsl.LanPort,nsl.HomeDir);
+  printf("debugl: %d\ninit url: %s\nget url: %s\nreport url: %s\nrefresh interval %d\ncpu_average_interval %d\nmem_average_interval %d\ndsk_average_interval %d\nnet_average_interval %d\nwanip:%s, wanport %hd, lanip %s, lanport %hd, homedir %s\nserver time zone %d\nnumber of loops %d\n",debugl, url[0], url[1], url[2], refresh_interval, cpu_average_interval, mem_average_interval, dsk_average_interval, net_average_interval,nsl.WanIp,nsl.WanPort,nsl.LanIp,nsl.LanPort,nsl.HomeDir,servertimezone, looptimes);
 }
 
 #if 0
@@ -213,8 +213,8 @@ if(!standalone){
  * ReportNodeStatus
  ********************************************************/
 
-if(looptimes) {
-  while(looptimes--) {
+if(looptimes==-1) {
+  while(1) {
     ReportNodeStatus(&nsl, &nrs, url[2]);
 
     sleep(refresh_interval);
@@ -222,10 +222,12 @@ if(looptimes) {
   }
 }
 else {
-  while(1) {
+  while(looptimes--) {
     ReportNodeStatus(&nsl, &nrs, url[2]);
 
-    sleep(refresh_interval);
+    if(looptimes) {
+      sleep(refresh_interval);
+    }
 
   }
 }
