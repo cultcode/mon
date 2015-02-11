@@ -20,6 +20,7 @@
 #define NODENAME_LEN 128
 #define VERSION_LEN 32
 #define VERSION "1.0"
+#define SLAVES_LEN 1024
 
 enum {
   FAIL=0,

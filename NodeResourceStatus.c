@@ -569,6 +569,7 @@ int jfses = 0;
     strcpy(fn, "/sys/block/");
     strcat(fn, dk_name);
     strcat(fn, "/slaves");
+    memset(jfs[k].slaves, 0, SLAVES_LEN);
 
     if((dirptr = opendir(fn))==NULL)
     {
@@ -785,6 +786,7 @@ void sys_net(struct net_data *data)
   {
     if(pa[i].flags & IFF_MASTER) {
       sys_net_single_para(pa[i].name, "bonding/slaves", buf);
+      memset(pa[i].slaves, 0, SLAVES_LEN);
       strcpy(pa[i].slaves,buf);
 
       result = strtok(buf, delims);
@@ -1118,10 +1120,7 @@ void GetDiskState(struct dsk_data *data){
 
   proc_disk(data);
 
-if (debugl >= 3) {
-    printf("\n/proc/diskstats\nDiskName Busy Read(KB/s) Write(KB/s) Xfers(t/s)\n");
-}
-
+  //mapping fs -> disk
   for (k = 0; k < data->jfses; k++) {
     dk_name = strrchr(data->jfs[k].device,'/');
 
@@ -1136,15 +1135,46 @@ if (debugl >= 3) {
       if(!strcmp(dk_name, p->dk[i].dk_name))  break;
     } 
 
+    data->jfs[k].index = i;
+
     if(i >= data->disks){
-if (debugl >= 2) {
+if (debugl >= 4) {
       fprintf(stderr,"WARNING: can't find  %s\tfrom /proc/diskstats\n",dk_name);
-}
       continue;
       //exit(1);
+}
     }
 
-    if(data->jfs[k].slaves) {
+  }
+
+if (debugl >= 3) {
+    printf("\n/proc/diskstats\nDiskName\tIOtime(F)\tIOtime(N)\tBusy\tRead(KB/s)\tWrite(KB/s)\tXfers(t/s)\n");
+}
+
+//print disk statistics here
+  for(i = 0; i< data->disks; i++) {
+
+    disk_busy = DKDELTA(i,dk_time) / elapsed;
+    disk_read = DKDELTA(i,dk_rkb) / elapsed;
+    disk_write = DKDELTA(i,dk_wkb) / elapsed;
+    disk_xfers = DKDELTA(i,dk_xfers);
+
+if (debugl >= 3) {
+    printf("%s\t%lld\t%lld\t%3.1f%%\t%8.1f\t%8.1f\t%8.1f\n",
+      p->dk[i].dk_name, 
+      q->dk[i].dk_time,
+      p->dk[i].dk_time,
+      disk_busy,
+      disk_read,
+      disk_write,
+      disk_xfers / elapsed);
+}
+
+  }
+
+//process bound disk
+  for (k = 0; k < data->jfses; k++) {
+    if((data->jfs[k].index < data->disks) && strlen(data->jfs[k].slaves)) {
       strcpy(buf, data->jfs[k].slaves);
       result = strtok(buf, delims);
 
@@ -1161,54 +1191,56 @@ if (debugl >= 2) {
           exit(1);
         }
         else {
-          DKBONDMAX(dk_reads);
-          DKBONDMAX(dk_rmerge);
-          DKBONDMAX(dk_rmsec);
-          DKBONDMAX(dk_rkb);
-          DKBONDMAX(dk_writes);
-          DKBONDMAX(dk_wmerge);
-          DKBONDMAX(dk_wmsec);
-          DKBONDMAX(dk_wkb);
-          DKBONDMAX(dk_xfers);
-          DKBONDMAX(dk_bsize);
-          DKBONDMAX(dk_time);
-          DKBONDMAX(dk_inflight);
-          DKBONDMAX(dk_11);
-          DKBONDMAX(dk_partition);
-          DKBONDMAX(dk_blocks);
-          DKBONDMAX(dk_use);
-          DKBONDMAX(dk_aveq);
+          i = data->jfs[k].index;
+          DKDELTAMAX_ZERO(i,j,dk_reads);
+          DKDELTAMAX_ZERO(i,j,dk_rmerge);
+          DKDELTAMAX_ZERO(i,j,dk_rmsec);
+          DKDELTAMAX_ZERO(i,j,dk_rkb);
+          DKDELTAMAX_ZERO(i,j,dk_writes);
+          DKDELTAMAX_ZERO(i,j,dk_wmerge);
+          DKDELTAMAX_ZERO(i,j,dk_wmsec);
+          DKDELTAMAX_ZERO(i,j,dk_wkb);
+          DKDELTAMAX_ZERO(i,j,dk_xfers);
+          DKDELTAMAX_ZERO(i,j,dk_bsize);
+          DKDELTAMAX_ZERO(i,j,dk_time);
+          DKDELTAMAX_ZERO(i,j,dk_inflight);
+          DKDELTAMAX_ZERO(i,j,dk_11);
+          DKDELTAMAX_ZERO(i,j,dk_partition);
+          DKDELTAMAX_ZERO(i,j,dk_blocks);
+          DKDELTAMAX_ZERO(i,j,dk_use);
+          DKDELTAMAX_ZERO(i,j,dk_aveq);
         }
 
         result = strtok(NULL, delims);
       }
 
-    }
-
-  /*
-    if(p->dk[i].dk_name[0] == 'h')
-      continue;
-  */
-    disk_busy = DKDELTA(dk_time) / elapsed;
-    disk_read = DKDELTA(dk_rkb) / elapsed;
-    disk_write = DKDELTA(dk_wkb) / elapsed;
-    disk_xfers = DKDELTA(dk_xfers);
-
-//    total_disk_read  +=disk_read;
-//    total_disk_write +=disk_write;
-//    total_disk_xfers +=disk_xfers;
+      disk_busy = DKDELTA(i,dk_time) / elapsed;
+      disk_read = DKDELTA(i,dk_rkb) / elapsed;
+      disk_write = DKDELTA(i,dk_wkb) / elapsed;
+      disk_xfers = DKDELTA(i,dk_xfers);
 
 if (debugl >= 3) {
-    printf("%s %3.1f%% %8.1f %8.1f %8.1f\n",
-      p->dk[i].dk_name, 
-      disk_busy,
-      disk_read,
-      disk_write,
-      disk_xfers / elapsed);
+      printf("%s\t%lld\t%lld\t%3.1f%%\t%8.1f\t%8.1f\t%8.1f\n",
+        p->dk[i].dk_name, 
+        q->dk[i].dk_time,
+        p->dk[i].dk_time,
+        disk_busy,
+        disk_read,
+        disk_write,
+        disk_xfers / elapsed);
 }
 
-    data->jfs[k].io = disk_busy;
+    }
+  }
 
+//figure out usage
+  for (k = 0; k < data->jfses; k++) {
+
+    if(data->jfs[k].index <= data->disks) {
+      i = data->jfs[k].index;
+      disk_busy = DKDELTA(i,dk_time) / elapsed;
+      data->jfs[k].io = disk_busy;
+    }
   }
 }
 

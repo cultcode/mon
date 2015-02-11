@@ -27,10 +27,15 @@
 #define IFDELTA(member) ((float)( (q->ifnets[i].member > p->ifnets[i].member) ? 0 : (p->ifnets[i].member - q->ifnets[i].member)/elapsed) )
 #define IFDELTA_ZERO(member1,member2) ((IFDELTA(member1) == 0) || (IFDELTA(member2)== 0)? 0.0 : IFDELTA(member1)/IFDELTA(member2) )
 
-#define DKDELTA(member) ( (q->dk[i].member > p->dk[i].member) ? 0 : (p->dk[i].member - q->dk[i].member))
+#define DKDELTA(i,member) ( (q->dk[i].member > p->dk[i].member) ? 0 : (p->dk[i].member - q->dk[i].member))
 
-#define DKBONDMAX(member) \
-p->dk[i].member = MAX(p->dk[i].member, p->dk[j].member)
+#define DKDELTAMAX_ZERO(i,j,member) \
+if(!p->dk[i].member) {\
+  if(DKDELTA(i,member) < DKDELTA(j,member)) {\
+    p->dk[i].member = p->dk[j].member;\
+    q->dk[i].member = q->dk[j].member;\
+  }\
+}
 
 
 #define DISKMAX 256
@@ -95,7 +100,8 @@ struct jfs {
   float free;
   float usage;
   float io;
-  char slaves[FILE_LINE_BUFFER];
+  char slaves[SLAVES_LEN];
+  int  index;
 };
 
 struct dsk_stat { 
@@ -187,7 +193,7 @@ struct net_param {
   char name[32];
   short flags;
   long bandwidth;
-  char slaves[FILE_LINE_BUFFER];
+  char slaves[SLAVES_LEN];
   char ip[IP_LEN];
   float speed_ib;
   float speed_ob;
