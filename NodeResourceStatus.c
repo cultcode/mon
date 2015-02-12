@@ -1463,10 +1463,15 @@ unsigned long long http_cons(char* ip, short port)
     sockfd = -1;
   }
 
-  errno = 0;
-  cons = strtol(content,NULL,0);
-  if(errno) {
-    perror("strtol() of receved connections");
+  if(strlen(content)) {
+  }
+    errno = 0;
+    cons = strtol(content,NULL,0);
+    if(errno) {
+      perror("strtol() of receved connections");
+      cons = -1;
+    }
+  else {
     cons = -1;
   }
 

@@ -53,6 +53,8 @@ void closeHttp(int sockfd)
 {
   int ret=-1;
 
+  if(sockfd == -1) return;
+
   ret = close(sockfd);
 
   if(ret < 0) {
@@ -75,6 +77,8 @@ void sendHttp(int* sockfdp, char * url, char * connection, char * input, int enc
   char buf[128] = {0};
   time_t t=time(NULL);
   int sockfd = *sockfdp;
+
+  if(sockfd == -1) return;
 
   ParseUrl(url, NULL, host, &port, path);
 
@@ -188,6 +192,8 @@ void recvHttp(int sockfd, char* output, int encode)
   int length=0;
   char buf[128] = {0};
   time_t t=time(NULL);
+
+  if(sockfd == -1) return;
 
   strcat(newline, HTTP_NEWLINE);
   strcat(newline, HTTP_NEWLINE);
