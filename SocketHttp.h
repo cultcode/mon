@@ -9,7 +9,7 @@ extern int createHttp(char * ip, short port, int type);
 
 extern void closeHttp(int sockfd);
 
-extern void sendHttp(int sockfd, char * url, char * connection, char * input, int encode, char *extra_header);
+extern void sendHttp(int* sockfdp, char * url, char * connection, char * input, int encode, char *extra_header);
 
 extern void recvHttp(int sockfd, char* output, int encode);
 

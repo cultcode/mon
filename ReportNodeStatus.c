@@ -235,7 +235,7 @@ if(standalone) {
     sockfd = createHttp(ip,port,SOCK_STREAM);
   }
 
-  sendHttp(sockfd, url, connection, content, 1, NULL);
+  sendHttp(&sockfd, url, connection, content, 1, NULL);
 
 /*analyze http content received
 {"Status":1,"StatusDesc":"success"}

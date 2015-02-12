@@ -67,7 +67,7 @@ void GetNodeStatusList(struct NodeStatus* ns, struct NodeStatusList* nsl, char *
     sockfd = createHttp(ip,port,SOCK_STREAM);
   }
 
-  sendHttp(sockfd, url, connection, content, 1, NULL);
+  sendHttp(&sockfd, url, connection, content, 1, NULL);
 
 /*analyze http content received
 {"Status":1,"StatusDesc":"success","HomeDir":"x:\Clips","LanIp":"192.168.1.1","WanIp":"10.0.0.1","LanPort":"21","WanPort":80}

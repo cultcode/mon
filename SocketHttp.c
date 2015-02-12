@@ -61,7 +61,7 @@ void closeHttp(int sockfd)
   }
 }
   
-void sendHttp(int sockfd, char * url, char * connection, char * input, int encode, char *extra_header)
+void sendHttp(int* sockfdp, char * url, char * connection, char * input, int encode, char *extra_header)
 {
   char sendline[HTTP_LEN]={0};
   char * cipher = NULL;
@@ -74,6 +74,7 @@ void sendHttp(int sockfd, char * url, char * connection, char * input, int encod
   int ret=-1;
   char buf[128] = {0};
   time_t t=time(NULL);
+  int sockfd = *sockfdp;
 
   ParseUrl(url, NULL, host, &port, path);
 
@@ -162,11 +163,18 @@ if (debugl >= 4) {
 
   ret = write(sockfd,sendline,strlen(sendline));
   if (ret < 0) {
-          perror("write() The following error occurred");
-          exit(1);
+    perror("write() The following error occurred");
+
+    if(errno == EPIPE) {
+      closeHttp(sockfd);
+      *sockfdp = -1;
+    }
+    else {
+      exit(1);
+    }
   }else{
 if (debugl >= 3) {
-          printf("Successfully, %d bytes content has been sent!\n", ret);
+    printf("Successfully, %d bytes content has been sent!\n", ret);
 }
   }
 }
@@ -203,10 +211,11 @@ if (debugl >= 4) {
 }
 
   if(strstr(recvline,"OK") == NULL) {
-if (debugl < 4) {
-    printf("recvline:\n%s\n",recvline);
-}
     fprintf(stderr,"wrong HTTP response received\n");
+
+if (debugl < 4) {
+    fprintf(stderr,"recvline:\n%s\n",recvline);
+}
 //    exit(1);
     strcpy(output,"");
   }

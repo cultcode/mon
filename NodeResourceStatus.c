@@ -1452,7 +1452,7 @@ unsigned long long http_cons(char* ip, short port)
 
   strcat(url,"/admin.info");
 
-  sendHttp(sockfd, url, connection, "", 0, extra_header);
+  sendHttp(&sockfd, url, connection, "", 0, extra_header);
 
   memset(content, 0, sizeof(content));
 
