@@ -255,30 +255,34 @@ if(standalone) {
 //    nrs->StatusDesc
 //  );
 
-  if((root = cJSON_Parse(content)) == NULL) {
-    fprintf(stderr,"Error before: [%s]\n",cJSON_GetErrorPtr());
-    exit(1);
-  }
+  if(strlen(content)) {
+    if((root = cJSON_Parse(content)) == NULL) {
+      fprintf(stderr,"Error before: [%s]\n",cJSON_GetErrorPtr());
+      exit(1);
+    }
 
-  item = root->child;
-  nrs->Status = item->valueint;
+    item = root->child;
+    nrs->Status = item->valueint;
 
-  item = item->next;
-  strcpy(nrs->StatusDesc, item->valuestring);
+    item = item->next;
+    strcpy(nrs->StatusDesc, item->valuestring);
 
-  cJSON_Delete(root);
-  
+    cJSON_Delete(root);
+    
 if (debugl >= 3) {
-  printf("ReportNodeStatus()\n"
-    "{"
-    "\"Status\":%d,"
-    "\"StatusDesc\":\"%s\""
-    "}"
-    "\n",
-    nrs->Status,
-    nrs->StatusDesc
-  );
+    printf("ReportNodeStatus()\n"
+      "{"
+      "\"Status\":%d,"
+      "\"StatusDesc\":\"%s\""
+      "}"
+      "\n",
+      nrs->Status,
+      nrs->StatusDesc
+    );
 }
+  }
+  else {
+  }
 
   if(!strcasecmp(connection, "Close")){
     closeHttp(sockfd);

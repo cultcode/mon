@@ -207,36 +207,41 @@ if (debugl < 4) {
     printf("recvline:\n%s\n",recvline);
 }
     fprintf(stderr,"wrong HTTP response received\n");
-    exit(1);
+//    exit(1);
+    strcpy(output,"");
   }
+  else {
 
-  if((content = strstr(recvline, newline)) == NULL) {
-    fprintf(stderr,"strstr failed, string is\n%s\n",recvline);
-    exit(1);
-  }
-
-  content += 4;
-
-  if(encode){
-    length = ContentDecode(NODE_3DES_KEY, NODE_3DES_IV, content, &plain, strlen(content));
-  }else{
-    if((plain = malloc(strlen(content)+1)) == NULL) {
-      perror("malloc()");
+    if((content = strstr(recvline, newline)) == NULL) {
+      fprintf(stderr,"strstr failed, string is\n%s\n",recvline);
       exit(1);
     }
-    strcpy(plain,content);
-    length = strlen(content);
+
+    content += 4;
+
+    if(encode){
+      length = ContentDecode(NODE_3DES_KEY, NODE_3DES_IV, content, &plain, strlen(content));
+    }else{
+      if((plain = malloc(strlen(content)+1)) == NULL) {
+        perror("malloc()");
+        exit(1);
+      }
+      strcpy(plain,content);
+      length = strlen(content);
+    }
+
+    memcpy(output, plain, length);
+    output[length] = 0;
+
+    free(plain);
   }
 
-  memcpy(output, plain, length);
-  output[length] = 0;
+  StripNewLine(output);
 
 if (debugl >= 1) {
   strftime(buf, 64, "%Y-%m-%d %H:%M:%S", localtime(&t));  
   printf("[%s] received:\t%s\n",buf, output);
 }
-
-  free(plain);
 
   return;
 }

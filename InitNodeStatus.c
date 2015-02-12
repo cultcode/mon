@@ -89,9 +89,9 @@ if(servegoal == 3) {
   memset(content, 0, sizeof(content));
   recvHttp(sockfd,content,1);
 
-if (debugl >= 3) {
-  printf("InitNodeStatus() http content received:\n%s\n",content);
-}
+//if (debugl >= 3) {
+//  printf("InitNodeStatus() http content received:\n%s\n",content);
+//}
 
 //  ret = sscanf(content,
 //    "{"
@@ -104,35 +104,39 @@ if (debugl >= 3) {
 //    &ns->NodeId
 //  );
 
-  if((root = cJSON_Parse(content)) == NULL) {
-    fprintf(stderr,"Error before: [%s]\n",cJSON_GetErrorPtr());
-    exit(1);
-  }
+  if(strlen(content)) {
+    if((root = cJSON_Parse(content)) == NULL) {
+      fprintf(stderr,"Error before: [%s]\n",cJSON_GetErrorPtr());
+      exit(1);
+    }
 
-  item = root->child;
-  ns->Status = item->valueint;
+    item = root->child;
+    ns->Status = item->valueint;
 
-  item = item->next;
-  strcpy(ns->StatusDesc, item->valuestring);
+    item = item->next;
+    strcpy(ns->StatusDesc, item->valuestring);
 
-  item = item->next;
-  ns->NodeId = item->valueint;
+    item = item->next;
+    ns->NodeId = item->valueint;
 
-  cJSON_Delete(root);
-  
+    cJSON_Delete(root);
+    
 if (debugl >= 3) {
-  printf("InitNodeStatus()\n"
-    "{"
-    "\"Status\":%d,"
-    "\"StatusDesc\":\"%s\","
-    "\"NodeId\":%d"
-    "}"
-    "\n",
-    ns->Status,
-    ns->StatusDesc,
-    ns->NodeId
-  );
+    printf("InitNodeStatus()\n"
+      "{"
+      "\"Status\":%d,"
+      "\"StatusDesc\":\"%s\","
+      "\"NodeId\":%d"
+      "}"
+      "\n",
+      ns->Status,
+      ns->StatusDesc,
+      ns->NodeId
+    );
 }
+  }
+  else {
+  }
 
   if(!strcasecmp(connection, "Close")){
     closeHttp(sockfd);

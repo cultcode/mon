@@ -682,8 +682,8 @@ void sys_net_single(struct net_param * pa)
 {
   char buf[FILE_LINE_BUFFER] = {0};
 
-  sys_net_single_para(pa->name, "flags", buf);
-  pa->flags = strtol(buf,NULL,0);
+//  sys_net_single_para(pa->name, "flags", buf);
+//  pa->flags = strtol(buf,NULL,0);
 
   sys_net_single_para(pa->name, "speed", buf);
   pa->bandwidth = strtol(buf,NULL,0);
@@ -766,6 +766,7 @@ void sys_net(struct net_data *data)
       {
         if(strcmp(pa[j].name, ifa->ifa_name)) continue;
 
+        pa[j].flags = ifa->ifa_flags;
         strcpy(pa[j].ip,host);
         break;
       }
@@ -1386,7 +1387,7 @@ if (debugl >= 3) {
   for(j=0; j<data->nets; j++) {
 
 if (debugl >= 3) {
-    printf("%s\t%hd\t%ld\t%s\t%s\t%7.3f%%\n",
+    printf("%s\t%#hx\t%ld\t%s\t%s\t%7.3f%%\n",
         pa[j].name,
         pa[j].flags,
         pa[j].bandwidth,

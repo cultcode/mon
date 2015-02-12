@@ -77,9 +77,9 @@ void GetNodeStatusList(struct NodeStatus* ns, struct NodeStatusList* nsl, char *
   memset(content, 0, sizeof(content));
   recvHttp(sockfd,content, 1);
 
-if (debugl >= 3) {
-  printf("GetNodeStatusList() http content received:\n%s\n",content);
-}
+//if (debugl >= 3) {
+//  printf("GetNodeStatusList() http content received:\n%s\n",content);
+//}
 
 //  ret = sscanf(content,
 //    "{"
@@ -100,55 +100,59 @@ if (debugl >= 3) {
 //    &nsl->WanPort
 //  );
 
-  if((root = cJSON_Parse(content)) == NULL) {
-    fprintf(stderr,"Error before: [%s]\n",cJSON_GetErrorPtr());
-    exit(1);
-  }
+  if(strlen(content)) {
+    if((root = cJSON_Parse(content)) == NULL) {
+      fprintf(stderr,"Error before: [%s]\n",cJSON_GetErrorPtr());
+      exit(1);
+    }
 
-  item = root->child;
-  nsl->Status = item->valueint;
+    item = root->child;
+    nsl->Status = item->valueint;
 
-  item = item->next;
-  strcpy(nsl->StatusDesc, item->valuestring);
+    item = item->next;
+    strcpy(nsl->StatusDesc, item->valuestring);
 
-  item = item->next;
-  strcpy(nsl->HomeDir, item->valuestring);
+    item = item->next;
+    strcpy(nsl->HomeDir, item->valuestring);
 
-  item = item->next;
-  strcpy( nsl->LanIp, item->valuestring);
+    item = item->next;
+    strcpy( nsl->LanIp, item->valuestring);
 
-  item = item->next;
-  strcpy( nsl->WanIp, item->valuestring);
+    item = item->next;
+    strcpy( nsl->WanIp, item->valuestring);
 
-  item = item->next;
-  nsl->LanPort = item->valueint;
+    item = item->next;
+    nsl->LanPort = item->valueint;
 
-  item = item->next;
-  nsl->WanPort = item->valueint;
+    item = item->next;
+    nsl->WanPort = item->valueint;
 
-  cJSON_Delete(root);
+    cJSON_Delete(root);
 
 if (debugl >= 3) {
-  printf("GetNodeStatusList()\n"
-    "{"
-    "\"Status\":%d,"
-    "\"StatusDesc\":\"%s\","
-    "\"HomeDir\":\"%s\","
-    "\"LanIp\":\"%s\","
-    "\"WanIp\":\"%s\","
-    "\"LanPort\":%hd,"
-    "\"WanPort\":%hd"
-    "}"
-    "\n",
-    nsl->Status,
-    nsl->StatusDesc,
-    nsl->HomeDir,
-    nsl->LanIp,
-    nsl->WanIp,
-    nsl->LanPort,
-    nsl->WanPort
-  );
+    printf("GetNodeStatusList()\n"
+      "{"
+      "\"Status\":%d,"
+      "\"StatusDesc\":\"%s\","
+      "\"HomeDir\":\"%s\","
+      "\"LanIp\":\"%s\","
+      "\"WanIp\":\"%s\","
+      "\"LanPort\":%hd,"
+      "\"WanPort\":%hd"
+      "}"
+      "\n",
+      nsl->Status,
+      nsl->StatusDesc,
+      nsl->HomeDir,
+      nsl->LanIp,
+      nsl->WanIp,
+      nsl->LanPort,
+      nsl->WanPort
+    );
 }
+  }
+  else {
+  }
 
   if(!strcasecmp(connection, "Close")){
     closeHttp(sockfd);
