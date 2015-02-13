@@ -89,7 +89,8 @@ void GetMemConcernedState(struct mem_data *data, float * usage) {
 void ReportNodeStatus(struct NodeStatusList* nsl, struct NodeResourceStatus* nrs, char * url)
 {
   static int sockfd=-1;
-  char content[CONTENT_LEN];
+  char content_send[CONTENT_LEN]={0};
+  char content[CONTENT_LEN]={0};
   char connection[CONNECTION_LEN] = "Keep-Alive";
   //char connection[CONNECTION_LEN] = "Close";
   //int ret=0;
@@ -230,20 +231,28 @@ if(debugl >= 3) {
 if(standalone) {
   return;
 }
+  strcpy(content_send, content);
 
+CREATEHTTP:
   if(sockfd == -1) {
     sockfd = createHttp(ip,port,SOCK_STREAM);
   }
 
-  sendHttp(&sockfd, url, connection, content, 1, NULL);
+  sendHttp(&sockfd, url, connection, content_send, 1, NULL);
+
+  if(sockfd == -1) goto CREATEHTTP;
+
+  memset(content, 0, sizeof(content));
+
+  recvHttp(&sockfd,url,content,1);
+
+  if(sockfd == -1) goto CREATEHTTP;
 
 /*analyze http content received
 {"Status":1,"StatusDesc":"success"}
 
 {"Status":0,"StatusDesc":"CheckFailed"}
 */
-  memset(content, 0, sizeof(content));
-  recvHttp(sockfd,content,1);
   //printf("ReportNodeStatusList() http content received:\n%s\n",content);
 
 //  ret = sscanf(content,

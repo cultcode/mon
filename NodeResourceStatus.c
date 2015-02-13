@@ -1010,15 +1010,21 @@ void GetCpuState(struct cpu_data * data,struct proc * proc){
   proc[P_STAT].buf = NULL;
   proc[P_STAT].size = 0;
 
-  cpu_sum  =(  p->cpu_total.user - q->cpu_total.user
-             + p->cpu_total.sys  - q->cpu_total.sys
-             + p->cpu_total.wait - q->cpu_total.wait
-             + p->cpu_total.idle - q->cpu_total.idle); 
-  cpu_idle = p->cpu_total.idle - q->cpu_total.idle; 
+  cpu_sum  =(  p->cpu_total.user    - q->cpu_total.user
+             + p->cpu_total.sys     - q->cpu_total.sys
+             + p->cpu_total.wait    - q->cpu_total.wait
+             + p->cpu_total.idle    - q->cpu_total.idle
+             + p->cpu_total.irq     - q->cpu_total.irq
+             + p->cpu_total.softirq - q->cpu_total.softirq
+             + p->cpu_total.steal   - q->cpu_total.steal);
+
+  cpu_idle =   p->cpu_total.idle    - q->cpu_total.idle;
+
   cpu_usage = (cpu_sum-cpu_idle)*100.0/cpu_sum;
   
 if (debugl >= 3) {
   printf("\n/proc/stat\n");
+//Cpu(s):  6.2%us,  3.3%sy,  0.0%ni, 88.5%id,  0.6%wa,  0.0%hi,  1.5%si,  0.0%st
   printf("Cpu_usage  Cpu_sum(jiffies),Cpu_idle(jiffies)\n");
   printf("%.1f%%\t%lld\t%lld\n",cpu_usage,cpu_sum,cpu_idle);
 }
@@ -1438,10 +1444,6 @@ unsigned long long http_cons(char* ip, short port)
   strcat(extra_header,"stat: sessioncount");
   strcat(extra_header, HTTP_NEWLINE);
 
-  if(sockfd == -1) {
-    sockfd = createHttp(ip,port,SOCK_STREAM);
-  }
-
   strcpy(url,ip);
 
   if(port) {
@@ -1452,11 +1454,20 @@ unsigned long long http_cons(char* ip, short port)
 
   strcat(url,"/admin.info");
 
+CREATEHTTP:
+  if(sockfd == -1) {
+    sockfd = createHttp(ip,port,SOCK_STREAM);
+  }
+
   sendHttp(&sockfd, url, connection, "", 0, extra_header);
+
+  if(sockfd == -1) goto CREATEHTTP;
 
   memset(content, 0, sizeof(content));
 
-  recvHttp(sockfd,content,0);
+  recvHttp(&sockfd,url,content,0);
+
+  if(sockfd == -1) goto CREATEHTTP;
 
   if(!strcasecmp(connection, "Close")){
     closeHttp(sockfd);
@@ -1464,13 +1475,13 @@ unsigned long long http_cons(char* ip, short port)
   }
 
   if(strlen(content)) {
-  }
     errno = 0;
     cons = strtol(content,NULL,0);
     if(errno) {
       perror("strtol() of receved connections");
       cons = -1;
     }
+  }
   else {
     cons = -1;
   }

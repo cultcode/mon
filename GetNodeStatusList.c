@@ -75,7 +75,7 @@ void GetNodeStatusList(struct NodeStatus* ns, struct NodeStatusList* nsl, char *
 {"Status":0,"StatusDesc":"CheckFailed","HomeDir":"",",anIp":"","WanIp":"","LanPort":0,"WanPort":0}
 */
   memset(content, 0, sizeof(content));
-  recvHttp(sockfd,content, 1);
+  recvHttp(&sockfd,url,content, 1);
 
 //if (debugl >= 3) {
 //  printf("GetNodeStatusList() http content received:\n%s\n",content);

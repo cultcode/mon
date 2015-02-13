@@ -11,6 +11,6 @@ extern void closeHttp(int sockfd);
 
 extern void sendHttp(int* sockfdp, char * url, char * connection, char * input, int encode, char *extra_header);
 
-extern void recvHttp(int sockfd, char* output, int encode);
+extern void recvHttp(int* sockfdp, char * url, char* output, int encode);
 
 #endif

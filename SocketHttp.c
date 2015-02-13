@@ -93,7 +93,7 @@ void sendHttp(int* sockfdp, char * url, char * connection, char * input, int enc
 
 if (debugl >= 1) {
   strftime(buf, 64, "%Y-%m-%d %H:%M:%S", localtime(&t));  
-  printf("[%s] sent:\t%s\n",buf,input);
+  printf("[%s] sent     to   %s:\t%s\n",buf,url,input);
 }
 
   if(encode){
@@ -183,7 +183,7 @@ if (debugl >= 3) {
   }
 }
 
-void recvHttp(int sockfd, char* output, int encode)
+void recvHttp(int* sockfdp, char * url, char* output, int encode)
 {
   char recvline[HTTP_LEN] = {0};;
   char *plain = NULL;
@@ -192,6 +192,7 @@ void recvHttp(int sockfd, char* output, int encode)
   int length=0;
   char buf[128] = {0};
   time_t t=time(NULL);
+  int sockfd = *sockfdp;
 
   if(sockfd == -1) return;
 
@@ -217,12 +218,14 @@ if (debugl >= 4) {
 }
 
   if(strstr(recvline,"OK") == NULL) {
-    fprintf(stderr,"wrong HTTP response received\n");
+    printf("wrong HTTP response received\n");
 
 if (debugl < 4) {
-    fprintf(stderr,"recvline:\n%s\n",recvline);
+    printf("recvline:\n%s\n",recvline);
 }
-//    exit(1);
+    closeHttp(sockfd);
+    *sockfdp = -1;
+    
     strcpy(output,"");
   }
   else {
@@ -255,7 +258,7 @@ if (debugl < 4) {
 
 if (debugl >= 1) {
   strftime(buf, 64, "%Y-%m-%d %H:%M:%S", localtime(&t));  
-  printf("[%s] received:\t%s\n",buf, output);
+  printf("[%s] received from %s:\t%s\n",buf,url, output);
 }
 
   return;

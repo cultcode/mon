@@ -87,7 +87,7 @@ if(servegoal == 3) {
 {"Status":0,"StatusDesc":"CheckFailed","NodeId ":0}
 */
   memset(content, 0, sizeof(content));
-  recvHttp(sockfd,content,1);
+  recvHttp(&sockfd,url,content,1);
 
 //if (debugl >= 3) {
 //  printf("InitNodeStatus() http content received:\n%s\n",content);
