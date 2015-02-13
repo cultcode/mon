@@ -23,6 +23,8 @@
 #include "NodeResourceStatus.h"
 #include "ReportNodeStatus.h"
 #include "SocketHttp.h"
+#include <libxml/parser.h>
+#include <libxml/tree.h>
 
 #define DEFAULT_DEBUGL 1
 
