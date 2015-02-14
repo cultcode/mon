@@ -16,7 +16,7 @@ int ReadConfigXml(char * fn_xml, char ** opt)
     exit(1);
   }
 
-  if ((doc = xmlReadFile(fn_xml,"UTF-8",XML_PARSE_RECOVER)) == NULL) 
+  if ((doc = xmlReadFile(fn_xml,NULL,XML_PARSE_RECOVER)) == NULL) 
   {
     fprintf(stderr,"Document %s not parsed successfully\n",fn_xml);     
     exit(1);
@@ -69,5 +69,6 @@ int ReadConfigXml(char * fn_xml, char ** opt)
   }
 
   xmlFreeDoc(doc);
+  xmlCleanupParser();
   return count;
 }
