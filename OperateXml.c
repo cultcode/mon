@@ -1,86 +1,73 @@
+#include <string.h>
+#include <stdio.h>
+#include <libxml/parser.h>
+#include <libxml/tree.h>
 #include "OperateXml.h"
 
 int ReadConfigXml(char * fn_xml, char ** opt)
 {
-  xmlDocPtr doc;
-  xmlNodePtr curNode;
-  xmlNodePtr propNodePtr ;
-  xmlChar *szKey;
-  xmlAttrPtr attrPtr;
-  char *szDocName;
+  xmlDocPtr doc=NULL;
+  xmlNodePtr curNode=NULL;
+  xmlChar* szAttr=NULL;
+  int count=0;
 
-  doc = xmlReadFile(fn_xml,"UTF-8",XML_PARSE_RECOVER);
+  if((*opt = malloc(1024)) == NULL) {
+    perror("malloc");
+    exit(1);
+  }
 
-
-  if (NULL == doc) 
+  if ((doc = xmlReadFile(fn_xml,"UTF-8",XML_PARSE_RECOVER)) == NULL) 
   {
-    fprintf(stderr,"Document not parsed successfully\n");     
-    return -1; 
+    fprintf(stderr,"Document %s not parsed successfully\n",fn_xml);     
+    exit(1);
   } 
 
-  ;
-
-  if ((curNode = xmlDocGetRootElement(doc)) == NULL)
+  if (((curNode = xmlDocGetRootElement(doc)) == NULL) || (xmlStrcmp(curNode->name, BAD_CAST "configuration")))
   { 
-    fprintf(stderr,"empty document\n"); 
+    fprintf(stderr,"wrong Node configuration\n"); 
     xmlFreeDoc(doc); 
-    return -1; 
+    exit(1); 
   } 
 
-  if (xmlStrcmp(curNode->name, BAD_CAST "configuration")) 
-  {
-    fprintf(stderr,"document of the wrong type, root node %s != configuration\n",curNode->name); 
-    xmlFreeDoc(doc); 
-    return -1; 
-  } 
-
-  if ((curNode = curNode->xmlChildrenNode) == NULL)
+  if (((curNode = curNode->children) == NULL) || (xmlStrcmp(curNode->name, BAD_CAST "appSettings")))
   { 
-    fprintf(stderr,"empty document\n"); 
+    fprintf(stderr,"wrong Node appSettings\n"); 
     xmlFreeDoc(doc); 
-    return -1; 
+    exit(1); 
   } 
 
-
-  if (xmlStrcmp(curNode->name, BAD_CAST "appSettings")) 
-  {
-    fprintf(stderr,"document of the wrong type, root node %s != appSettings\n",curNode->name); 
-    xmlFreeDoc(doc); 
-    return -1; 
-  } 
-
-  curNode = curNode->xmlChildrenNode
-  propNodePtr = curNode;
+  curNode = curNode->children;
 
   while(curNode != NULL) 
   {
-     //取出节点中的内容
-     if ((!xmlStrcmp(curNode->name, (const xmlChar *)"add"))) 
-     {
-         szKey = xmlNodeGetContent(curNode);
-         printf("add: %s\n", szKey); 
-         xmlFree(szKey); 
-     } 
-     //查找带有属性attribute的节点
-     if (xmlHasProp(curNode,BAD_CAST "attribute"))
-     {
-         propNodePtr = curNode;
-     }
-     curNode = curNode->next; 
-
-    //查找属性
-    attrPtr = propNodePtr->properties;
-    while (attrPtr != NULL)
+    if ((xmlStrcmp(curNode->name, (const xmlChar *)"add"))) 
     {
-       if (!xmlStrcmp(attrPtr->name, BAD_CAST "attribute"))
-       {
-           xmlChar* szAttr = xmlGetProp(propNodePtr,BAD_CAST "attribute");
-           cout           xmlFree(szAttr);
-       }
-       attrPtr = attrPtr->next;
+      fprintf(stderr,"node %s != add\n",curNode->name); 
+      count = -1;
+      break;
+    } 
+
+    if((szAttr = xmlGetProp(curNode,BAD_CAST "key")) == NULL) {
+      fprintf(stderr,"No attribute key\n");
+      count = -1;
+      break;
     }
-  } 
+    strcat(*opt,(char*)szAttr);
+    count++;
+    xmlFree(szAttr);
+
+    if((szAttr = xmlGetProp(curNode,BAD_CAST "value")) == NULL) {
+      fprintf(stderr,"No attribute value\n");
+      count = -1;
+      break;
+    }
+    strcat(*opt,(char*)szAttr);
+    count++;
+    xmlFree(szAttr);
+
+    curNode = curNode->next;
+  }
 
   xmlFreeDoc(doc);
-  return 0;
+  return count;
 }

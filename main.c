@@ -23,8 +23,7 @@
 #include "NodeResourceStatus.h"
 #include "ReportNodeStatus.h"
 #include "SocketHttp.h"
-#include <libxml/parser.h>
-#include <libxml/tree.h>
+#include "OperateXml.h"
 
 #define DEFAULT_DEBUGL 1
 
@@ -102,7 +101,19 @@ int main(int argc, char **argv)
 
   char  url [3][URL_LEN]  = {{0}};
 
+  char ConfigXml[FN_LEN] = {0};
+  char *options=NULL;
+
   memset(url,0,sizeof(url));
+
+/********************************************************
+ * parse xml
+ ********************************************************/
+  strcpy(ConfigXml,argv[0]);
+  strcat(ConfigXml,".config");
+
+  ReadConfigXml(ConfigXml, &options);
+  return 0;
 
 /********************************************************
  * get input variables
