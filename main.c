@@ -83,7 +83,7 @@ int main(int argc, char **argv)
 /********************************************************
  * parse xml
  ********************************************************/
-  if(argc <= 2) {
+  if((argc == 1) || ((argc==2) &&(argv[1][0] != '-'))) {
     if(argc == 1) {
       strcpy(ConfigXml,argv[0]);
       strcat(ConfigXml,".config");
