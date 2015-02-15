@@ -1499,13 +1499,14 @@ unsigned long long GetCurrentConn(char* ip_char, short port){
 
   if(waytogetcons == 0) {
     cons = http_cons("127.0.0.1", 80);
+    printf("\nadmin.info\n");
   }
   else {
     cons = proc_cons("tcp",ip_int,port);
+    printf("\n/proc/net/tcp\n");
   }
 
 if (debugl >= 3) {
-  printf("\n/proc/net/tcp\n");
   printf("Number of conncetions to (ip: %s(%#x) port: %d(%#x)) is %llu\n",ip_char, ip_int, port,port, cons);
 }
 

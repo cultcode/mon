@@ -42,6 +42,7 @@ short  LanPort;
 short  WanPort;
 char   url[3][URL_LEN];
 int waytogetcons=0;
+char *SelfName;
 
 int main(int argc, char **argv)
 {
@@ -52,8 +53,11 @@ int main(int argc, char **argv)
 
   char **options=NULL;
   char ConfigXml[FN_LEN] = {0};
-  int argcount;
-  FILE *fp=NULL;
+  int argcount=0;
+  struct stat laststat={0}, tempstat={0};
+  int ArgMode=0;
+
+  SelfName=argv[0];
 
 #if 0
   else if((hptr = geturlbyname(host[0])) == NULL) {
@@ -81,29 +85,38 @@ int main(int argc, char **argv)
   strcpy(ConfigXml,argv[0]);
   strcat(ConfigXml,".config");
 
-  if((fp=fopen(ConfigXml,"r")) != NULL) {
-    if((argcount = ReadConfigXml(ConfigXml, &options)) < 0) {
-      exit(1);
-    }
-
-    ParseOptions(argcount, options);
-
-    for(i=0;i<argcount;i++) {
-      free(options[i]);
-    }
-    free(options);
-    options = NULL;
-    fclose(fp);
+  if(stat(ConfigXml, &tempstat) != -1) {
+    ArgMode = 1;
+    goto GET_ARGUMENTS_XML;
   }
   else {
+    ArgMode = 0;
     ParseOptions(argc, argv);
+    goto GET_ARGUMENTS_END;
   }
+
+GET_ARGUMENTS_XML:
+  memcpy(&laststat,&tempstat, sizeof(struct stat));
+
+  if((argcount = ReadConfigXml(ConfigXml, &options)) < 0) {
+    exit(1);
+  }
+
+  ParseOptions(argcount, options);
+
+  for(i=0;i<argcount;i++) {
+    free(options[i]);
+  }
+  free(options);
+  options = NULL;
+
+GET_ARGUMENTS_END:
 
 if(standalone) {
   strcpy(nsl.HomeDir,HomeDir);
   strcpy(nsl.WanIp,WanIp);
   strcpy(nsl.LanIp,LanIp);
-  nsl.LanPort = LanPort;
+  nsl.WanPort = WanPort;
   nsl.LanPort = LanPort;
 }
 
@@ -137,24 +150,30 @@ if(!standalone){
  * ReportNodeStatus
  ********************************************************/
 
-if(looptimes==-1) {
-  while(1) {
-    ReportNodeStatus(&nsl, &nrs, url[2]);
+while(looptimes) {
+  ReportNodeStatus(&nsl, &nrs, url[2]);
 
+  if(looptimes == -1 ) {
     sleep(refresh_interval);
-
   }
-}
-else {
-  while(looptimes--) {
-    ReportNodeStatus(&nsl, &nrs, url[2]);
-
+  else {
+    looptimes--;
     if(looptimes) {
       sleep(refresh_interval);
     }
+  }
 
+  if(ArgMode == 0) continue;
+
+  if(stat(ConfigXml, &tempstat) == -1) {
+    continue;
+  }
+
+  if(tempstat.st_mtime != laststat.st_mtime)
+  {
+    goto GET_ARGUMENTS_XML;
   }
 }
 
-  return 0;
+return 0;
 }

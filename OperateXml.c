@@ -51,7 +51,7 @@ void ParseOptions(int argc,char**argv)
     { "zone",  1,  NULL,  'z'},  
     { "looptimes",  1,  NULL,  't'},  
     { "servegoal",  1,  NULL,  's'},  
-    { "connections",  1,  NULL,  'e'},  
+    { "waytogetcons",  1,  NULL,  'e'},  
     { "help",  0,  NULL,  'h'},  
     {  0,  0,  0,  0},  
   };
@@ -67,6 +67,7 @@ if(debugl >= 1) {
 /********************************************************
  * get input variables
  ********************************************************/
+  optind = 1;
   while ( -1 != (i = getopt_long(argc, argv, short_options, long_options, NULL))) {
     switch (i) {
     case 'a':
@@ -159,7 +160,7 @@ int ReadConfigXml(char * fn_xml, char *** opt)
     exit(1);
   }
   memset((*opt)[count], 0, OPTION_LEN);
-  strcpy((*opt)[count],fn_xml);
+  strcpy((*opt)[count],SelfName);
   count++;
 
   //read file
