@@ -1,6 +1,11 @@
 #ifndef OPERATEXML_H 
 #define OPERATEXML_H 
 
-extern int ReadConfigXml(char * fn_xml, char ** opt);
+#define OPTIONS_LEN 128
+#define OPTION_LEN 2048
+
+extern int ReadConfigXml(char * fn_xml, char *** opt);
+
+extern void ParseOptions(int argc,char**argv);
 
 #endif

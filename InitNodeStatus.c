@@ -37,7 +37,7 @@ void InitNodeStatus(struct NodeStatus* ns, char* url)
 {"EpochTime":" 97d76a","NodeName":"Imgo-1","Version":"3.0"}
 */
 
-  ns->EpochTime = GetLocaltimeSeconds();
+  ns->EpochTime = GetLocaltimeSeconds(servertimezone);
 
   gethostname(ns->NodeName,NODENAME_LEN);
 

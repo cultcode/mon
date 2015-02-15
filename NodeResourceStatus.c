@@ -1497,9 +1497,10 @@ unsigned long long GetCurrentConn(char* ip_char, short port){
  ********************************************************/
   ip_int = ConvertIpC2I(ip_char);
 
-  cons = http_cons("127.0.0.1", 80);
-
-  if(cons == -1) {
+  if(waytogetcons == 0) {
+    cons = http_cons("127.0.0.1", 80);
+  }
+  else {
     cons = proc_cons("tcp",ip_int,port);
   }
 

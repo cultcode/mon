@@ -39,7 +39,7 @@ void GetNodeStatusList(struct NodeStatus* ns, struct NodeStatusList* nsl, char *
 */
   memset(content, 0, sizeof(content));
 
-  nsl->EpochTime = GetLocaltimeSeconds();
+  nsl->EpochTime = GetLocaltimeSeconds(servertimezone);
   nsl->NodeId = ns->NodeId;
 
 //  sprintf(content,

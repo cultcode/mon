@@ -144,7 +144,7 @@ if(debugl >= 3) {
 }
   proc_init(proc);
 
-  nrs->EpochTime = GetLocaltimeSeconds();
+  nrs->EpochTime = GetLocaltimeSeconds(servertimezone);
 
   nrs->NodeId = nsl->NodeId;
 

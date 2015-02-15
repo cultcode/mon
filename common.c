@@ -6,7 +6,6 @@
 #include <arpa/inet.h>
 #include "common.h"
 
-
 void StripNewLine(char *buf)
 {
   int i=0;
@@ -22,14 +21,14 @@ void StripNewLine(char *buf)
 
 }
 
-long GetLocaltimeSeconds()
+long GetLocaltimeSeconds(int servertimezone)
 {
   time_t t=time(NULL);
 
   t += servertimezone * 3600;
-if (debugl >= 4) {
-  printf("GetLocaltimeSeconds() %ld %#lx\n",t,t);
-}
+//if (debugl >= 4) {
+//  printf("GetLocaltimeSeconds() %ld %#lx\n",t,t);
+//}
 
   return (long)t;
 }
@@ -170,8 +169,8 @@ void ParseUrl(char * url, char * protocol, char * ip, short * port, char* path) 
   else {
   }
 
-if (debugl >= 3) {
-  printf("url:%s\nprotocol:%s\thost:%s[ip:%s]\tport:%hd,path:%s\n",url, protocol, host,ip, *port, path);
-}
+//if (debugl >= 3) {
+//  printf("url:%s\nprotocol:%s\thost:%s[ip:%s]\tport:%hd,path:%s\n",url, protocol, host,ip, *port, path);
+//}
 
 }

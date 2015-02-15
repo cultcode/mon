@@ -5,6 +5,7 @@
 #include <openssl/bio.h>
 #include <openssl/evp.h>
 #include "common.h"
+#include "main.h"
 #include "Security.h"
 
 static int DesCbcEncode(char* enckey, char* encIv, char *input,  char *output, int length)

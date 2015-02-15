@@ -5,14 +5,6 @@
 #define PORT_LEN 32
 #define URL_LEN 1024
 
-extern int debugl;
-
-extern int servertimezone;
-
-extern int servegoal;
-
-extern int standalone;
-
 extern void StripNewLine(char *buf);
 
 extern long GetLocaltimeSeconds();
