@@ -47,6 +47,7 @@ char *SelfName;
 int main(int argc, char **argv)
 {
   int i=0;
+  int ret;
   struct NodeStatus ns = {0};
   struct NodeStatusList nsl = {0};
   struct NodeResourceStatus nrs = {0};
@@ -82,16 +83,30 @@ int main(int argc, char **argv)
 /********************************************************
  * parse xml
  ********************************************************/
-  strcpy(ConfigXml,argv[0]);
-  strcat(ConfigXml,".config");
+  if(argc <= 2) {
+    if(argc == 1) {
+      strcpy(ConfigXml,argv[0]);
+      strcat(ConfigXml,".config");
+    }else {
+      strcpy(ConfigXml,argv[1]);
+    }
 
-  if(stat(ConfigXml, &tempstat) != -1) {
-    ArgMode = 1;
-    goto GET_ARGUMENTS_XML;
+    if(stat(ConfigXml, &tempstat) != -1) {
+      ArgMode = 1;
+      goto GET_ARGUMENTS_XML;
+    }
+    else {
+      fprintf(stderr,"Neither cmdline arguments nor .xml provieded\n");
+      exit(1);
+    }
   }
   else {
     ArgMode = 0;
-    ParseOptions(argc, argv);
+    ret = ParseOptions(argc, argv);
+
+    if(ret) {
+      exit(1);
+    }
     goto GET_ARGUMENTS_END;
   }
 
@@ -102,13 +117,17 @@ GET_ARGUMENTS_XML:
     exit(1);
   }
 
-  ParseOptions(argcount, options);
+  ret = ParseOptions(argcount, options);
 
   for(i=0;i<argcount;i++) {
     free(options[i]);
   }
   free(options);
   options = NULL;
+
+  if(ret) {
+    exit(1);
+  }
 
 GET_ARGUMENTS_END:
 

@@ -6,6 +6,6 @@
 
 extern int ReadConfigXml(char * fn_xml, char *** opt);
 
-extern void ParseOptions(int argc,char**argv);
+extern int ParseOptions(int argc,char**argv);
 
 #endif
