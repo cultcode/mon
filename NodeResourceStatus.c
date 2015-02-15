@@ -1499,11 +1499,15 @@ unsigned long long GetCurrentConn(char* ip_char, short port){
 
   if(waytogetcons == 0) {
     cons = http_cons("127.0.0.1", 80);
+if (debugl >= 3) {
     printf("\nadmin.info\n");
+}
   }
   else {
     cons = proc_cons("tcp",ip_int,port);
+if (debugl >= 3) {
     printf("\n/proc/net/tcp\n");
+}
   }
 
 if (debugl >= 3) {

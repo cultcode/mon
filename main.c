@@ -173,25 +173,24 @@ while(looptimes) {
   ReportNodeStatus(&nsl, &nrs, url[2]);
 
   if(looptimes == -1 ) {
-    sleep(refresh_interval);
   }
   else {
     looptimes--;
-    if(looptimes) {
-      sleep(refresh_interval);
-    }
   }
+
+  if(!looptimes) break;
+
+  sleep(refresh_interval);
 
   if(ArgMode == 0) continue;
 
-  if(stat(ConfigXml, &tempstat) == -1) {
-    continue;
-  }
+  if(stat(ConfigXml, &tempstat) == -1)  continue;
 
   if(tempstat.st_mtime != laststat.st_mtime)
   {
     goto GET_ARGUMENTS_XML;
   }
+
 }
 
 return 0;
