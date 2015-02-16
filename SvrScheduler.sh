@@ -10,6 +10,11 @@ if [ "$#" -ne 2 ];then
   exit 1;
 fi;
 
+if [ ! -x "$1" ];then
+  echo "$1 is not existent or not executable"
+  exit 1;
+fi;
+
 SERVICE_DIR=$(dirname "$1")
 SERVICE_NAME=$(basename "$1")
 COMMAND=$2
