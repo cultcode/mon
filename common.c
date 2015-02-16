@@ -14,15 +14,17 @@ void ReopenLog(int signum)
 
   if(strlen(file_stdout)) {
     fclose(stdout);
-    if((fp=freopen(file_stdout,"r", stdout)) == NULL) {
+    if((fp=freopen(file_stdout,"w", stdout)) == NULL) {
       perror("freopen stdout");
+      freopen("CON","w",stdout); 
     }
   }
 
   if(strlen(file_stderr)) {
     fclose(stderr);
-    if((fp=freopen(file_stderr,"r", stderr)) == NULL) {
+    if((fp=freopen(file_stderr,"w", stderr)) == NULL) {
       perror("freopen stderr");
+      freopen("CON","w",stderr); 
     }
   }
 }

@@ -1,6 +1,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <getopt.h>
+#include <signal.h>
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 #include "OperateXml.h"
@@ -140,7 +141,7 @@ void usage() {
     "-t  --looptimes  :specify report times if necessary, default to dead-while\n"
     "-s  --servegoal  :specify server program type, 2 is for 2nd CDN server, 3 is for 3rd CDN server, default to 3\n"
     "-e  --waytogetcons:  how to get connections, 0(default) is http, non-0 is from /proc\n"
-    "-f  --logfile    :specify stdout&stderr log file\n"
+    "-f  --logfile    :specify stdout&stderr redirection log file\n"
     "-h  --help       :print this help info\n"
     );
 }
@@ -236,8 +237,11 @@ if(debugl >= 1) {
       waytogetcons = atoi(optarg);
       break;
     case 'f':
-      strcpy(file_stdout, optarg);
-      strcpy(file_stderr, optarg);
+      if(strcmp(file_stdout, optarg)) {
+        strcpy(file_stdout, optarg);
+        strcpy(file_stderr, optarg);
+        ReopenLog(SIGUSR1);
+      }
       break;
     case 't':
       looptimes  = atoi(optarg);
@@ -258,6 +262,7 @@ if(debugl >= 1) {
   if(standalone & (debugl==DEFAULT_DEBUGL)) {
     debugl = 3;
   }
+
 
 if (debugl >= 1) {
   printf("debugl: %d\ninit url: %s\nget url: %s\nreport url: %s\nrefresh interval %d\ncpu_average_interval %d\nmem_average_interval %d\ndsk_average_interval %d\nnet_average_interval %d\nwanip:%s, wanport %hd, lanip %s, lanport %hd, homedir %s\nserver time zone %d\nnumber of loops %d\nway to get cons %d\n",debugl, url[0], url[1], url[2], refresh_interval, cpu_average_interval, mem_average_interval, dsk_average_interval, net_average_interval,WanIp,WanPort,LanIp,LanPort,HomeDir,servertimezone, looptimes, waytogetcons);
