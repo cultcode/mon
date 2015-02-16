@@ -10,4 +10,4 @@ SvrScheduler.sh   ：运行脚本
 1. 将以上3个文件拷贝到/home/Imgo.NodeStatusSvr/
 
 2. 添加以下cronjob
-* * * * * /home/Imgo.NodeStatusSvr/SvrScheduler.sh /home/Imgo.NodeStatusSvr/NodeStatusSvr start >& LOG_FILE
+* * * * * /home/Imgo.NodeStatusSvr/SvrScheduler.sh /home/Imgo.NodeStatusSvr/NodeStatusSvr start >& /home/Imgo.NodeStatusSvr/NodeStatusSvr.log
