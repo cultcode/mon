@@ -133,6 +133,10 @@ GET_ARGUMENTS_XML:
 GET_ARGUMENTS_END:
 
 if(standalone) {
+  if(!(strlen(HomeDir) && strlen(WanIp) && strlen(LanIp) && WanPort && LanPort)) {
+    printf("Program runs in standalone mode, but not all arguments provided\n");
+    exit(1);
+  }
   strcpy(nsl.HomeDir,HomeDir);
   strcpy(nsl.WanIp,WanIp);
   strcpy(nsl.LanIp,LanIp);

@@ -216,15 +216,15 @@ if(debugl >= 1) {
       net_average_interval = atoi(optarg);
       break;
     case 'w':
-      standalone  = 1;
+      //standalone  = 1;
       ParseUrl(optarg,NULL,WanIp,&WanPort,NULL);
       break;
     case 'l':
-      standalone  = 1;
+      //standalone  = 1;
       ParseUrl(optarg,NULL,LanIp,&LanPort,NULL);
       break;
     case 'o':
-      standalone  = 1;
+      //standalone  = 1;
       strcpy(HomeDir, optarg);
       break;
     case 'z':
