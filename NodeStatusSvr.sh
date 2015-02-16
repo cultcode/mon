@@ -3,6 +3,7 @@ set -x
 
 #source /etc/profile
 workdir=$(dirname "$0")
+selfname=$(basename "$0")
 
 process=( 'NodeStatusSvr' )
 
@@ -11,7 +12,7 @@ for p in ${process[@]}; do
 	if [ "${#item}" -gt 0 ];then
 		echo ""		 
 	else	
-		${workdir}/NodeStatusSvr >& ${workdir}/log &
+		${workdir}/NodeStatusSvr >& ${workdir}/${selfname}.log &
 		echo ""
 	fi
 done
