@@ -32,8 +32,8 @@ int ReadConfigXml(char * fn_xml, char *** opt)
   //read file
   if ((doc = xmlReadFile(fn_xml,NULL,XML_PARSE_RECOVER)) == NULL) 
   {
-    fprintf(stderr,"Document %s not parsed successfully\n",fn_xml);     
-    exit(1);
+    printf("Document %s not parsed successfully\n",fn_xml);     
+    return count;
   } 
   else {
     printf("Be Noticed: reading configure arguments from %s......\n",fn_xml);
@@ -42,9 +42,9 @@ int ReadConfigXml(char * fn_xml, char *** opt)
   //get root node, e.g. <configuration/> and check error
   if (((curNode = xmlDocGetRootElement(doc)) == NULL) || (xmlStrcmp(curNode->name, BAD_CAST "configuration")))
   { 
-    fprintf(stderr,"wrong Node configuration\n"); 
+    printf("wrong Node configuration\n"); 
     xmlFreeDoc(doc); 
-    exit(1); 
+    return count;
   } 
 
   //get <appSettings/> and check error
@@ -61,20 +61,20 @@ int ReadConfigXml(char * fn_xml, char *** opt)
 
   if(!curNode)
   {
-    fprintf(stderr,"wrong Node appSettings\n"); 
+    printf("wrong Node appSettings\n"); 
     xmlFreeDoc(doc); 
-    exit(1); 
+    return count;
   }
 
   //get <add\> and check error
   curNode = curNode->children;
-  while(curNode) 
+  for(;curNode;curNode = curNode->next)
   {
     if((curNode->type == XML_ELEMENT_NODE) && (!xmlStrcmp(curNode->name, BAD_CAST "add")))
     {
       if((szAttr = xmlGetProp(curNode,BAD_CAST "key")) == NULL) {
-        fprintf(stderr,"No attribute key\n");
-        count = -1;
+        printf("No attribute key\n");
+        //count = -1;
         break;
       }
 
@@ -97,8 +97,8 @@ int ReadConfigXml(char * fn_xml, char *** opt)
       xmlFree(szAttr);
 
       if((szAttr = xmlGetProp(curNode,BAD_CAST "value")) == NULL) {
-        fprintf(stderr,"No attribute value\n");
-        count = -1;
+        printf("No attribute value\n");
+        //count = -1;
         break;
       }
 
@@ -113,7 +113,6 @@ int ReadConfigXml(char * fn_xml, char *** opt)
       xmlFree(szAttr);
     } 
 
-    curNode = curNode->next;
   }
 
   xmlFreeDoc(doc);

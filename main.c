@@ -113,20 +113,21 @@ int main(int argc, char **argv)
 GET_ARGUMENTS_XML:
   memcpy(&laststat,&tempstat, sizeof(struct stat));
 
-  if((argcount = ReadConfigXml(ConfigXml, &options)) < 0) {
-    exit(1);
+  if((argcount = ReadConfigXml(ConfigXml, &options)) <= 0) {
+    //exit(1);
   }
+  else {
+    ret = ParseOptions(argcount, options);
 
-  ret = ParseOptions(argcount, options);
+    for(i=0;i<argcount;i++) {
+      free(options[i]);
+    }
+    free(options);
+    options = NULL;
 
-  for(i=0;i<argcount;i++) {
-    free(options[i]);
-  }
-  free(options);
-  options = NULL;
-
-  if(ret) {
-    exit(1);
+    if(ret) {
+      //exit(1);
+    }
   }
 
 GET_ARGUMENTS_END:
