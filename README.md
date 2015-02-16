@@ -1,8 +1,13 @@
-Files:
-  1.NodeStatusSvr         :executable file 
-  2.NodeStatusSvr.config  :contains run-time arguments, please run NodeStatusSvr -h to get more info. 
-  3.SvrScheduler.sh       :shell script used to start/restart/stop NodeStatusSvr
+名称：  NodeStatusSvr
+功能：  节点资源监控及上报
+文件：
+NodeStatusSvr   ：主程序
+NodeStatusSvr.config  ：配置文件
+SvrScheduler.sh   ：运行脚本
 
-How to install:
-  1. add below line into cron job list:
-    * * * * * SvrScheduler.sh NodeStatusSvr start >/dev/null 2>&1
+
+安装步骤：
+1. 将以上3个文件拷贝到/home/Imgo.NodeStatusSvr/
+
+2. 添加以下cronjob
+* * * * * /home/Imgo.NodeStatusSvr/SvrScheduler.sh /home/Imgo.NodeStatusSvr/NodeStatusSvr start >& LOG_FILE
