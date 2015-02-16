@@ -1,11 +1,11 @@
 #!/bin/bash
-#set -x
+set -x
 
 usage () {
-  echo "Usage: $0 SERVICE_NAME < start | stop | restart | status >"
+  echo "Usage: $0 SERVICE_NAME < start | stop | restart | status > [log_file]"
 }
 
-if [ "$#" -ne 2 ];then
+if [ "$#" -lt 2 ];then
   usage;
   exit 1;
 fi;
@@ -17,6 +17,13 @@ fi;
 
 SERVICE_DIR=$(dirname "$1")
 SERVICE_NAME=$(basename "$1")
+
+if [ -n $3 ];then
+  LOG_FILE=$3
+else
+  LOG_FILE="${SERVICE_DIR}/${SERVICE_NAME}.log"
+fi;
+
 COMMAND=$2
 RETVAL=0
 items=""
@@ -41,7 +48,7 @@ start() {
     RETVAL=$?
     return $RETVAL;
   else
-    cmd_start="${SERVICE_DIR}/$SERVICE_NAME ${SERVICE_DIR}/${SERVICE_NAME}.config >& ${SERVICE_DIR}/${SERVICE_NAME}.log &"
+    cmd_start="${SERVICE_DIR}/$SERVICE_NAME ${SERVICE_DIR}/${SERVICE_NAME}.config >& $LOG_FILE &"
     echo ${cmd_start}
     echo ${cmd_start}|awk '{system($0)}'
     RETVAL=$?

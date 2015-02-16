@@ -139,7 +139,7 @@ void usage() {
     "-z  --zone       :specify timezone if necessary\n"
     "-t  --looptimes  :specify report times if necessary, default to dead-while\n"
     "-s  --servegoal  :specify server program type, 2 is for 2nd CDN server, 3 is for 3rd CDN server, default to 3\n"
-    "-e  --connections:how to get connections, 0(default) is http, non-0 is from /proc\n"
+    "-e  --waytogetcons:  how to get connections, 0(default) is http, non-0 is from /proc\n"
     "-h  --help       :print this help info\n"
     );
 }
