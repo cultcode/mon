@@ -140,6 +140,7 @@ void usage() {
     "-t  --looptimes  :specify report times if necessary, default to dead-while\n"
     "-s  --servegoal  :specify server program type, 2 is for 2nd CDN server, 3 is for 3rd CDN server, default to 3\n"
     "-e  --waytogetcons:  how to get connections, 0(default) is http, non-0 is from /proc\n"
+    "-f  --logfile    :specify stdout&stderr log file\n"
     "-h  --help       :print this help info\n"
     );
 }
@@ -148,7 +149,7 @@ int ParseOptions(int argc,char**argv)
 {
   int  i=0;
   int flags=0;
-  char* const short_options = "a:b:r:i:g:p:c:m:d:n:w:l:o:z:t:s:e:h";
+  char* const short_options = "a:b:r:i:g:p:c:m:d:n:w:l:o:z:t:s:e:f:h";
   struct option long_options[] = {  
     { "standalone",  1,  NULL,  'a'},  
     { "debugl",  1,  NULL,  'b'},  
@@ -167,6 +168,7 @@ int ParseOptions(int argc,char**argv)
     { "looptimes",  1,  NULL,  't'},  
     { "servegoal",  1,  NULL,  's'},  
     { "waytogetcons",  1,  NULL,  'e'},  
+    { "logfile",  1,  NULL,  'f'},  
     { "help",  0,  NULL,  'h'},  
     {  0,  0,  0,  0},  
   };
@@ -232,6 +234,10 @@ if(debugl >= 1) {
       break;
     case 'e':
       waytogetcons = atoi(optarg);
+      break;
+    case 'f':
+      strcpy(file_stdout, optarg);
+      strcpy(file_stderr, optarg);
       break;
     case 't':
       looptimes  = atoi(optarg);

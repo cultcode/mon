@@ -6,6 +6,27 @@
 #include <arpa/inet.h>
 #include "common.h"
 
+void ReopenLog(int signum)
+{
+  FILE *fp=NULL;
+
+  printf("Caught signal %d\n",signum);
+
+  if(strlen(file_stdout)) {
+    fclose(stdout);
+    if((fp=freopen(file_stdout,"r", stdout)) == NULL) {
+      perror("freopen stdout");
+    }
+  }
+
+  if(strlen(file_stderr)) {
+    fclose(stderr);
+    if((fp=freopen(file_stderr,"r", stderr)) == NULL) {
+      perror("freopen stderr");
+    }
+  }
+}
+
 void StripNewLine(char *buf)
 {
   int i=0;

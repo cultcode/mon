@@ -43,6 +43,8 @@ short  WanPort;
 char   url[3][URL_LEN];
 int waytogetcons=0;
 char *SelfName;
+char file_stdout[FN_LEN];
+char file_stderr[FN_LEN];
 
 int main(int argc, char **argv)
 {
@@ -150,6 +152,8 @@ if(standalone) {
 if(!standalone) {
   signal(SIGPIPE, SIG_IGN);
 }
+
+signal(SIGUSR1, ReopenLog);
 
 /********************************************************
  * InitNodeStatus

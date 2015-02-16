@@ -32,4 +32,5 @@ extern short  WanPort;
 
 extern int waytogetcons;
 extern char* SelfName;
+
 #endif
