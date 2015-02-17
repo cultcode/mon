@@ -11,19 +11,21 @@ if [ "$#" -ne 2 ];then
 fi;
 
 if [ ! -f "$1" ];then
-  echo "$1 is not existent"
+  echo "SERVICE_NAME $1 is not existent"
+  usage;
   exit 1;
 fi;
 
 if [ ! -f "$2" ];then
-  echo "$2 is not existent"
+  echo "LOG_FILE $2 is not existent"
+  usage;
   exit 1;
 fi;
 
-SERVICE_DIR=$1
+SERVICE_NAME=$1
 
 LOG_FILE=$2
-LOG_FILE_BAK=${LOG_FILE}"."`date`
+LOG_FILE_BAK=${LOG_FILE}"."$(date +"%Y%m%d_%H%M%S")
 
 RETVAL=0
 items=""
@@ -51,9 +53,9 @@ init () {
     RETVAL=$?
 
     if [ $RETVAL -eq 0 ];then
-      echo "Truncate LogFile of $p Succeed";
+      echo "Truncate $LOG_FILE of Process $p Succeed";
     else 
-      echo "Truncate LogFile of $p Fail";
+      echo "Truncate $LOG_FILE of Process $p Fail";
     fi;      		    
 
   done

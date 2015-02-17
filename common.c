@@ -12,21 +12,32 @@ void ReopenLog(int signum)
 
   printf("Caught signal %d\n",signum);
 
-  if(strlen(file_stdout)) {
+  if((fp=fopen(file_stdout,"w")) == NULL) {
+    perror("fopen");
+    fprintf(stderr,"%s\n",file_stdout);
+  }
+  else
+  {
+    fclose(fp);
     fclose(stdout);
     if((fp=freopen(file_stdout,"w", stdout)) == NULL) {
       perror("freopen stdout");
-      freopen("CON","w",stdout); 
     }
   }
 
-  if(strlen(file_stderr)) {
+  if((fp=fopen(file_stderr,"w")) == NULL) {
+    perror("fopen");
+    fprintf(stderr,"%s\n",file_stderr);
+  }
+  else
+  {
+    fclose(fp);
     fclose(stderr);
     if((fp=freopen(file_stderr,"w", stderr)) == NULL) {
       perror("freopen stderr");
-      freopen("CON","w",stderr); 
     }
   }
+
 }
 
 void StripNewLine(char *buf)
