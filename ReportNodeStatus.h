@@ -8,7 +8,7 @@ struct NodeResourceStatus{
   long  EpochTime;
   int   NodeId;
   long long CurrentConn;
-  int CurrentBandwidth;
+  long long CurrentBandwidth;
   long long DiskTotalSpace;
   long long DiskFreeSpace;
   float CpuUsage;

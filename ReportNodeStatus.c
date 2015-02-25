@@ -20,7 +20,7 @@
 #include "NodeResourceStatus.h"
 #include "cJSON.h"
 
-void GetNetworkConcernedStatus(struct net_data *data, char * ip, short port, float * usage, int * ipstate, int * bandwidth, long long * cons) {
+void GetNetworkConcernedStatus(struct net_data *data, char * ip, short port, float * usage, int * ipstate, long long * bandwidth, long long * cons) {
   int i=0;
   struct net_param *pa=NULL;
 
