@@ -39,10 +39,10 @@ rm   -rf /home/Imgo.NodeStatusSvr/NodeStatusSvr && \
 rm   -rf /home/Imgo.NodeStatusSvr/NodeStatusSvr.config && \
 rm   -rf /home/Imgo.NodeStatusSvr/LogTruncate.sh && \
 rm   -rf /home/Imgo.NodeStatusSvr/SvrScheduler.sh && \
-wget -nH -P . --no-check-certificate http://github.com/cultcode/mon/raw/master/NodeStatusSvr && \
-wget -nH -P . --no-check-certificate http://github.com/cultcode/mon/raw/master/NodeStatusSvr.config && \
-wget -nH -P . --no-check-certificate http://github.com/cultcode/mon/raw/master/LogTruncate.sh && \
-wget -nH -P . --no-check-certificate http://github.com/cultcode/mon/raw/master/SvrScheduler.sh && \
+wget -nH -P . -N --no-check-certificate http://github.com/cultcode/mon/raw/master/NodeStatusSvr && \
+wget -nH -P . -N --no-check-certificate http://github.com/cultcode/mon/raw/master/NodeStatusSvr.config && \
+wget -nH -P . -N --no-check-certificate http://github.com/cultcode/mon/raw/master/LogTruncate.sh && \
+wget -nH -P . -N --no-check-certificate http://github.com/cultcode/mon/raw/master/SvrScheduler.sh && \
 chmod +x /home/Imgo.NodeStatusSvr/NodeStatusSvr && \
 chmod +x /home/Imgo.NodeStatusSvr/NodeStatusSvr.config && \
 chmod +x /home/Imgo.NodeStatusSvr/LogTruncate.sh && \
