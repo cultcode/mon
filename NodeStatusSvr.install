@@ -1,51 +1,69 @@
 #!/bin/bash
-#set -x
+set -x
+
+user=`whoami`
+RETVAL=0
 
 function exec_su () {
   echo "Going to execute command: $*"
-  expect -c "
-    set timeout -1
-    spawn su -p -c \"$*\" root
-    expect Password:
-    send pEoF-5cBl-dJNN-A2O8\r
-    expect eof
-  "
+  if [ $user == "root" ]; then
+    echo $* | awk '{system($0)}'
+    RETVAL=$?
+  else
+    expect -c "
+      set timeout -1
+      spawn su -p -c \"$*\" root
+      expect Password:
+      send pEoF-5cBl-dJNN-A2O8\r
+      expect eof
+    "
+    RETVAL=$?
+  fi
+
+  if [ $RETVAL -eq 0 ];then
+    echo "Succeed";
+  else 
+    echo "Fail";
+    exit 1;
+  fi;      		    
 }
 
-#wget -nH -P . -N http://github.com/cultcode/mon/raw/master/NodeStatusSvr
-#wget -nH -P . -N http://github.com/cultcode/mon/raw/master/NodeStatusSvr.config
-#wget -nH -P . -N http://github.com/cultcode/mon/raw/master/LogTruncate.sh
-#wget -nH -P . -N http://github.com/cultcode/mon/raw/master/SvrScheduler.sh
-
-if [ ! -f ./NodeStatusSvr ] || [ ! -f ./NodeStatusSvr.config ] || [ ! -f ./LogTruncate.sh ] || [ ! -f ./SvrScheduler.sh ]; then 
-  ls
-  echo "Required files miss";
-  exit 1;
-else
-  echo "Required files stand by"
-fi
+#cp /home/users/luowei/mon/NodeStatusSvr . && \
+#cp /home/users/luowei/mon/NodeStatusSvr.config . && \
+#cp /home/users/luowei/mon/LogTruncate.sh . && \
+#cp /home/users/luowei/mon/SvrScheduler.sh . && \
 
 CMD="\
 mkdir -p /home/Imgo.NodeStatusSvr && \
+cd /home/Imgo.NodeStatusSvr && \
 rm   -rf /home/Imgo.NodeStatusSvr/NodeStatusSvr && \
 rm   -rf /home/Imgo.NodeStatusSvr/NodeStatusSvr.config && \
 rm   -rf /home/Imgo.NodeStatusSvr/LogTruncate.sh && \
 rm   -rf /home/Imgo.NodeStatusSvr/SvrScheduler.sh && \
-cp ./NodeStatusSvr        /home/Imgo.NodeStatusSvr/NodeStatusSvr && \
-cp ./NodeStatusSvr.config /home/Imgo.NodeStatusSvr/NodeStatusSvr.config && \
-cp ./LogTruncate.sh       /home/Imgo.NodeStatusSvr/LogTruncate.sh && \
-cp ./SvrScheduler.sh      /home/Imgo.NodeStatusSvr/SvrScheduler.sh && \
+wget -nH -P . -N http://github.com/cultcode/mon/raw/master/NodeStatusSvr && \
+wget -nH -P . -N http://github.com/cultcode/mon/raw/master/NodeStatusSvr.config && \
+wget -nH -P . -N http://github.com/cultcode/mon/raw/master/LogTruncate.sh && \
+wget -nH -P . -N http://github.com/cultcode/mon/raw/master/SvrScheduler.sh && \
 chmod +x /home/Imgo.NodeStatusSvr/NodeStatusSvr && \
-chmod -x /home/Imgo.NodeStatusSvr/NodeStatusSvr.config && \ 
+chmod +x /home/Imgo.NodeStatusSvr/NodeStatusSvr.config && \
 chmod +x /home/Imgo.NodeStatusSvr/LogTruncate.sh && \
 chmod +x /home/Imgo.NodeStatusSvr/SvrScheduler.sh\
 "
 exec_su $CMD
 
 PROGRAM=NodeStatusSvr 
-CRONTAB1="\* \* \* \* \* /home/Imgo.NodeStatusSvr/SvrScheduler.sh /home/Imgo.NodeStatusSvr/NodeStatusSvr start > /dev/null  2>&1"
-CRONTAB2="0 0 1 \* \* /home/Imgo.NodeStatusSvr/LogTruncate.sh  /home/Imgo.NodeStatusSvr/NodeStatusSvr /home/Imgo.NodeStatusSvr/NodeStatusSvr.log > /dev/null  2>&1"
-CMD="crontab -l | sed /NodeStatusSvr/d | sed \'1i$CRONTAB2\' | sed \'1i$CRONTAB1\' | crontab"
+CRONTAB1="\* \* \* \* \* /home/Imgo.NodeStatusSvr/SvrScheduler.sh /home/Imgo.NodeStatusSvr/NodeStatusSvr start > /dev/null  2>\&1"
+CRONTAB2="0 0 1 \* \* /home/Imgo.NodeStatusSvr/LogTruncate.sh  /home/Imgo.NodeStatusSvr/NodeStatusSvr /home/Imgo.NodeStatusSvr/NodeStatusSvr.log > /dev/null  2>\&1"
+#CMD="crontab -l | sed /NodeStatusSvr/d | sed '1i$CRONTAB2' | sed '1i$CRONTAB1' | crontab"
+CMD="\
+crontab -l >~/cron.bak && \
+echo > ~/cron.bak && \
+sed -i /NodeStatusSvr/d ~/cron.bak && \
+sed -i '1i$CRONTAB2' ~/cron.bak &&  \
+sed -i '1i$CRONTAB1' ~/cron.bak && \
+sed -i '/^\s*\$/d' ~/cron.bak && \
+crontab ~/cron.bak\
+"
 
 exec_su $CMD
 

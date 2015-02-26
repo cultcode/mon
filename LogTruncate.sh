@@ -30,10 +30,16 @@ LOG_FILE_BAK=${LOG_FILE}"."$(date +"%Y%m%d_%H%M%S")
 RETVAL=0
 items=""
 pids=""
+length=0
 
 init () {
-  items=`ps -ef | grep -v $0 | grep $SERVICE_NAME | grep -v "grep"`
-  pids=`echo -n $items | awk '{print $2}'`
+  items=(`ps -ef | grep -v $0 | grep "$SERVICE_NAME\\s" | grep -v "grep"`)
+  length=${#items[@]}
+
+  for ((i=0; i<$length; i++))
+  do
+    pids[$i]=`echo ${items[$i]} | awk '{print $2}'`
+  done
 
   mv $LOG_FILE $LOG_FILE_BAK
   RETVAL=$?

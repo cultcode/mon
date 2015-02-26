@@ -17,18 +17,25 @@ fi;
 
 SERVICE_DIR=$(dirname "$1")
 SERVICE_NAME=$(basename "$1")
+IFS=$'\n'
 
 COMMAND=$2
 RETVAL=0
 items=""
 pids=""
+length=0
 
 init () {
-  items=`ps -ef | grep -v $0 | grep $SERVICE_NAME | grep -v "grep"`
-  pids=`echo -n $items | awk '{print $2}'`
+  items=(`ps -ef | grep -v $0 | grep "$SERVICE_NAME\\s" | grep -v "grep"`)
+  length=${#items[@]}
 
-  if [ "${#items}" -gt 0 ];then
-    echo $items
+  if [ "$length" -gt 0 ];then
+    for ((i=0; i<$length; i++))
+    do
+      pids[$i]=`echo ${items[$i]} | awk '{print $2}'`
+      echo ${items[$i]}
+      echo ${pids[$i]}
+    done
   fi;
 }
 
@@ -65,7 +72,7 @@ stop () {
 
   if [ "${#items}" -gt 0 ];then
     for p in ${pids[@]}; do
-      cmd_stop="$cmd_stop""kill -9 $p "
+      cmd_stop="$cmd_stop""kill -9 $p;"
     done
     echo ${cmd_stop}
     echo ${cmd_stop}|awk '{system($0)}'
