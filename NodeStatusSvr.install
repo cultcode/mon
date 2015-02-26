@@ -32,7 +32,6 @@ function exec_su () {
 #cp /home/users/luowei/mon/NodeStatusSvr.config . && \
 #cp /home/users/luowei/mon/LogTruncate.sh . && \
 #cp /home/users/luowei/mon/SvrScheduler.sh . && \
-
 CMD="\
 mkdir -p /home/Imgo.NodeStatusSvr && \
 cd /home/Imgo.NodeStatusSvr && \
@@ -56,9 +55,9 @@ CRONTAB1="\* \* \* \* \* /home/Imgo.NodeStatusSvr/SvrScheduler.sh /home/Imgo.Nod
 CRONTAB2="0 0 1 \* \* /home/Imgo.NodeStatusSvr/LogTruncate.sh  /home/Imgo.NodeStatusSvr/NodeStatusSvr /home/Imgo.NodeStatusSvr/NodeStatusSvr.log > /dev/null  2>\&1"
 #CMD="crontab -l | sed /NodeStatusSvr/d | sed '1i$CRONTAB2' | sed '1i$CRONTAB1' | crontab"
 CMD="\
-crontab -l >~/cron.bak && \
-echo > ~/cron.bak && \
-sed -i /NodeStatusSvr/d ~/cron.bak && \
+crontab -l > ~/cron.bak && \
+( [ -s ~/cron.bak ] || echo >> ~/cron.bak ) && \
+sed -i -e '/NodeStatusSvr/d' ~/cron.bak && \
 sed -i '1i$CRONTAB2' ~/cron.bak &&  \
 sed -i '1i$CRONTAB1' ~/cron.bak && \
 sed -i '/^\s*\$/d' ~/cron.bak && \
