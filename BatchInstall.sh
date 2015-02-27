@@ -13,7 +13,7 @@ user=$2
 password_user=$3
 password_su=$4
 
-for ip in $(cat $file_ip | sed '/^\s*\$/d')
+for ip in $(cat $file_ip | sed '/^#/d' | sed '/^\s*\$/d')
 do
   expect -c "
     set timeout -1
@@ -44,5 +44,5 @@ echo $CMD
     expect *assword:
     send $password_user\r
     expect eof
-    "
+    " &
 done
