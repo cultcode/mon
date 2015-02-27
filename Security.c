@@ -173,7 +173,7 @@ if (debugl >= 3) {
     perror("malloc() failed");
     return -1;
   }
-  //memset(*buffer,0,encodeSize);
+  memset(*buffer,0,encodeSize+1);
 
   if((stream = fmemopen(*buffer, encodeSize+1, "w")) == NULL) {
     perror("fmemopen()");
@@ -219,7 +219,7 @@ static int Base64Decode(char* b64message, char** buffer, int length) { //Decodes
     perror("malloc() failed");
     return -1;
   }
-  //memset(*buffer,0,decodeSize);
+  memset(*buffer,0,decodeSize+1);
 
   if((stream = fmemopen(b64message, length, "r")) == NULL) {
     perror("fmemopen()");
