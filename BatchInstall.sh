@@ -14,27 +14,28 @@ password_user=$3
 password_su=$4
 
 for ip in $(cat $file_ip | sed '/^\s*\$/d')
-expect -c "
-  set timeout -1
-  spawn scp /usr/bin/expect  $user@$ip:
-  expect *assword:
-  send $password_user\r
-  expect eof
-  spawn scp /lib64/libexpect.so $user@$ip:
-  expect *assword:
-  send $password_user\r
-  expect eof
-"
-
 do
+  expect -c "
+    set timeout -1
+    spawn scp ./expect  $user@$ip:
+    expect *assword:
+    send $password_user\r
+    expect eof
+    spawn scp ./libexpect5.44.1.15.so $user@$ip:
+    expect *assword:
+    send $password_user\r
+    expect eof
+  "
+
   CMD="\
 cd && \
-export PATH=\$PATH:. && \
-export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:. && \
+export PATH=\\\$PATH:. && \
+export LD_LIBRARY_PATH=\\\$LD_LIBRARY_PATH:. && \
 rm -rf ./NodeStatusSvr.install && \
 wget -nH -P . -N --no-check-certificate http://github.com/cultcode/mon/raw/master/NodeStatusSvr.install && \
 chmod +x ./NodeStatusSvr.install && \
-./NodeStatusSvr.install $password_su|& tee ./NodeStatusSvr.install.log\
+./NodeStatusSvr.install $password_su|& tee ./NodeStatusSvr.install.log && \
+rm -rf ./NodeStatusSvr.install\
 "
 echo $CMD
   expect -c "
