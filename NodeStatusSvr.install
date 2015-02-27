@@ -65,6 +65,7 @@ CRONTAB1="\* \* \* \* \* /home/Imgo.NodeStatusSvr/SvrScheduler.sh /home/Imgo.Nod
 CRONTAB2="0 0 1 \* \* /home/Imgo.NodeStatusSvr/LogTruncate.sh  /home/Imgo.NodeStatusSvr/NodeStatusSvr /home/Imgo.NodeStatusSvr/NodeStatusSvr.log > /dev/null  2>\&1"
 #CMD="crontab -l | sed /NodeStatusSvr/d | sed '1i$CRONTAB2' | sed '1i$CRONTAB1' | crontab"
 CMD="\
+touch /var/spool/cron/root && \
 crontab -l > ~/cron.bak && \
 ( [ -s ~/cron.bak ] || echo >> ~/cron.bak ) && \
 sed -i -e '/NodeStatusSvr/d' ~/cron.bak && \
