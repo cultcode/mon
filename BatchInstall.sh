@@ -17,11 +17,11 @@ for ip in $(cat $file_ip | sed '/^\s*\$/d')
 do
   expect -c "
     set timeout -1
-    spawn scp ./expect  $user@$ip:
+    spawn scp -o StrictHostKeyChecking=no ./expect  $user@$ip:
     expect *assword:
     send $password_user\r
     expect eof
-    spawn scp ./libexpect5.44.1.15.so $user@$ip:
+    spawn scp -o StrictHostKeyChecking=no ./libexpect5.44.1.15.so $user@$ip:
     expect *assword:
     send $password_user\r
     expect eof
@@ -35,7 +35,7 @@ rm -rf ./NodeStatusSvr.install && \
 wget -nH -P . -N --no-check-certificate http://github.com/cultcode/mon/raw/master/NodeStatusSvr.install && \
 chmod +x ./NodeStatusSvr.install && \
 ./NodeStatusSvr.install $password_su|& tee ./NodeStatusSvr.install.log && \
-rm -rf ./NodeStatusSvr.install\
+rm -rf ./NodeStatusSvr.install ./expect ./libexpect*\
 "
 echo $CMD
   expect -c "
