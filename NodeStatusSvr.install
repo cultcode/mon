@@ -14,6 +14,8 @@ user=`whoami`
 RETVAL=0
 password=$1
 
+expect -version || exit 1;
+ 
 function exec_su () {
   echo "Going to execute command: $*"
   if [ $user == "root" ]; then
