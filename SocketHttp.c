@@ -237,6 +237,8 @@ if (debugl < 4) {
 
     content += 4;
 
+    StripNewLine(content);
+
     if(encode){
       length = ContentDecode(NODE_3DES_KEY, NODE_3DES_IV, content, &plain, strlen(content));
     }else{
