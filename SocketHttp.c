@@ -248,6 +248,12 @@ if (debugl < 4) {
       length = strlen(content);
     }
 
+    if(length < 0) {
+      fprintf(stderr,"ContentDecode failed\n");
+      free(plain);
+      exit(1);
+    }
+
     memcpy(output, plain, length);
     output[length] = 0;
 
