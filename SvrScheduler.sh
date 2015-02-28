@@ -49,7 +49,7 @@ start() {
     RETVAL=$?
     return $RETVAL;
   else
-    cmd_start="${SERVICE_DIR}/$SERVICE_NAME ${SERVICE_DIR}/${SERVICE_NAME}.config &"
+    cmd_start="nohup ${SERVICE_DIR}/$SERVICE_NAME ${SERVICE_DIR}/${SERVICE_NAME}.config &"
     echo ${cmd_start}
     echo ${cmd_start}|awk '{system($0)}'
     RETVAL=$?
