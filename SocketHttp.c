@@ -193,6 +193,8 @@ void recvHttp(int* sockfdp, char * url, char* output, int encode)
   char buf[128] = {0};
   time_t t=time(NULL);
   int sockfd = *sockfdp;
+  char content_body[CONTENT_LEN] = {0};
+  int content_length=0;
 
   if(sockfd == -1) return;
 
@@ -236,6 +238,19 @@ if (debugl < 4) {
     }
 
     content += 4;
+
+    if(strstr(recvline,"chunked")) {
+      content_length = JoinChunk(content,HTTP_NEWLINE,content_body);
+      content = content_body;
+if (debugl >= 4) {
+      printf("\"Transfer-Encoding: chunked\" detected, content body:\n%s\n",content_body);
+}
+    }
+    else {
+      strcpy(content_body, content);
+      content = content_body;
+      content_length = strlen(content);
+    }
 
     StripNewLine(content);
 

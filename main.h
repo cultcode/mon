@@ -33,4 +33,7 @@ extern short  WanPort;
 extern int waytogetcons;
 extern char* SelfName;
 
+extern char node_3des_key[KEY_LEN];
+extern char node_3des_iv[KEY_LEN];
+
 #endif

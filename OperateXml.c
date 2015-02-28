@@ -142,6 +142,8 @@ void usage() {
     "-s  --servegoal  :specify server program type, 2 is for 2nd CDN server, 3 is for 3rd CDN server, default to 3\n"
     "-e  --waytogetcons:  how to get connections, 0(default) is http, non-0 is from /proc\n"
     "-f  --logfile    :specify stdout&stderr redirection log file\n"
+    "-j  --des_iv     :specify 3des iv\n"
+    "-k  --des_key    :specify 3des key\n"
     "-h  --help       :print this help info\n"
     );
 }
@@ -150,7 +152,7 @@ int ParseOptions(int argc,char**argv)
 {
   int  i=0;
   int flags=0;
-  char* const short_options = "a:b:r:i:g:p:c:m:d:n:w:l:o:z:t:s:e:f:h";
+  char* const short_options = "a:b:r:i:g:p:c:m:d:n:w:l:o:z:t:s:e:f:hj:k:";
   struct option long_options[] = {  
     { "standalone",  1,  NULL,  'a'},  
     { "debugl",  1,  NULL,  'b'},  
@@ -170,6 +172,8 @@ int ParseOptions(int argc,char**argv)
     { "servegoal",  1,  NULL,  's'},  
     { "waytogetcons",  1,  NULL,  'e'},  
     { "logfile",  1,  NULL,  'f'},  
+    { "des_key",  1,  NULL,  'k'},  
+    { "des_iv",  1,  NULL,  'j'},  
     { "help",  0,  NULL,  'h'},  
     {  0,  0,  0,  0},  
   };
@@ -253,6 +257,12 @@ if(debugl >= 1) {
     case 's':
       servegoal  = atoi(optarg);
       break;
+    case 'j':
+      strcpy(node_3des_iv, optarg);
+      break;
+    case 'k':
+      strcpy(node_3des_key, optarg);
+      break;
     default:
       flags=1;
       break;
@@ -263,6 +273,13 @@ if(debugl >= 1) {
     debugl = 3;
   }
 
+if(!strlen(node_3des_key)) {
+  strcpy(node_3des_key,"t^^BvGfAdUTixobQP$HhsOsD");
+}
+
+if(!strlen(node_3des_iv)) {
+  strcpy(node_3des_iv,"=V#s%CS)");
+}
 
 if (debugl >= 1) {
   printf("debugl: %d\ninit url: %s\nget url: %s\nreport url: %s\nrefresh interval %d\ncpu_average_interval %d\nmem_average_interval %d\ndsk_average_interval %d\nnet_average_interval %d\nwanip:%s, wanport %hd, lanip %s, lanport %hd, homedir %s\nserver time zone %d\nnumber of loops %d\nway to get cons %d\nlogfile %s\n",debugl, url[0], url[1], url[2], refresh_interval, cpu_average_interval, mem_average_interval, dsk_average_interval, net_average_interval,WanIp,WanPort,LanIp,LanPort,HomeDir,servertimezone, looptimes, waytogetcons,file_stdout);

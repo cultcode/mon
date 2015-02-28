@@ -45,6 +45,8 @@ int waytogetcons=0;
 char *SelfName;
 char file_stdout[FN_LEN];
 char file_stderr[FN_LEN];
+char node_3des_key[KEY_LEN];
+char node_3des_iv[KEY_LEN];
 
 int main(int argc, char **argv)
 {

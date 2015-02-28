@@ -40,6 +40,55 @@ void ReopenLog(int signum)
 
 }
 
+int JoinChunk(char * chunked, char * seperator, char * content) {
+  int state=0;
+  char *p=chunked, *q=chunked;
+  int length = 0;
+
+  while (*p) {
+    q = p;
+    switch(state){
+      case 0:   //length
+
+        p=strstr(q, seperator);
+
+        if(!p) {
+          fprintf(stderr,"strstr failed, string is\n%s\n",q);
+          exit(1);
+        }
+
+        p+= strlen(seperator);
+
+        state = 1;
+        break;
+      case 1:   //body
+
+        p=strstr(q, seperator);
+
+        if(!p) {
+          fprintf(stderr,"strstr failed, string is\n%s\n",q);
+          exit(1);
+        }
+
+        length += p-q;
+        strncat(content, q, p-q);
+
+        p+= strlen(seperator);
+
+        state = 0;
+        break;
+      default:
+        fprintf(stderr,"Illegal state in JoinChunk(): %d\n",state);
+        exit(1);
+        break;
+    }
+  }
+
+  content[length] = 0;
+
+  return length;
+}
+
 void StripNewLine(char *buf)
 {
   int i=0;
