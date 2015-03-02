@@ -23,24 +23,24 @@ user=$2
 password_user=$3
 password_su=$4
 config_file=$5
+path_store="~"
 
 for ip in $(cat $file_ip | sed '/^#/d' | sed '/^\s*\$/d')
 do
-  exec_scp /usr/bin/expect ~/
-  exec_scp /usr/lib64/libexpect5.44.1.15.so ~/
-  exec_scp ./NodeStatusSvr.install ~/
-  exec_scp ./NodeStatusSvr    ~/
-  exec_scp $config_file     ~/NodeStatusSvr.config
-  exec_scp ./LogTruncate.sh   ~/
-  exec_scp ./SvrScheduler.sh  ~/
+  exec_scp /usr/bin/expect \~/
+  exec_scp /usr/lib64/libexpect5.44.1.15.so \~/
+  exec_scp ./NodeStatusSvr.install \~/
+  exec_scp ./NodeStatusSvr    \~/
+  exec_scp $config_file     \~/NodeStatusSvr.config
+  exec_scp ./LogTruncate.sh   \~/
+  exec_scp ./SvrScheduler.sh  \~/
 
   CMD="\
-cd && \
-export PATH=\\\$PATH:. && export LD_LIBRARY_PATH=\\\$LD_LIBRARY_PATH:. && \
+export PATH=\\\$PATH:$path_store && export LD_LIBRARY_PATH=\\\$LD_LIBRARY_PATH:$path_store && \
 expect -version && \
-chmod +x ./NodeStatusSvr.install && \
-./NodeStatusSvr.install $password_su >& ./NodeStatusSvr.install.log && \
-rm -rf ./NodeStatusSvr.install ./expect ./libexpect*\
+chmod +x $path_store/NodeStatusSvr.install && \
+$path_store/NodeStatusSvr.install $password_su >& $path_store/NodeStatusSvr.install.log && \
+rm -rf $path_store/NodeStatusSvr.install $path_store/expect $path_store/libexpect*\
 "
 echo $CMD
   expect -c "

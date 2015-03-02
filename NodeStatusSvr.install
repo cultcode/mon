@@ -1,5 +1,5 @@
 #!/bin/bash
-#set -x
+set -x
 
 usage () {
   echo "Usage: $0 ROOT_PASSWORD"
@@ -13,6 +13,7 @@ fi;
 user=`whoami`
 RETVAL=0
 password=$1
+path_store=$HOME
 
 expect -version || exit 1;
  
@@ -25,9 +26,15 @@ function exec_su () {
     expect -c "
       set timeout -1
       spawn su -p -c \"$*\" root
-      expect Password:
-      send $password\r
+      expect {
+        -re ".*assword:"
+        {
+          send $password\r
+        }
+      }
       expect eof
+      catch wait result
+      exit [lindex \$result 3]
     "
     RETVAL=$?
   fi
@@ -36,25 +43,28 @@ function exec_su () {
     echo "Succeed";
   else 
     echo "Fail";
-    exit 1;
+    exit $RETVAL;
   fi;      		    
 }
 
 CMD="\
+\[ -f $path_store/NodeStatusSvr ] && \
+\[ -f $path_store/NodeStatusSvr.config ] && \
+\[ -f $path_store/LogTruncate.sh ] && \
+\[ -f $path_store/SvrScheduler.sh ] && \
 mkdir -p /home/Imgo.NodeStatusSvr && \
-cd /home/Imgo.NodeStatusSvr && \
-rm -rf ./NodeStatusSvr        && \
-rm -rf ./NodeStatusSvr.config && \
-rm -rf ./LogTruncate.sh       && \
-rm -rf ./SvrScheduler.sh      && \
-mv ~/NodeStatusSvr          . && \
-mv ~/NodeStatusSvr.config   . && \
-mv ~/LogTruncate.sh         . && \
-mv ~/SvrScheduler.sh        . && \
-chmod +x ./NodeStatusSvr          && \
-chmod +x ./NodeStatusSvr.config   && \
-chmod +x ./LogTruncate.sh         && \
-chmod +x ./SvrScheduler.sh\
+rm -rf /home/Imgo.NodeStatusSvr/NodeStatusSvr        && \
+rm -rf /home/Imgo.NodeStatusSvr/NodeStatusSvr.config && \
+rm -rf /home/Imgo.NodeStatusSvr/LogTruncate.sh       && \
+rm -rf /home/Imgo.NodeStatusSvr/SvrScheduler.sh      && \
+mv $path_store/NodeStatusSvr          /home/Imgo.NodeStatusSvr/ && \
+mv $path_store/NodeStatusSvr.config   /home/Imgo.NodeStatusSvr/ && \
+mv $path_store/LogTruncate.sh         /home/Imgo.NodeStatusSvr/ && \
+mv $path_store/SvrScheduler.sh        /home/Imgo.NodeStatusSvr/ && \
+chmod +x /home/Imgo.NodeStatusSvr/NodeStatusSvr          && \
+chmod +x /home/Imgo.NodeStatusSvr/NodeStatusSvr.config   && \
+chmod +x /home/Imgo.NodeStatusSvr/LogTruncate.sh         && \
+chmod +x /home/Imgo.NodeStatusSvr/SvrScheduler.sh\
 "
 exec_su $CMD
 
