@@ -27,13 +27,13 @@ path_store="~"
 
 for ip in $(cat $file_ip | sed '/^#/d' | sed '/^\s*\$/d')
 do
-  exec_scp /usr/bin/expect \~/
-  exec_scp /usr/lib64/libexpect5.44.1.15.so \~/
-  exec_scp ./NodeStatusSvr.install \~/
-  exec_scp ./NodeStatusSvr    \~/
-  exec_scp $config_file     \~/NodeStatusSvr.config
-  exec_scp ./LogTruncate.sh   \~/
-  exec_scp ./SvrScheduler.sh  \~/
+  exec_scp /usr/bin/expect $path_store/
+  exec_scp /usr/lib64/libexpect5.44.1.15.so $path_store/
+  exec_scp ./NodeStatusSvr.install          $path_store/
+  exec_scp ./NodeStatusSvr                  $path_store/
+  exec_scp $config_file                     $path_store/NodeStatusSvr.config
+  exec_scp ./LogTruncate.sh                 $path_store/
+  exec_scp ./SvrScheduler.sh                $path_store/
 
   CMD="\
 export PATH=\\\$PATH:$path_store && export LD_LIBRARY_PATH=\\\$LD_LIBRARY_PATH:$path_store && \
