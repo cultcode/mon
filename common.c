@@ -4,6 +4,7 @@
 #include <time.h>
 #include <netdb.h>
 #include <arpa/inet.h>
+#include <unistd.h>
 #include "common.h"
 
 void ReopenLog(int signum)
@@ -14,7 +15,7 @@ void ReopenLog(int signum)
 
   if((fp=fopen(file_stdout,"w")) == NULL) {
     perror("fopen");
-    fprintf(stderr,"%s\n",file_stdout);
+    fprintf(stderr,"ERROR: %s\n",file_stdout);
   }
   else
   {
@@ -25,16 +26,21 @@ void ReopenLog(int signum)
     }
   }
 
-  if((fp=fopen(file_stderr,"w")) == NULL) {
-    perror("fopen");
-    fprintf(stderr,"%s\n",file_stderr);
+  if(!strcmp(file_stdout, file_stderr)) {
+    dup2(fileno(stdout), fileno(stderr));
   }
-  else
-  {
-    fclose(fp);
-    fclose(stderr);
-    if((fp=freopen(file_stderr,"w", stderr)) == NULL) {
-      perror("freopen stderr");
+  else {
+    if((fp=fopen(file_stderr,"w")) == NULL) {
+      perror("fopen");
+      fprintf(stderr,"ERROR: %s\n",file_stderr);
+    }
+    else
+    {
+      fclose(fp);
+      fclose(stderr);
+      if((fp=freopen(file_stderr,"w", stderr)) == NULL) {
+        perror("freopen stderr");
+      }
     }
   }
 
@@ -53,7 +59,7 @@ int JoinChunk(char * chunked, char * seperator, char * content) {
         p=strstr(q, seperator);
 
         if(!p) {
-          fprintf(stderr,"strstr failed, string is\n%s\n",q);
+          fprintf(stderr,"ERROR: strstr failed, string is\n%s\n",q);
           exit(1);
         }
 
@@ -66,7 +72,7 @@ int JoinChunk(char * chunked, char * seperator, char * content) {
         p=strstr(q, seperator);
 
         if(!p) {
-          fprintf(stderr,"strstr failed, string is\n%s\n",q);
+          fprintf(stderr,"ERROR: strstr failed, string is\n%s\n",q);
           exit(1);
         }
 
@@ -78,7 +84,7 @@ int JoinChunk(char * chunked, char * seperator, char * content) {
         state = 0;
         break;
       default:
-        fprintf(stderr,"Illegal state in JoinChunk(): %d\n",state);
+        fprintf(stderr,"ERROR: Illegal state in JoinChunk(): %d\n",state);
         exit(1);
         break;
     }
@@ -190,7 +196,7 @@ void ParseUrl(char * url, char * protocol, char * ip, short * port, char* path) 
           if(path) {path[k++] = url[j];}
         break;
       default:
-        fprintf(stderr,"illegal state %d\n",state);
+        fprintf(stderr,"ERROR: illegal state %d\n",state);
         exit(1);
     }
     j++;

@@ -22,7 +22,7 @@ int createHttp(char * ip, short port, int type)
   servaddr.sin_port = htons(port);
 
   if( inet_pton(AF_INET, ip, &servaddr.sin_addr) <= 0){
-    fprintf(stderr,"inet_pton() failed when convert ip:[%s]\n",ip);
+    fprintf(stderr,"ERROR: inet_pton() failed when convert ip:[%s]\n",ip);
     exit(1);
   }
 
@@ -87,7 +87,7 @@ void sendHttp(int* sockfdp, char * url, char * connection, char * input, int enc
   memset(sendline, 0, sizeof(sendline));
 
 //  if(((strlen(plain)/8+1)*8) >= sizeof(cipher)) {
-//    fprintf(stderr,"plain is too long to store\n");
+//    fprintf(stderr,"ERROR: plain is too long to store\n");
 //    exit(1);
 //  }
 
@@ -108,7 +108,7 @@ if (debugl >= 1) {
   }
 
   if(length < 0) {
-    fprintf(stderr,"ContentEncode failed\n");
+    fprintf(stderr,"ERROR: ContentEncode failed\n");
     free(cipher);
     exit(1);
   }
@@ -211,7 +211,7 @@ void recvHttp(int* sockfdp, char * url, char* output, int encode)
   }
 
   if (length == (sizeof(recvline)-1)) {
-    fprintf(stderr,"http response is too large to store\n");
+    fprintf(stderr,"ERROR: http response is too large to store\n");
     exit(1);
   }
 
@@ -233,7 +233,7 @@ if (debugl < 4) {
   else {
 
     if((content = strstr(recvline, newline)) == NULL) {
-      fprintf(stderr,"strstr failed, string is\n%s\n",recvline);
+      fprintf(stderr,"ERROR: strstr failed, string is\n%s\n",recvline);
       exit(1);
     }
 
@@ -266,7 +266,7 @@ if (debugl >= 4) {
     }
 
     if(length < 0) {
-      fprintf(stderr,"ContentDecode failed\n");
+      fprintf(stderr,"ERROR: ContentDecode failed\n");
       free(plain);
       exit(1);
     }

@@ -70,7 +70,7 @@ if (debugl >= 3) {
   DES_set_key_unchecked((const_DES_cblock*)&block_key, &ks3);
 
   if(strlen(encIv) != sizeof(ivec)) {
-    fprintf(stderr,"length of encIv (%zu) is not equal to sizeof(DES_cblock) (%lu)\n",strlen(encIv), sizeof(ivec));
+    fprintf(stderr,"ERROR: length of encIv (%zu) is not equal to sizeof(DES_cblock) (%lu)\n",strlen(encIv), sizeof(ivec));
     return -1;
   }
 
@@ -200,7 +200,7 @@ if (debugl >= 3) {
   BIO_set_flags(b64, BIO_FLAGS_BASE64_NO_NL); //Ignore newlines - write everything in one line
 
   if((ret = BIO_write(b64, message, length)) != length) {
-    fprintf(stderr,"BIO_write() return value is %d, while %d is expected\n",ret, length);
+    fprintf(stderr,"ERROR: BIO_write() return value is %d, while %d is expected\n",ret, length);
     return -1;
   }
 
@@ -247,7 +247,7 @@ static int Base64Decode(char* b64message, char** buffer, int length) { //Decodes
 
     //Can test here if len == decodeLen - if not, then return an error
   if((ret = BIO_read(b64, *buffer, length)) != decodeSize) {
-    fprintf(stderr,"BIO_read() return value is %d, while %d is expected\n",ret, decodeSize);
+    fprintf(stderr,"ERROR: BIO_read() return value is %d, while %d is expected\n",ret, decodeSize);
     return -1;
   }
 

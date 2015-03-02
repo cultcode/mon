@@ -301,7 +301,7 @@ if (debugl >= 3) {
 if(!standalone) {
 if(debugl >= 2) {
     if(nrs->Status == FAIL) {
-      fprintf(stderr,"ReportNodeStatus() received FAIL: %s\n", nrs->StatusDesc);
+      fprintf(stderr,"ERROR: ReportNodeStatus() received FAIL: %s\n", nrs->StatusDesc);
     //  exit(1);
     }
 }

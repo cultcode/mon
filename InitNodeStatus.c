@@ -145,7 +145,7 @@ if (debugl >= 3) {
 
 if(!standalone) {
   if(ns->Status == FAIL) {
-    fprintf(stderr,"InitNodeStatus() received FAIL: %s\n", ns->StatusDesc);
+    fprintf(stderr,"ERROR: InitNodeStatus() received FAIL: %s\n", ns->StatusDesc);
     exit(1);
   }
 }

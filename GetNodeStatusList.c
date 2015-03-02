@@ -102,7 +102,7 @@ void GetNodeStatusList(struct NodeStatus* ns, struct NodeStatusList* nsl, char *
 
   if(strlen(content)) {
     if((root = cJSON_Parse(content)) == NULL) {
-      fprintf(stderr,"Error before: [%s]\n",cJSON_GetErrorPtr());
+      fprintf(stderr,"Error: before: [%s]\n",cJSON_GetErrorPtr());
       exit(1);
     }
 
@@ -161,7 +161,7 @@ if (debugl >= 3) {
 
 if(! standalone) {
   if(nsl->Status == FAIL) {
-    fprintf(stderr,"GetNodeStatusList() received FAIL: %s\n", nsl->StatusDesc);
+    fprintf(stderr,"ERROR: GetNodeStatusList() received FAIL: %s\n", nsl->StatusDesc);
     exit(1);
   }
 }

@@ -36,7 +36,7 @@ int found=0;
       proc[num].fp = NULL;
 
       perror("The following error occurred");
-      fprintf(stderr, "failed to open file %s", proc[num].filename);
+      fprintf(stderr, "ERROR: failed to open file %s", proc[num].filename);
       exit(1);
     }
   }
@@ -271,7 +271,7 @@ struct dsk_stats *p = data->p;
     }
     else if(ret == 14) p->dk[i].dk_partition = 0;
     else {
-      fprintf(stderr,"disk sscanf wanted 14 but returned=%d line=%s\n", 
+      fprintf(stderr,"ERROR: disk sscanf wanted 14 but returned=%d line=%s\n", 
         ret,buf);
       exit(1);
     }
@@ -392,7 +392,7 @@ major minor  #blocks  name     rio rmerge rsect ruse wio wmerge wsect wuse runni
     p->dk[i].dk_time /= 10.0; /* in milli-seconds to make it upto 100%, 1000/100 = 10 */
   
     if(ret != 15) {
-      fprintf(stderr,"sscanf wanted 15 returned = %d line=%s\n", ret,buf);
+      fprintf(stderr,"ERROR: sscanf wanted 15 returned = %d line=%s\n", ret,buf);
       exit(1);
     }
   }
@@ -524,7 +524,7 @@ int jfses = 0;
 
   for (k = 0; k < jfses; k++) {
     if (lstat(jfs[k].device, &sb) == -1) {
-      //fprintf(stderr,"%s",jfs[k].device);
+      //fprintf(stderr,"ERROR: %s",jfs[k].device);
       //perror("lstat()");
       //exit(1);
     }
@@ -544,7 +544,7 @@ int jfses = 0;
       }
 
       if (r > sb.st_size) {
-           fprintf(stderr, "symlink increased in size "
+           fprintf(stderr, "ERROR: symlink increased in size "
                            "between lstat() and readlink()\n");
            exit(1);
       }
@@ -656,7 +656,7 @@ void sys_net_single_para(char * nic, char * parameter, char * buf)
 
   if((fd = fopen(fn, "r")) == NULL) {
     perror("fopen");
-    fprintf(stderr, "%s\n",fn);
+    fprintf(stderr, "ERROR: %s\n",fn);
     exit(1);
   }
 
@@ -710,7 +710,7 @@ void sys_net(struct net_data *data)
 
   if((dirptr = opendir("/sys/class/net"))==NULL)
   {
-    fprintf(stderr,"opendir()");
+    fprintf(stderr,"ERROR: opendir()");
     exit(1);
   }
 
@@ -757,7 +757,7 @@ void sys_net(struct net_data *data)
           host, NI_MAXHOST,
           NULL, 0, NI_NUMERICHOST);
       if (s != 0) {
-        fprintf(stderr,"getnameinfo() failed: %s\n", gai_strerror(s));
+        fprintf(stderr,"ERROR: getnameinfo() failed: %s\n", gai_strerror(s));
         freeifaddrs(ifaddr);
         exit(EXIT_FAILURE);
       }
@@ -874,7 +874,7 @@ Inter-|   Receive                                                |  Transmit
       );
 
     if(ret != 16) {
-      fprintf(stderr,"sscanf wanted 16 returned = %d line=%s\n", ret, (char *)buf);
+      fprintf(stderr,"ERROR: sscanf wanted 16 returned = %d line=%s\n", ret, (char *)buf);
       exit(1);
     }
   }
@@ -937,7 +937,7 @@ sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid 
       &con.pointer
     );
     if(ret != 16) {
-      fprintf(stderr,"sscanf wanted 16 returned = %d line=\n%s\n", ret, (char *)buf);
+      fprintf(stderr,"ERROR: sscanf wanted 16 returned = %d line=\n%s\n", ret, (char *)buf);
       exit(1);
     }
 

@@ -100,7 +100,7 @@ int main(int argc, char **argv)
       goto GET_ARGUMENTS_XML;
     }
     else {
-      fprintf(stderr,"Neither cmdline arguments nor .xml provieded\n");
+      fprintf(stderr,"ERROR: Neither cmdline arguments nor .xml provieded\n");
       exit(1);
     }
   }
