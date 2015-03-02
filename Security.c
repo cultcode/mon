@@ -8,7 +8,7 @@
 #include "main.h"
 #include "Security.h"
 
-static int DesCbcEncode(char* enckey, char* encIv, char *input,  char *output, int length)
+static int DesCbcEncode(char* enckey, char* encIv, char *input,  char **output, int length)
 {
   DES_key_schedule ks1, ks2, ks3;
   DES_cblock ivec={0};
@@ -39,12 +39,19 @@ if (debugl >= 3) {
   ch = 8 - data_rst;
 
   encdata_len= txtdata_len + (8-data_rst);
-  if((src = (unsigned char *)malloc(encdata_len+1)) == NULL) {
-    perror("malloc() failed");
+
+  if((src = (unsigned char *)calloc(encdata_len+1, sizeof(char))) == NULL) {
+    perror("calloc() failed");
     return -1;
   }
-  memset(src,0,encdata_len+1);
-  dst = (unsigned char *)output; 
+
+  //because 3des is symmetric
+  if((*output = (char *)calloc(encdata_len+1, sizeof(char))) == NULL) {
+    perror("calloc() failed");
+    return -1;
+  }
+
+  dst = (unsigned char *)(*output);
         
   memcpy(src,input,txtdata_len);
   
@@ -84,7 +91,7 @@ if (debugl >= 3) {
   return encdata_len;
 }
 
-static int DesCbcDecode(char * deckey,char * decIv,char * input, char *output, int length)
+static int DesCbcDecode(char * deckey,char * decIv,char * input, char **output, int length)
 {
   DES_key_schedule ks1, ks2, ks3;
   DES_cblock ivec={0};
@@ -123,7 +130,14 @@ if (debugl >= 3) {
   }
 
   src = (unsigned char *)input;
-  dst = (unsigned char *)output;
+
+  //because 3des is symmetric
+  if((*output = (char *)calloc(decdata_len+1, sizeof(char))) == NULL) {
+    perror("calloc() failed");
+    return -1;
+  }
+
+  dst = (unsigned char *)(*output);
 
   if(src != NULL)  
   {        
@@ -257,13 +271,7 @@ if (debugl >= 3) {
   printf("ContentEncode(), origian length is %d string is \n%s\n",length ,input);
 }
 
-  if((middle = malloc(length)) == NULL) {
-    perror("malloc() failed");
-    return -1;
-  }
-  memset(middle, 0, length);
-
-  length_after_des = DesCbcEncode(enckey,encIv,input,middle,length);
+  length_after_des = DesCbcEncode(enckey,encIv,input,&middle,length);
 
   if(length_after_des<=0) {
     free(middle);
@@ -294,13 +302,7 @@ if (debugl >= 3) {
     return length_after_b64;
   }
 
-  if((*output = malloc(length_after_b64)) == NULL) {
-    perror("malloc() failed");
-    return -1;
-  }
-  memset(*output, 0, length_after_b64);
-
-  length_after_des = DesCbcDecode(deskey,desIv,middle,*output,length_after_b64);
+  length_after_des = DesCbcDecode(deskey,desIv,middle,output,length_after_b64);
 
   free(middle);
 
