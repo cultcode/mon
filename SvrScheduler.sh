@@ -26,7 +26,7 @@ pids=""
 length=0
 
 init () {
-  items=(`ps -ef | grep -v $0 | grep "$SERVICE_NAME\\s" | grep -v "grep"`)
+  items=(`ps -ef | grep "[0-9]\+:[0-9]\+:[0-9]\+ $SERVICE_DIR/$SERVICE_NAME\b"`)
   length=${#items[@]}
 
   if [ "$length" -gt 0 ];then

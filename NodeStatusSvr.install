@@ -2,18 +2,19 @@
 set -x
 
 usage () {
-  echo "Usage: $0 ROOT_PASSWORD"
+  echo "Usage: $0 PATH_INSTALL ROOT_PASSWORD"
 }
 
-if [ "$#" -ne 1 ];then
+if [ "$#" -ne 2 ];then
   usage;
   exit 1;
 fi;
 
 user=`whoami`
 RETVAL=0
-password=$1
 path_store=$HOME
+path_install=$1
+password=$2
 
 expect -version || exit 1;
  
@@ -52,39 +53,39 @@ CMD="\
 \[ -f $path_store/NodeStatusSvr.config ] && \
 \[ -f $path_store/LogTruncate.sh ] && \
 \[ -f $path_store/SvrScheduler.sh ] && \
-mkdir -p /home/Imgo.NodeStatusSvr && \
-rm -rf /home/Imgo.NodeStatusSvr/NodeStatusSvr        && \
-rm -rf /home/Imgo.NodeStatusSvr/NodeStatusSvr.config && \
-rm -rf /home/Imgo.NodeStatusSvr/LogTruncate.sh       && \
-rm -rf /home/Imgo.NodeStatusSvr/SvrScheduler.sh      && \
-mv $path_store/NodeStatusSvr          /home/Imgo.NodeStatusSvr/ && \
-mv $path_store/NodeStatusSvr.config   /home/Imgo.NodeStatusSvr/ && \
-mv $path_store/LogTruncate.sh         /home/Imgo.NodeStatusSvr/ && \
-mv $path_store/SvrScheduler.sh        /home/Imgo.NodeStatusSvr/ && \
-chmod +x /home/Imgo.NodeStatusSvr/NodeStatusSvr          && \
-chmod +x /home/Imgo.NodeStatusSvr/NodeStatusSvr.config   && \
-chmod +x /home/Imgo.NodeStatusSvr/LogTruncate.sh         && \
-chmod +x /home/Imgo.NodeStatusSvr/SvrScheduler.sh\
+mkdir -p $path_install && \
+rm -rf $path_install/NodeStatusSvr        && \
+rm -rf $path_install/NodeStatusSvr.config && \
+rm -rf $path_install/LogTruncate.sh       && \
+rm -rf $path_install/SvrScheduler.sh      && \
+mv $path_store/NodeStatusSvr          $path_install/ && \
+mv $path_store/NodeStatusSvr.config   $path_install/ && \
+mv $path_store/LogTruncate.sh         $path_install/ && \
+mv $path_store/SvrScheduler.sh        $path_install/ && \
+chmod +x $path_install/NodeStatusSvr          && \
+chmod +x $path_install/NodeStatusSvr.config   && \
+chmod +x $path_install/LogTruncate.sh         && \
+chmod +x $path_install/SvrScheduler.sh\
 "
 exec_su $CMD
 
 PROGRAM=NodeStatusSvr 
-CRONTAB1="\* \* \* \* \* /home/Imgo.NodeStatusSvr/SvrScheduler.sh /home/Imgo.NodeStatusSvr/NodeStatusSvr start > /dev/null  2>\&1"
-CRONTAB2="0 0 1 \* \* /home/Imgo.NodeStatusSvr/LogTruncate.sh  /home/Imgo.NodeStatusSvr/NodeStatusSvr /home/Imgo.NodeStatusSvr/NodeStatusSvr.log > /dev/null  2>\&1"
+CRONTAB1="\* \* \* \* \* $path_install/SvrScheduler.sh $path_install/NodeStatusSvr start > /dev/null  2>\&1"
+CRONTAB2="0 0 1 \* \* $path_install/LogTruncate.sh  $path_install/NodeStatusSvr $path_install/NodeStatusSvr.log > /dev/null  2>\&1"
 #CMD="crontab -l | sed /NodeStatusSvr/d | sed '1i$CRONTAB2' | sed '1i$CRONTAB1' | crontab"
 CMD="\
 touch /var/spool/cron/root && \
-crontab -l > ~/cron.bak && \
-echo >> ~/cron.bak && \
-sed -i -e '/NodeStatusSvr/d' ~/cron.bak && \
-sed -i '1i$CRONTAB2' ~/cron.bak &&  \
-sed -i '1i$CRONTAB1' ~/cron.bak && \
-sed -i '/^\s*\$/d' ~/cron.bak && \
-crontab ~/cron.bak\
+crontab -l > $path_install/cron.bak && \
+echo >> $path_install/cron.bak && \
+sed -i -e '/NodeStatusSvr/d' $path_install/cron.bak && \
+sed -i '1i$CRONTAB2' $path_install/cron.bak &&  \
+sed -i '1i$CRONTAB1' $path_install/cron.bak && \
+sed -i '/^\s*\$/d' $path_install/cron.bak && \
+crontab $path_install/cron.bak\
 "
 
 exec_su $CMD
 
-CMD="/home/Imgo.NodeStatusSvr/SvrScheduler.sh /home/Imgo.NodeStatusSvr/NodeStatusSvr restart"
+CMD="$path_install/SvrScheduler.sh $path_install/NodeStatusSvr restart"
 
 exec_su $CMD

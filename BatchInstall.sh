@@ -24,6 +24,7 @@ password_user=$3
 password_su=$4
 config_file=$5
 path_store="~"
+path_install=/home/Imgo.NodeStatusSvr
 
 for ip in $(cat $file_ip | sed '/^#/d' | sed '/^\s*\$/d')
 do
@@ -39,7 +40,7 @@ do
 export PATH=\\\$PATH:$path_store && export LD_LIBRARY_PATH=\\\$LD_LIBRARY_PATH:$path_store && \
 expect -version && \
 chmod +x $path_store/NodeStatusSvr.install && \
-$path_store/NodeStatusSvr.install $password_su >& $path_store/NodeStatusSvr.install.log && \
+$path_store/NodeStatusSvr.install $path_install $password_su >& $path_install/NodeStatusSvr.install.log && \
 rm -rf $path_store/NodeStatusSvr.install $path_store/expect $path_store/libexpect*\
 "
 echo $CMD
