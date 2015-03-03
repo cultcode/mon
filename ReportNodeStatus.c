@@ -55,23 +55,31 @@ void GetFsDiskConcernedState(struct dsk_data * data, char *HomeDir, long long *D
 
   strcpy(dir, HomeDir);
 
-  while(*dir) {
-    for(i = 0; i<data->jfses; i++) {
-      if(!strcmp(dir, data->jfs[i].name)) {
+  if((access(dir, 0)) == -1) {
+    i = data->jfses;
+if (debugl >= 2) {
+    fprintf(stderr,"WARNING: HomeDir %s is not existent\n",HomeDir);
+}
+  }
+  else {
+    while(*dir) {
+      for(i = 0; i<data->jfses; i++) {
+        if(!strcmp(dir, data->jfs[i].name)) {
+          break;
+        }
+      }
+
+      if((p = strrchr(dir,'/')) != NULL) {
+        *p = 0;
+      }
+      else {
         break;
       }
-    }
 
-    if((p = strrchr(dir,'/')) != NULL) {
-      *p = 0;
-    }
-    else {
-      break;
-    }
-
-    if(!(*dir) && !root_reached) {
-      root_reached=1;
-      strcpy(dir,"/");
+      if(!(*dir) && !root_reached) {
+        root_reached=1;
+        strcpy(dir,"/");
+      }
     }
   }
 
@@ -81,9 +89,6 @@ void GetFsDiskConcernedState(struct dsk_data * data, char *HomeDir, long long *D
     *IoUsage        = 0;
 if (debugl >= 2) {
     fprintf(stderr,"WARNING: can't find directory %s from fstatfs()\n",HomeDir);
-//#elif DEBUGL <= 1
-//    fprintf(stderr,"ERROR: can't find directory %s from fstatfs()\n",HomeDir);
-//    exit(1);
 }
   }
   else {
