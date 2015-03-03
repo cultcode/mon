@@ -49,14 +49,32 @@ void GetNetworkConcernedStatus(struct net_data *data, char * ip, short port, flo
 void GetFsDiskConcernedState(struct dsk_data * data, char *HomeDir, long long *DiskTotalSpace, long long *DiskFreeSpace, float* IoUsage)
 {
   int i=0;
-  for(i = 0; i<data->jfses; i++) {
-    if(!strcmp(HomeDir, data->jfs[i].name)) {
-      *DiskTotalSpace = data->jfs[i].size*1024*1024;
-      *DiskFreeSpace  = data->jfs[i].free*1024*1024;
-      *IoUsage        = data->jfs[i].io;
+  char dir[HOMEDIR_LEN]={0};
+  char *p=NULL;
+  int root_reached=0;
+
+  strcpy(dir, HomeDir);
+
+  while(*dir) {
+    for(i = 0; i<data->jfses; i++) {
+      if(!strcmp(dir, data->jfs[i].name)) {
+        break;
+      }
+    }
+
+    if((p = strrchr(dir,'/')) != NULL) {
+      *p = 0;
+    }
+    else {
       break;
     }
+
+    if(!(*dir) && !root_reached) {
+      root_reached=1;
+      strcpy(dir,"/");
+    }
   }
+
   if(i >= data->jfses) {
     *DiskTotalSpace = 0;
     *DiskFreeSpace  = 0;
@@ -67,6 +85,11 @@ if (debugl >= 2) {
 //    fprintf(stderr,"ERROR: can't find directory %s from fstatfs()\n",HomeDir);
 //    exit(1);
 }
+  }
+  else {
+    *DiskTotalSpace = data->jfs[i].size*1024*1024;
+    *DiskFreeSpace  = data->jfs[i].free*1024*1024;
+    *IoUsage        = data->jfs[i].io;
   }
 }
 
