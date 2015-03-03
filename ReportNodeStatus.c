@@ -65,7 +65,7 @@ if (debugl >= 2) {
     while(*dir) {
       for(i = 0; i<data->jfses; i++) {
         if(!strcmp(dir, data->jfs[i].name)) {
-          break;
+          goto SEARCH_HOMEDIR_END;
         }
       }
 
@@ -83,6 +83,7 @@ if (debugl >= 2) {
     }
   }
 
+SEARCH_HOMEDIR_END:
   if(i >= data->jfses) {
     *DiskTotalSpace = 0;
     *DiskFreeSpace  = 0;
