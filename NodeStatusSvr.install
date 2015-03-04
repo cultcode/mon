@@ -49,21 +49,14 @@ function exec_su () {
 }
 
 CMD="\
-\[ -f $path_store/NodeStatusSvr ] && \
-\[ -f $path_store/NodeStatusSvr.config ] && \
-\[ -f $path_store/LogTruncate.sh ] && \
-\[ -f $path_store/SvrScheduler.sh ] && \
+make -f $path_store/makefile install && \
+rm  -rf $path_store/makefile && \
 mkdir -p $path_install && \
-rm -rf $path_install/NodeStatusSvr        && \
-rm -rf $path_install/NodeStatusSvr.config && \
-rm -rf $path_install/LogTruncate.sh       && \
-rm -rf $path_install/SvrScheduler.sh      && \
-mv $path_store/NodeStatusSvr          $path_install/ && \
-mv $path_store/NodeStatusSvr.config   $path_install/ && \
-mv $path_store/LogTruncate.sh         $path_install/ && \
-mv $path_store/SvrScheduler.sh        $path_install/ && \
+mv -f $path_store/NodeStatusSvr          $path_install/ && \
+mv -f $path_store/NodeStatusSvr.config   $path_install/ && \
+mv -f $path_store/LogTruncate.sh         $path_install/ && \
+mv -f $path_store/SvrScheduler.sh        $path_install/ && \
 chmod +x $path_install/NodeStatusSvr          && \
-chmod +x $path_install/NodeStatusSvr.config   && \
 chmod +x $path_install/LogTruncate.sh         && \
 chmod +x $path_install/SvrScheduler.sh\
 "

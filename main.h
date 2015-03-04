@@ -36,4 +36,7 @@ extern char* SelfName;
 extern char node_3des_key[KEY_LEN];
 extern char node_3des_iv[KEY_LEN];
 
+#define NODE_3DES_KEY          node_3des_key
+#define NODE_3DES_IV           node_3des_iv
+
 #endif
