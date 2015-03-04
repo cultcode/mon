@@ -12,7 +12,7 @@ $(TARGET):$(SRCS) $(HEADERS) $(LIB_ENDECTT) $(LIB_CJSON) openssl
 	gcc -o $@ $(CFLAGS) $(SRCS) -I./openssl/include -I/usr/include/libxml2 -L./openssl -L. -lcrypto -lm -lxml2 -lendectt -lcjson
 
 $(LIB_ENDECTT):Security.c Security.h openssl
-	gcc -shared -fPIC -o $@ $(CFLAGS) -DTOLIBRARY EndecTt.c -I./openssl/include -L./openssl -lcrypto -lm
+	gcc -shared -fPIC -o $@ $(CFLAGS) -DTOLIBRARY Security.c -I./openssl/include -L./openssl -lcrypto -lm
 
 $(LIB_CJSON):cJSON.c cJSON.h openssl
 	gcc -shared -fPIC -o $@ $(CFLAGS) cJSON.c    -I./openssl/include -L./openssl -lcrypto -lm
