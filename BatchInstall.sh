@@ -1,6 +1,6 @@
 #!/bin/bash
 usage () {
-  echo "Usage: $0 IP_FILE USER USER_PASSWORD ROOT_PASSWORD CONFIG_FILE"
+  echo "Usage: $0 PATH_INSTALL IP_FILE USER USER_PASSWORD ROOT_PASSWORD CONFIG_FILE"
 }
 
 function exec_scp () {
@@ -13,18 +13,18 @@ function exec_scp () {
   "
 }
 
-if [ "$#" -ne 5 ];then
+if [ "$#" -ne 6 ];then
   usage;
   exit 1;
 fi;
 
-file_ip=$1
-user=$2
-password_user=$3
-password_su=$4
-config_file=$5
+path_install=$1
+file_ip=$2
+user=$3
+password_user=$4
+password_su=$5
+config_file=$6
 path_store="~"
-path_install=/home/Imgo.NodeStatusSvr
 
 for ip in $(cat $file_ip | sed '/^\s*#/d' | sed '/^\s*\$/d')
 do
