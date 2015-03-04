@@ -1,5 +1,5 @@
 #!/bin/bash
-set -x
+#set -x
 
 usage () {
   echo "Usage: $0 PATH_INSTALL ROOT_PASSWORD"
