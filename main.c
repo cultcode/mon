@@ -16,37 +16,28 @@
 #include <linux/sockios.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include "NodeStatus.h"
+#include "NodeResourceStatus.h"
 #include "InitNodeStatus.h"
 #include "GetNodeStatusList.h"
 #include "NodeResourceStatus.h"
+#include "GetNodeResourceStatus.h"
 #include "ReportNodeStatus.h"
 #include "SocketHttp.h"
 #include "OperateXml.h"
 #include "main.h"
 
 int refresh_interval=1; /*time interval to report data*/
-int cpu_average_interval=1;  /*time interval to average */
-int mem_average_interval=1;  /*time interval to average */
-int dsk_average_interval=1;  /*time interval to average */
-int net_average_interval=1;  /*time interval to average */
-int standalone = 0;
 int debugl = DEFAULT_DEBUGL;
-int servertimezone = 8;
+int standalone = 0;
 int looptimes = -1;
-int servegoal=3;
 char   HomeDir[HOMEDIR_LEN];
 char   LanIp[IP_LEN];
 char   WanIp[IP_LEN];
 short  LanPort;
 short  WanPort;
 char   url[3][URL_LEN];
-int waytogetcons=0;
 char *SelfName;
-char file_stdout[FN_LEN];
-char file_stderr[FN_LEN];
-char node_3des_key[KEY_LEN];
-char node_3des_iv[KEY_LEN];
+
 
 int main(int argc, char **argv)
 {
@@ -181,7 +172,12 @@ if(!standalone){
  ********************************************************/
 
 while(looptimes) {
-  ReportNodeStatus(&nsl, &nrs, url[2]);
+  if(standalone) {
+    GetNodeResourceStatus(&nsl, &nrs);
+  }
+  else {
+    ReportNodeStatus(&nsl, &nrs, url[2]);
+  }
 
   if(looptimes == -1 ) {
   }

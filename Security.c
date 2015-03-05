@@ -8,6 +8,8 @@
 #include "main.h"
 #include "Security.h"
 
+__attribute__((weak)) int debugl = DEFAULT_DEBUGL;
+
 static int DesCbcEncode(char* enckey, char* encIv, char *input,  char **output, int length)
 {
   DES_key_schedule ks1, ks2, ks3;

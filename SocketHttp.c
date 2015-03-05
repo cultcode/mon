@@ -7,8 +7,12 @@
 #include <arpa/inet.h>
 #include <time.h>
 #include "SocketHttp.h"
-#include "NodeStatus.h"
+#include "NodeResourceStatus.h"
 #include "Security.h"
+
+char node_3des_key[KEY_LEN]=DEFAULT_NODE_3DES_KEY;
+char node_3des_iv[KEY_LEN]=DEFAULT_NODE_3DES_IV;
+__attribute__((weak)) int debugl = DEFAULT_DEBUGL;
 
 /*
  * connect to server ip:port

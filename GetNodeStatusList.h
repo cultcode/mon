@@ -1,7 +1,7 @@
 #ifndef GETNODESTATUSLIST_H
 #define GETNODESTATUSLIST_H
 
-#include "NodeStatus.h"
+#include "NodeResourceStatus.h"
 #include "InitNodeStatus.h"
 
 struct NodeStatusList{

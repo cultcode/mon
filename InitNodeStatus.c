@@ -19,6 +19,10 @@
 #include "InitNodeStatus.h"
 #include "cJSON.h"
 
+__attribute__((weak)) int servertimezone=DEFAULT_SERVERTIMEZONE;
+int servegoal=DEFAULT_SERVEGOAL;
+__attribute__((weak)) int debugl = DEFAULT_DEBUGL;
+
 void InitNodeStatus(struct NodeStatus* ns, char* url)
 {
   static int sockfd=-1;
@@ -143,12 +147,10 @@ if (debugl >= 3) {
     sockfd = -1;
   }
 
-if(!standalone) {
   if(ns->Status == FAIL) {
     fprintf(stderr,"ERROR: InitNodeStatus() received FAIL: %s\n", ns->StatusDesc);
     exit(1);
   }
-}
 
 }
 

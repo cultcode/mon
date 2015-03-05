@@ -19,6 +19,9 @@
 #include "GetNodeStatusList.h"
 #include "cJSON.h"
 
+__attribute__((weak))  int servertimezone=DEFAULT_SERVERTIMEZONE;
+__attribute__((weak)) int debugl = DEFAULT_DEBUGL;
+
 void GetNodeStatusList(struct NodeStatus* ns, struct NodeStatusList* nsl, char * url)
 {
   static int sockfd=-1;
@@ -159,12 +162,10 @@ if (debugl >= 3) {
     sockfd = -1;
   }
 
-if(! standalone) {
   if(nsl->Status == FAIL) {
     fprintf(stderr,"ERROR: GetNodeStatusList() received FAIL: %s\n", nsl->StatusDesc);
     exit(1);
   }
-}
 
 }
 

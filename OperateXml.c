@@ -7,6 +7,8 @@
 #include "OperateXml.h"
 #include "common.h"
 #include "main.h"
+#include "GetNodeResourceStatus.h"
+#include "SocketHttp.h"
 
 int ReadConfigXml(char * fn_xml, char *** opt)
 {
@@ -145,6 +147,7 @@ void usage() {
     "-j  --des_iv     :specify 3des iv\n"
     "-k  --des_key    :specify 3des key\n"
     "-h  --help       :print this help info\n"
+    "-v  --version    :print version info\n"
     );
 }
 
@@ -152,7 +155,7 @@ int ParseOptions(int argc,char**argv)
 {
   int  i=0;
   int flags=0;
-  char* const short_options = "a:b:r:i:g:p:c:m:d:n:w:l:o:z:t:s:e:f:hj:k:";
+  char* const short_options = "a:b:r:i:g:p:c:m:d:n:w:l:o:z:t:s:e:f:hvj:k:";
   struct option long_options[] = {  
     { "standalone",  1,  NULL,  'a'},  
     { "debugl",  1,  NULL,  'b'},  
@@ -175,6 +178,7 @@ int ParseOptions(int argc,char**argv)
     { "des_key",  1,  NULL,  'k'},  
     { "des_iv",  1,  NULL,  'j'},  
     { "help",  0,  NULL,  'h'},  
+    { "version",  0,  NULL,  'v'},  
     {  0,  0,  0,  0},  
   };
 
@@ -254,6 +258,10 @@ if(debugl >= 1) {
       usage();
       exit(0);
       break;
+    case 'v':
+      printf("%s Version %s\n",SelfName, VERSION);
+      exit(0);
+      break;
     case 's':
       servegoal  = atoi(optarg);
       break;
@@ -272,14 +280,6 @@ if(debugl >= 1) {
   if(standalone & (debugl==DEFAULT_DEBUGL)) {
     debugl = 3;
   }
-
-if(!strlen(node_3des_key)) {
-  strcpy(node_3des_key,"t^^BvGfAdUTixobQP$HhsOsD");
-}
-
-if(!strlen(node_3des_iv)) {
-  strcpy(node_3des_iv,"=V#s%CS)");
-}
 
 if (debugl >= 1) {
   printf("debugl: %d\ninit url: %s\nget url: %s\nreport url: %s\nrefresh interval %d\ncpu_average_interval %d\nmem_average_interval %d\ndsk_average_interval %d\nnet_average_interval %d\nwanip:%s, wanport %hd, lanip %s, lanport %hd, homedir %s\nserver time zone %d\nnumber of loops %d\nway to get cons %d\nlogfile %s\n",debugl, url[0], url[1], url[2], refresh_interval, cpu_average_interval, mem_average_interval, dsk_average_interval, net_average_interval,WanIp,WanPort,LanIp,LanPort,HomeDir,servertimezone, looptimes, waytogetcons,file_stdout);

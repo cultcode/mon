@@ -7,6 +7,9 @@
 #include <unistd.h>
 #include "common.h"
 
+char file_stdout[FN_LEN];
+char file_stderr[FN_LEN];
+
 void ReopenLog(int signum)
 {
   FILE *fp=NULL;
@@ -132,6 +135,8 @@ void ParseUrl(char * url, char * protocol, char * ip, short * port, char* path) 
   char str[IP_LEN]={0};
   char **pptr=NULL;
   struct hostent *hptr=NULL;
+
+  if(!url) return;
 
   *port = 0;
 

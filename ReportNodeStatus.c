@@ -17,103 +17,9 @@
 #include <netinet/in.h>
 #include "SocketHttp.h"
 #include "ReportNodeStatus.h"
-#include "NodeResourceStatus.h"
 #include "cJSON.h"
 
-void GetNetworkConcernedStatus(struct net_data *data, char * ip, short port, float * usage, int * ipstate, long long * bandwidth, long long * cons) {
-  int i=0;
-  struct net_param *pa=NULL;
-
-  pa=(struct net_param *)&data->net_param;
-
-  for(i=0; i<data->nets; i++) {
-    if(!strcmp(ip, pa[i].ip)) {
-      *usage   = pa[i].usage;
-      *ipstate =(pa[i].flags & IFF_RUNNING) >0;
-      if(bandwidth != NULL) {
-        *bandwidth = (/*pa[i].speed_ib +*/ pa[i].speed_ob)*8;
-      }
-      break;
-    }
-  }
-  if(i >= data->nets) {
-    fprintf(stderr,"ERROR: can't find ip [%s] from getifaddrs()\n",ip);
-    exit(1);
-  }
-
-  if(cons != NULL) {
-    *cons = GetCurrentConn(ip, port);
-  }
-}
-
-void GetFsDiskConcernedState(struct dsk_data * data, char *HomeDir, long long *DiskTotalSpace, long long *DiskFreeSpace, float* IoUsage)
-{
-  int i=0;
-  char dir[HOMEDIR_LEN]={0};
-  char *p=NULL;
-  int root_reached=0;
-
-  strcpy(dir, HomeDir);
-
-  if((access(dir, 0)) == -1) {
-    i = data->jfses;
-if (debugl >= 2) {
-    fprintf(stderr,"WARNING: HomeDir %s is not existent\n",HomeDir);
-}
-  }
-  else {
-    while(*dir) {
-      for(i = 0; i<data->jfses; i++) {
-        if(!strcmp(dir, data->jfs[i].name)) {
-          goto SEARCH_HOMEDIR_END;
-        }
-      }
-
-      if((p = strrchr(dir,'/')) != NULL) {
-        *p = 0;
-      }
-      else {
-        break;
-      }
-
-      if(!(*dir) && !root_reached) {
-        root_reached=1;
-        strcpy(dir,"/");
-      }
-    }
-  }
-
-SEARCH_HOMEDIR_END:
-  if(i >= data->jfses) {
-    *DiskTotalSpace = 0;
-    *DiskFreeSpace  = 0;
-    *IoUsage        = 0;
-if (debugl >= 2) {
-    fprintf(stderr,"WARNING: can't find directory %s from fstatfs()\n",HomeDir);
-}
-  }
-  else {
-    *DiskTotalSpace = data->jfs[i].size*1024*1024;
-    *DiskFreeSpace  = data->jfs[i].free*1024*1024;
-    *IoUsage        = data->jfs[i].io;
-  }
-}
-
-void GetCpuConcernedState(struct cpu_data *data, float * usage) {
-  struct cpu_param  *pa = NULL;
-
-  pa=(struct cpu_param *)&data->cpu_param;
-
-  *usage = pa->total_usage;
-}
-
-void GetMemConcernedState(struct mem_data *data, float * usage) {
-  struct mem_param  *pa = NULL;
-
-  pa=(struct mem_param *)&data->mem_param;
-
-  *usage = pa->usage;
-}
+__attribute__((weak)) int debugl = DEFAULT_DEBUGL;
 
 void ReportNodeStatus(struct NodeStatusList* nsl, struct NodeResourceStatus* nrs, char * url)
 {
@@ -124,13 +30,6 @@ void ReportNodeStatus(struct NodeStatusList* nsl, struct NodeResourceStatus* nrs
   //char connection[CONNECTION_LEN] = "Close";
   //int ret=0;
 
-  static int first_time=1;
-  static struct proc proc[P_NUMBER] = {{0}};
-  static struct net_data net_data = {0};
-  static struct dsk_data dsk_data = {0};
-  static struct cpu_data cpu_data = {0};
-  static struct mem_data mem_data = {0};
-
   static char ip[IP_LEN] = {0};
   static short port=0;
 
@@ -138,70 +37,20 @@ void ReportNodeStatus(struct NodeStatusList* nsl, struct NodeResourceStatus* nrs
   char EpochTime[16]={0};
   cJSON *root=NULL, *item=NULL;
 
-  if(first_time) {
-    first_time = 0;
-
-    if(!standalone) {
-      ParseUrl(url, NULL, ip, &port, NULL);
-    }
-    //memset(proc,0,P_NUMBER*sizeof(struct proc));
-
-    cpu_data.p = &cpu_data.cpu_stats[0];
-    cpu_data.q = &cpu_data.cpu_stats[1];
-
-    dsk_data.p = &dsk_data.dk[0];
-    dsk_data.q = &dsk_data.dk[1];
-
-    mem_data.p = &mem_data.mem_stats[0];
-    mem_data.q = &mem_data.mem_stats[1];
-
-    net_data.p = &net_data.net_stats[0];
-    net_data.q = &net_data.net_stats[1];
+  if(!(strlen(ip) && port)) {
+    ParseUrl(url, NULL, ip, &port, NULL);
   }
-
-/*structure http request
-
-{"EpochTime":"97d76a","NodeId":1,"CurrentConn":100,"CurrentBandwidth":54241241,"DiskTotalSpace":64132131634,"DiskFreeSpace":45431,"CpuUsage":60,"MemUsage":40,"WanUsage":60,"LanUsage":40,"IoUsage":15,"LanIpState":1,"WanIpState":1}
-*/
-
-  memset(content, 0, sizeof(content));
-
-if(debugl >= 3) {
-  printf("====================================================================================\n");
-  printf("===========================   ReportNodeStatus() START   ===========================\n");
-  printf("====================================================================================\n");
-}
-  proc_init(proc);
 
   nrs->EpochTime = GetLocaltimeSeconds(servertimezone);
 
   nrs->NodeId = nsl->NodeId;
 
+  GetNodeResourceStatus(nsl, nrs);
 
-  //Networks
-  if((doubletime() - net_data.p->time) >= net_average_interval) {
-    GetNetworkState(&net_data);
-    GetNetworkConcernedStatus(&net_data, nsl->WanIp, nsl->WanPort, &nrs->WanUsage, &nrs->WanIpState, &nrs->CurrentBandwidth, &nrs->CurrentConn);
-    GetNetworkConcernedStatus(&net_data, nsl->LanIp, nsl->LanPort, &nrs->LanUsage, &nrs->LanIpState, NULL, NULL);
-  }
+/*structure http request
 
-  //Disk & Filesystem
-  if((doubletime() - dsk_data.p->time) >= dsk_average_interval) {
-    GetDiskState(&dsk_data);
-    GetFsDiskConcernedState(&dsk_data, nsl->HomeDir, &nrs->DiskTotalSpace, &nrs->DiskFreeSpace, &nrs->IoUsage);
-  }
-
-  //Cpu
-  if((doubletime() - cpu_data.p->time) >= cpu_average_interval) {
-    GetCpuState(&cpu_data, proc);
-    GetCpuConcernedState(&cpu_data, &nrs->CpuUsage);
-  }
-
-  //Mem
-  if((doubletime() - mem_data.p->time) >= mem_average_interval) {
-    GetMemState(&mem_data, proc);
-    GetMemConcernedState(&mem_data, &nrs->MemUsage);
-  }
+{"EpochTime":"97d76a","NodeId":1,"CurrentConn":100,"CurrentBandwidth":54241241,"DiskTotalSpace":64132131634,"DiskFreeSpace":45431,"CpuUsage":60,"MemUsage":40,"WanUsage":60,"LanUsage":40,"IoUsage":15,"LanIpState":1,"WanIpState":1}
+*/
 
 //  sprintf(content,
 //    "{"
@@ -257,9 +106,6 @@ if(debugl >= 3) {
 
   free(out);
 
-if(standalone) {
-  return;
-}
   strcpy(content_send, content);
 
 CREATEHTTP:
@@ -327,13 +173,11 @@ if (debugl >= 3) {
     sockfd = -1;
   }
 
-if(!standalone) {
 if(debugl >= 2) {
     if(nrs->Status == FAIL) {
       fprintf(stderr,"ERROR: ReportNodeStatus() received FAIL: %s\n", nrs->StatusDesc);
     //  exit(1);
     }
-}
 }
 }
 

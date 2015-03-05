@@ -1,7 +1,8 @@
 #ifndef NODERESOURCESTATUS_H
 #define NODERESOURCESTATUS_H
 
-#include "NodeStatus.h"
+#include "common.h"
+#include "main.h"
 /* Maximum number of lines in /proc files */
 #define PROC_MAXLINES (16*1024)
 
@@ -49,6 +50,27 @@ if(!p->dk[i].member) {\
 #define JFSNAMELEN 64
 #define JFSTYPELEN 8
 
+#define CONNECTION_LEN 32
+
+#define CONTENT_LEN 3072
+#define CONTENTLEN_LEN 8
+
+#define STATUSDESC_LEN 128
+
+#define PROTOCOL_LEN 16
+#define HOST_LEN 64
+#define PATH_LEN 256
+
+#define FILE_LINE_BUFFER 1024
+#define NODENAME_LEN 128
+#define SLAVES_LEN 1024
+
+#define SERVER_VERSION 1
+
+enum {
+  FAIL=0,
+  SUCESS=1
+};
 struct proc{
   int size;
   char *filename;
@@ -242,6 +264,10 @@ struct con_stat {
   typeof(a) _t = (a);\
   (a) = (b);\
   (b) = _t;}
+
+#define DEFAULT_WAYTOGETCONS 1
+extern int waytogetcons;
+
 
 extern double doubletime(void);
 extern void proc_init(struct proc *);

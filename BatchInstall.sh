@@ -47,6 +47,7 @@ do
   exec_scp ./SvrScheduler.sh                $path_store/
   exec_scp ./libendectt.so                  $path_store/
   exec_scp ./libcjson.so                    $path_store/
+  exec_scp ./libgnrs.so                     $path_store/
   exec_scp ./makefile                       $path_store/
 
   CMD="\

@@ -19,11 +19,15 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include "SocketHttp.h"
-#include "NodeStatus.h"
+#include "NodeResourceStatus.h"
 #include "NodeResourceStatus.h"
 #include <dirent.h>
 #include <ifaddrs.h>
 #include <netdb.h>
+
+int waytogetcons=DEFAULT_WAYTOGETCONS;
+__attribute__((weak)) int debugl = DEFAULT_DEBUGL;
+
 
 void proc_read(struct proc *proc, int num)
 {

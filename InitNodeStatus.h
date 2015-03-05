@@ -1,7 +1,10 @@
 #ifndef INITNODESTATUS_H
 #define INITNODESTATUS_H
 
-#include "NodeStatus.h"
+#include "NodeResourceStatus.h"
+
+#define DEFAULT_SERVEGOAL 3
+extern int servegoal;
 
 struct NodeStatus {
   long  EpochTime;
