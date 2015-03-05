@@ -26,10 +26,15 @@
 #include "OperateXml.h"
 #include "main.h"
 
-int refresh_interval=1; /*time interval to report data*/
+//public global variables
 int debugl = DEFAULT_DEBUGL;
-int standalone = 0;
-int looptimes = -1;
+int servertimezone=DEFAULT_SERVERTIMEZONE;
+
+//private global variables
+int refresh_interval=DEFAULT_REFRESH_INTERVAL ; /*time interval to report data*/
+int standalone = DEFAULT_STANDALONE ;
+int looptimes  = DEFAULT_LOOPTIMES ;
+
 char   HomeDir[HOMEDIR_LEN];
 char   LanIp[IP_LEN];
 char   WanIp[IP_LEN];

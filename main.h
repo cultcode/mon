@@ -1,11 +1,15 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-#define DEFAULT_DEBUGL 1
-#define DEFAULT_SERVERTIMEZONE 8
 #define HOMEDIR_LEN 128
 #define VERSION_LEN 32
 #define VERSION "1.0"
+
+#define DEFAULT_REFRESH_INTERVAL 1
+#define DEFAULT_DEBUGL 1
+#define DEFAULT_SERVERTIMEZONE 8
+#define DEFAULT_STANDALONE 1
+#define DEFAULT_LOOPTIMES -1
 
 #include "common.h"
 
@@ -14,6 +18,7 @@ extern int debugl;
 extern int servertimezone;
 extern int standalone;
 extern int looptimes;
+
 extern char   HomeDir[HOMEDIR_LEN];
 extern char   LanIp[IP_LEN];
 extern char   WanIp[IP_LEN];

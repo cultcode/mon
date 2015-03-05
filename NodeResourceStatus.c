@@ -28,7 +28,6 @@
 int waytogetcons=DEFAULT_WAYTOGETCONS;
 __attribute__((weak)) int debugl = DEFAULT_DEBUGL;
 
-
 void proc_read(struct proc *proc, int num)
 {
 int i=0;

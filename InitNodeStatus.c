@@ -19,8 +19,9 @@
 #include "InitNodeStatus.h"
 #include "cJSON.h"
 
-__attribute__((weak)) int servertimezone=DEFAULT_SERVERTIMEZONE;
 int servegoal=DEFAULT_SERVEGOAL;
+
+__attribute__((weak)) int servertimezone=DEFAULT_SERVERTIMEZONE;
 __attribute__((weak)) int debugl = DEFAULT_DEBUGL;
 
 void InitNodeStatus(struct NodeStatus* ns, char* url)

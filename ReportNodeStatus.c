@@ -19,6 +19,7 @@
 #include "ReportNodeStatus.h"
 #include "cJSON.h"
 
+__attribute__((weak)) int servertimezone=DEFAULT_SERVERTIMEZONE;
 __attribute__((weak)) int debugl = DEFAULT_DEBUGL;
 
 void ReportNodeStatus(struct NodeStatusList* nsl, struct NodeResourceStatus* nrs, char * url)

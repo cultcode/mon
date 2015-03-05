@@ -17,10 +17,10 @@
 #include <netinet/in.h>
 #include "GetNodeResourceStatus.h"
 
-int cpu_average_interval=1;  /*time interval to average */
-int mem_average_interval=1;  /*time interval to average */
-int dsk_average_interval=1;  /*time interval to average */
-int net_average_interval=1;  /*time interval to average */
+int cpu_average_interval=DEFAULT_CPU_AVERAGE_INTERVAL;  /*time interval to average */
+int mem_average_interval=DEFAULT_MEM_AVERAGE_INTERVAL;  /*time interval to average */
+int dsk_average_interval=DEFAULT_DSK_AVERAGE_INTERVAL;  /*time interval to average */
+int net_average_interval=DEFAULT_NET_AVERAGE_INTERVAL;  /*time interval to average */
 __attribute__((weak)) int debugl = DEFAULT_DEBUGL;
 
 void GetNetworkConcernedStatus(struct net_data *data, char * ip, short port, float * usage, int * ipstate, long long * bandwidth, long long * cons) {

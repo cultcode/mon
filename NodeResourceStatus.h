@@ -284,5 +284,4 @@ extern void GetNetworkState(struct net_data *);
 //extern int GetLanIpState();
 //extern long GetCurrentBandwidth();
 extern unsigned long long GetCurrentConn(char* ip, short port);
-
 #endif

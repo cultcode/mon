@@ -4,6 +4,10 @@
 #include "NodeResourceStatus.h"
 #include "GetNodeStatusList.h"
 
+#define DEFAULT_CPU_AVERAGE_INTERVAL 1
+#define DEFAULT_MEM_AVERAGE_INTERVAL 1
+#define DEFAULT_DSK_AVERAGE_INTERVAL 1
+#define DEFAULT_NET_AVERAGE_INTERVAL 1
 extern int cpu_average_interval;  /*time interval to average */
 extern int mem_average_interval;  /*time interval to average */
 extern int dsk_average_interval;  /*time interval to average */
