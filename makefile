@@ -22,7 +22,7 @@ $(LIB_GNRS):cJSON.c common.c Security.c SocketHttp.c NodeResourceStatus.c GetNod
 	gcc -shared -fPIC -o $@ $(CFLAGS) common.c Security.c SocketHttp.c NodeResourceStatus.c GetNodeResourceStatus.c -I./openssl/include -L./openssl -lcrypto -lm
 
 openssl:
-	tar -xzvf openssl-1.0.2.tar.gz && ln -s openssl-1.0.2 openssl && cd openssl && ./config && make
+	tar -xzvf openssl-1.0.2.tar.gz && ln -s openssl-1.0.2 openssl && cd openssl && ./config -fPIC && make
 
 clean:
 	rm -rf ./$(TARGET)
