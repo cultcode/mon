@@ -2,7 +2,6 @@
 #define NODERESOURCESTATUS_H
 
 #include "common.h"
-#include "main.h"
 /* Maximum number of lines in /proc files */
 #define PROC_MAXLINES (16*1024)
 

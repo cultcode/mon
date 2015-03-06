@@ -5,6 +5,12 @@
 #define PORT_LEN 32
 #define URL_LEN 1024
 #define FN_LEN 1024
+#define HOMEDIR_LEN 128
+#define VERSION_LEN 32
+#define VERSION "1.0"
+
+#define DEFAULT_DEBUGL 1
+#define DEFAULT_SERVERTIMEZONE 8
 
 extern char file_stdout[FN_LEN];
 extern char file_stderr[FN_LEN];
