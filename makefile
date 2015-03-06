@@ -18,8 +18,8 @@ $(LIB_ENDECTT):Security.c Security.h openssl
 $(LIB_CJSON):cJSON.c cJSON.h
 	gcc -shared -fPIC -o $@ $(CFLAGS) cJSON.c
 
-$(LIB_GNRS):cJSON.c common.c Security.c SocketHttp.c NodeResourceStatus.c GetNodeResourceStatus.c cJSON.h common.h Security.h SocketHttp.h NodeResourceStatus.h GetNodeResourceStatus.h
-	gcc -shared -fPIC -o $@ $(CFLAGS) common.c Security.c SocketHttp.c NodeResourceStatus.c GetNodeResourceStatus.c -I./openssl/include -L./openssl -lcrypto -lm
+$(LIB_GNRS):cJSON.c common.c SocketHttp.c NodeResourceStatus.c GetNodeResourceStatus.c cJSON.h common.h SocketHttp.h NodeResourceStatus.h GetNodeResourceStatus.h
+	gcc -shared -fPIC -o $@ $(CFLAGS) common.c SocketHttp.c NodeResourceStatus.c GetNodeResourceStatus.c -I./openssl/include -L./openssl -lcrypto -lm
 
 openssl:
 	tar -xzvf openssl-1.0.2.tar.gz && ln -s openssl-1.0.2 openssl && cd openssl && ./config -fPIC && make

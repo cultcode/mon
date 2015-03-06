@@ -63,7 +63,7 @@ exec_su $CMD
 
 PROGRAM=NodeStatusSvr 
 CRONTAB1="\* \* \* \* \* $path_install/SvrScheduler.sh $path_install/NodeStatusSvr start > /dev/null  2>\&1"
-CRONTAB2="0 0 1 \* \* $path_install/LogTruncate.sh  $path_install/NodeStatusSvr $path_install/NodeStatusSvr.log > /dev/null  2>\&1"
+CRONTAB2="0 0 \* \* \* $path_install/LogTruncate.sh  $path_install/NodeStatusSvr $path_install/NodeStatusSvr.log > /dev/null  2>\&1"
 #CMD="crontab -l | sed /NodeStatusSvr/d | sed '1i$CRONTAB2' | sed '1i$CRONTAB1' | crontab"
 CMD="\
 touch /var/spool/cron/root && \
