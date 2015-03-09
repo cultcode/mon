@@ -18,7 +18,7 @@ $(LIB_ENDECTT):Security.c Security.h openssl
 $(LIB_CJSON):cJSON.c cJSON.h
 	gcc -shared -fPIC -o $@ $(CFLAGS) cJSON.c
 
-$(LIB_GNRS):cJSON.c common.c SocketHttp.c NodeResourceStatus.c GetNodeResourceStatus.c cJSON.h common.h SocketHttp.h NodeResourceStatus.h GetNodeResourceStatus.h
+$(LIB_GNRS):common.c SocketHttp.c NodeResourceStatus.c GetNodeResourceStatus.c common.h SocketHttp.h NodeResourceStatus.h GetNodeResourceStatus.h
 	gcc -shared -fPIC -o $@ $(CFLAGS) common.c SocketHttp.c NodeResourceStatus.c GetNodeResourceStatus.c -I./openssl/include -L./openssl -lcrypto -lm
 
 openssl:
