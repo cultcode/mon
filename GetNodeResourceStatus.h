@@ -1,6 +1,11 @@
 #ifndef GETNODERESOURCESTATUSLIST_H
 #define GETNODERESOURCESTATUSLIST_H
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #include "NodeResourceStatus.h"
 #include "GetNodeStatusList.h"
 
@@ -33,4 +38,9 @@ struct NodeResourceStatus{
 };
 
 extern void GetNodeResourceStatus(struct NodeStatusList* nsl, struct NodeResourceStatus* nrs);
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif
