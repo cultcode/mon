@@ -17,6 +17,7 @@ extern int cpu_average_interval;  /*time interval to average */
 extern int mem_average_interval;  /*time interval to average */
 extern int dsk_average_interval;  /*time interval to average */
 extern int net_average_interval;  /*time interval to average */
+extern int debugl;
 
 struct NodeResourceStatus{
   long  EpochTime;
