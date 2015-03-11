@@ -10,16 +10,16 @@ LIB_GNRS=libgnrs.so
 TARGET=NodeStatusSvr
 
 $(TARGET):$(SRCS) $(HEADERS) $(LIB_ENDECTT) $(LIB_CJSON) $(LIB_GNRS) openssl
-	gcc -o $@ $(CFLAGS) $(SRCS) -I./openssl/include -I/usr/include/libxml2 -L./openssl -lcrypto -lm -lxml2
+	gcc -o $@ $(CFLAGS) $(SRCS) -DDEFAULT_DEBUGL=1 -I./openssl/include -I/usr/include/libxml2 -L./openssl -lcrypto -lm -lxml2
 
 $(LIB_ENDECTT):Security.c Security.h openssl
-	gcc -shared -fPIC -o $@ $(CFLAGS) Security.c -I./openssl/include -L./openssl -lcrypto -lm
+	gcc -shared -fPIC -o $@ $(CFLAGS) Security.c -DDEFAULT_DEBUGL=1 -I./openssl/include -L./openssl -lcrypto -lm
 
 $(LIB_CJSON):cJSON.c cJSON.h
 	gcc -shared -fPIC -o $@ $(CFLAGS) cJSON.c
 
 $(LIB_GNRS):common.c SocketHttp.c NodeResourceStatus.c GetNodeResourceStatus.c common.h SocketHttp.h NodeResourceStatus.h GetNodeResourceStatus.h
-	gcc -shared -fPIC -o $@ $(CFLAGS) common.c SocketHttp.c NodeResourceStatus.c GetNodeResourceStatus.c -I./openssl/include -L./openssl -lcrypto -lm
+	gcc -shared -fPIC -o $@ $(CFLAGS) common.c SocketHttp.c NodeResourceStatus.c GetNodeResourceStatus.c -DDEFAULT_DEBUGL=1 -I./openssl/include -L./openssl -lcrypto -lm
 
 openssl:
 	tar -xzvf openssl-1.0.2.tar.gz && ln -s openssl-1.0.2 openssl && cd openssl && ./config -fPIC && make

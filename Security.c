@@ -4,8 +4,6 @@
 #include <openssl/des.h>
 #include <openssl/bio.h>
 #include <openssl/evp.h>
-#include "common.h"
-#include "main.h"
 #include "Security.h"
 
 __attribute__((weak)) int debugl = DEFAULT_DEBUGL;
