@@ -19,7 +19,8 @@
 #include "InitNodeStatus.h"
 #include "cJSON.h"
 
-int servegoal=DEFAULT_SERVEGOAL;
+int svrversion=DEFAULT_SVRVERSION;
+int svrtype=DEFAULT_SVRTYPE;
 
 __attribute__((weak)) int servertimezone=DEFAULT_SERVERTIMEZONE;
 __attribute__((weak)) int debugl = DEFAULT_DEBUGL;
@@ -27,6 +28,7 @@ __attribute__((weak)) int debugl = DEFAULT_DEBUGL;
 void InitNodeStatus(struct NodeStatus* ns, char* url)
 {
   static int sockfd=-1;
+  char content_send[CONTENT_LEN]={0};
   char content[CONTENT_LEN]={0};
   char connection[CONNECTION_LEN] = "Close";
   //int ret=0;
@@ -41,12 +43,14 @@ void InitNodeStatus(struct NodeStatus* ns, char* url)
 /*structure http request
 {"EpochTime":" 97d76a","NodeName":"Imgo-1","Version":"3.0"}
 */
+  memset(ns,0,sizeof(struct NodeStatus));
 
   ns->EpochTime = GetLocaltimeSeconds(servertimezone);
 
   gethostname(ns->NodeName,NODENAME_LEN);
 
   sprintf(ns->Version,"%s",VERSION);
+  ns->SvrType = svrtype;
 
 //  sprintf(content,
 //    "{"
@@ -71,8 +75,11 @@ void InitNodeStatus(struct NodeStatus* ns, char* url)
   sprintf(EpochTime,"%lx",ns->EpochTime);
   cJSON_AddStringToObject(root,"EpochTime",EpochTime);
   cJSON_AddStringToObject(root,"NodeName",ns->NodeName);
-if(servegoal == 3) {
+if(svrversion) {
   cJSON_AddStringToObject(root,"Version",ns->Version);
+}
+if(svrtype) {
+  cJSON_AddNumberToObject(root,"SvrType",ns->SvrType);
 }
 
   strcpy(content, out=cJSON_PrintUnformatted(root));
@@ -81,18 +88,27 @@ if(servegoal == 3) {
 
   free(out);
 
+  strcpy(content_send, content);
+
+CREATEHTTP:
   if(sockfd == -1) {
     sockfd = createHttp(ip,port,SOCK_STREAM);
   }
 
-  sendHttp(&sockfd, url, connection, content, 1, NULL);
+  sendHttp(&sockfd, url, connection, content_send, 1, NULL);
+
+  if(sockfd == -1) goto CREATEHTTP;
+
+  memset(content, 0, sizeof(content));
+
+  recvHttp(&sockfd,url,content,1);
+
+  if(sockfd == -1) goto CREATEHTTP;
 
 /*analyze http content received
 {"Status":1,"StatusDesc":"success","NodeId":1}
 {"Status":0,"StatusDesc":"CheckFailed","NodeId ":0}
 */
-  memset(content, 0, sizeof(content));
-  recvHttp(&sockfd,url,content,1);
 
 //if (debugl >= 3) {
 //  printf("InitNodeStatus() http content received:\n%s\n",content);
@@ -115,14 +131,18 @@ if(servegoal == 3) {
       exit(1);
     }
 
-    item = root->child;
-    ns->Status = item->valueint;
+//    item = root->child;
 
-    item = item->next;
+    item = cJSON_GetObjectItem(root,"Status");
+    ns->Status = item->valueint;
+  
+    item = cJSON_GetObjectItem(root,"StatusDesc");
     strcpy(ns->StatusDesc, item->valuestring);
 
-    item = item->next;
-    ns->NodeId = item->valueint;
+    if(ns->Status == SUCESS) {
+      item = cJSON_GetObjectItem(root,"NodeId");
+      ns->NodeId = item->valueint;
+    }
 
     cJSON_Delete(root);
     

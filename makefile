@@ -1,16 +1,17 @@
-CFLAGS=-Wall
+CFLAGS=-Wall -g
 
-SRCS=cJSON.c common.c Security.c SocketHttp.c NodeResourceStatus.c GetNodeResourceStatus.c InitNodeStatus.c GetNodeStatusList.c ReportNodeStatus.c OperateXml.c main.c
-HEADERS=cJSON.h common.h Security.h SocketHttp.h NodeResourceStatus.h GetNodeResourceStatus.h InitNodeStatus.h GetNodeStatusList.h ReportNodeStatus.h OperateXml.h main.h
+SRCS=cJSON.c common.c Security.c SocketHttp.c NodeResourceStatus.c GetNodeResourceStatus.c InitNodeStatus.c GetNodeStatusList.c ReportNodeStatus.c GetNodeSvrSysParamList.c OperateXml.c main.c
+HEADERS=cJSON.h common.h Security.h SocketHttp.h NodeResourceStatus.h GetNodeResourceStatus.h InitNodeStatus.h GetNodeStatusList.h ReportNodeStatus.h GetNodeSvrSysParamList.h OperateXml.h main.h
 
 LIB_ENDECTT=libendectt.so
 LIB_CJSON=libcjson.so
 LIB_GNRS=libgnrs.so
+VERSION=\"1.0.0.build$(shell date +%y%m%d)\"
 
 TARGET=NodeStatusSvr
 
 $(TARGET):$(SRCS) $(HEADERS) $(LIB_ENDECTT) $(LIB_CJSON) $(LIB_GNRS) openssl
-	gcc -o $@ $(CFLAGS) $(SRCS) -DDEFAULT_DEBUGL=1 -I./openssl/include -I/usr/include/libxml2 -L./openssl -lcrypto -lm -lxml2
+	gcc -o $@ $(CFLAGS) $(SRCS) -DDEFAULT_DEBUGL=1 -DVERSION="$(VERSION)" -I./openssl/include -I/usr/include/libxml2 -L./openssl -lcrypto -lm -lxml2
 
 $(LIB_ENDECTT):Security.c Security.h openssl
 	gcc -shared -fPIC -o $@ $(CFLAGS) Security.c -DDEFAULT_DEBUGL=1 -I./openssl/include -L./openssl -lcrypto -lm

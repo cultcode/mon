@@ -2,15 +2,20 @@
 <configuration>
 
   <appSettings>
-
     <!--specify URL for NodeStatusInit, like http://XXXX/ndas/NodeStatusInit-->
-    <add key="init"		value="http://10.200.8.3:10086/ndas/NodeStatusInit"/>
+    <add key="init"             value="http://10.200.8.3:8008/DBAgentSvr/SvrInit"/>
 
     <!--specify URL for GetNodeStatusList, like http://XXXX/ndas/GetNodeStatusList-->
-    <add key="get"		value="http://10.200.8.3:10086/ndas/GetNodeStatusList"/>
+    <add key="get"              value="http://10.200.8.3:8008/DBAgentSvr/NodeStatusSvr/GetList"/>
 
     <!--specify URL for NodeStatusReport, like http://XXXX/ndas/NodeStatusReport-->
-    <add key="report"	value="http://10.200.8.3:10086/ndas/NodeStatusReport"/>
+    <add key="report"           value="http://10.200.8.3:8008/DBAgentSvr/NodeStatusSvr/NodeStatusReport"/>
+
+    <!--specify URL for GetNodeSvrSysParamList-->
+    <add key="paramlisturl"     value="http://10.200.8.3:8008/DBAgentSvr/GetNodeSvrSysParmList"/>
+
+    <!--specify interval for getting GetNodeSvrSysParamList-->
+    <add key="paramlistiv"      value="300"/>
 
     <!--interval of reporting status, unit is second -->
     <add key="refresh"		value="5"/>
@@ -33,8 +38,11 @@
     <!--specify period for average net usage, unit is second-->
     <add key="net"        value="5"/>
 
-    <!--specify server program type, 2 is for 2nd CDN server, 3 is for 3rd CDN server-->
-    <add key="servegoal"  value="3"/>
+    <!--Whether to insert Service Version into Init-->
+    <add key="svrversion"  value="1"/>
+
+    <!--Service Type used in Init-->
+    <add key="svrtype"  value="5"/>
 
     <!--specify stdout&stderr redirection log file-->
     <add key="logfile"  value="/home/Titan.NodeStatusSvr/NodeStatusSvr.log"/>

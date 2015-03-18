@@ -126,28 +126,31 @@ int ReadConfigXml(char * fn_xml, char *** opt)
 
 void usage() {
   printf(
-    "-a  --standalone :run in standalone mode\n"
-    "-b  --debugl     :debug info level, default to 1\n"
-    "-r  --refresh    :interval of reporting status, unit is second. default to 1\n"
-    "-i  --init       :specify URL for NodeStatusInit, like http://XXXX/ndas/NodeStatusInit\n"
-    "-g  --get        :specify URL for GetNodeStatusList, like http://XXXX/ndas/GetNodeStatusList\n"
-    "-p  --report     :specify URL for NodeStatusReport, like http://XXXX/ndas/NodeStatusReport\n"
-    "-c  --cpu        :specify period for average cpu usage, unit is second\n"
-    "-m  --mem        :specify period for average mem usage, unit is second\n"
-    "-d  --dsk        :specify period for average dsk usage, unit is second\n"
-    "-n  --net        :specify period for average net usage, unit is second\n"
-    "-w  --wanip      :when in standalone mode, specify local ip:port\n"
-    "-l  --lanip      :when in standalone mode, specify wide  ip:port\n"
-    "-h  --homedir    :when in standalone mode, specify home direcotry\n"
-    "-z  --zone       :specify timezone if necessary\n"
-    "-t  --looptimes  :specify report times if necessary, default to dead-while\n"
-    "-s  --servegoal  :specify server program type, 2 is for 2nd CDN server, 3 is for 3rd CDN server, default to 3\n"
-    "-e  --waytogetcons:  how to get connections, 0(default) is http, non-0 is from /proc\n"
-    "-f  --logfile    :specify stdout&stderr redirection log file\n"
-    "-j  --des_iv     :specify 3des iv\n"
-    "-k  --des_key    :specify 3des key\n"
-    "-h  --help       :print this help info\n"
-    "-v  --version    :print version info\n"
+    "-a  --standalone   :run in standalone mode\n"
+    "-b  --debugl       :debug info level, default to 1\n"
+    "-r  --refresh      :interval of reporting status, unit is second. default to 1\n"
+    "-i  --init         :specify URL for NodeStatusInit, like http://XXXX/ndas/NodeStatusInit\n"
+    "-g  --get          :specify URL for GetNodeStatusList, like http://XXXX/ndas/GetNodeStatusList\n"
+    "-p  --report       :specify URL for NodeStatusReport, like http://XXXX/ndas/NodeStatusReport\n"
+    "-c  --cpu          :specify period for average cpu usage, unit is second\n"
+    "-m  --mem          :specify period for average mem usage, unit is second\n"
+    "-d  --dsk          :specify period for average dsk usage, unit is second\n"
+    "-n  --net          :specify period for average net usage, unit is second\n"
+    "-w  --wanip        :when in standalone mode, specify local ip:port\n"
+    "-l  --lanip        :when in standalone mode, specify wide  ip:port\n"
+    "-o  --homedir      :when in standalone mode, specify home direcotry\n"
+    "-z  --zone         :specify timezone if necessary\n"
+    "-t  --looptimes    :specify report times if necessary, default to dead-while\n"
+    "-s  --svrversion   :Whether to insert Service Version into Init\n"
+    "-q  --svrtype      :Service Type used in Init\n"
+    "-u  --paramlisturl :specify URL for GetNodeSvrSysParamList\n"
+    "-U  --paramlistiv  :specify interval for getting GetNodeSvrSysParamList\n"
+    "-e  --waytogetcons :how to get connections, 0(default) is http, non-0 is from /proc\n"
+    "-f  --logfile      :specify stdout&stderr redirection log file\n"
+    "-j  --des_iv       :specify 3des iv\n"
+    "-k  --des_key      :specify 3des key\n"
+    "-h  --help         :print this help info\n"
+    "-v  --version      :print version info\n"
     );
 }
 
@@ -155,7 +158,7 @@ int ParseOptions(int argc,char**argv)
 {
   int  i=0;
   int flags=0;
-  char* const short_options = "a:b:r:i:g:p:c:m:d:n:w:l:o:z:t:s:e:f:hvj:k:";
+  char* const short_options = "a:b:r:i:g:p:c:m:d:n:w:l:o:z:t:s:q:u:U:e:f:hvj:k:";
   struct option long_options[] = {  
     { "standalone",  1,  NULL,  'a'},  
     { "debugl",  1,  NULL,  'b'},  
@@ -172,7 +175,10 @@ int ParseOptions(int argc,char**argv)
     { "homedir",  1,  NULL,  'o'},  
     { "zone",  1,  NULL,  'z'},  
     { "looptimes",  1,  NULL,  't'},  
-    { "servegoal",  1,  NULL,  's'},  
+    { "svrversion",  1,  NULL,  's'},  
+    { "svrtype",  1,  NULL,  'q'},  
+    { "paramlisturl",  1,  NULL,  'u'},  
+    { "paramlistiv",  1,  NULL,  'U'},  
     { "waytogetcons",  1,  NULL,  'e'},  
     { "logfile",  1,  NULL,  'f'},  
     { "des_key",  1,  NULL,  'k'},  
@@ -181,6 +187,20 @@ int ParseOptions(int argc,char**argv)
     { "version",  0,  NULL,  'v'},  
     {  0,  0,  0,  0},  
   };
+
+/********************************************************
+ * reset all args value before get them
+ ********************************************************/
+  refresh_interval=DEFAULT_REFRESH_INTERVAL;
+  standalone = DEFAULT_STANDALONE ;
+  looptimes  = DEFAULT_LOOPTIMES ;
+
+  memset(HomeDir,0,sizeof(HomeDir));
+  memset(LanIp,0,sizeof(LanIp));
+  memset(WanIp,0,sizeof(WanIp));
+  LanPort = 0;
+  WanPort = 0;
+  memset(url,0,sizeof(url));
 
 if(debugl >= 1) {
   printf("number of arguments: %d\narguments: ",argc);
@@ -213,6 +233,12 @@ if(debugl >= 1) {
       break;
     case 'p':
       strcpy(url[2], optarg);
+      break;
+    case 'u':
+      strcpy(url[3], optarg);
+      break;
+    case 'U':
+      paramlist_interval = atoi(optarg);
       break;
     case 'c':
       cpu_average_interval = atoi(optarg);
@@ -263,7 +289,10 @@ if(debugl >= 1) {
       exit(0);
       break;
     case 's':
-      servegoal  = atoi(optarg);
+      svrversion  = atoi(optarg);
+      break;
+    case 'q':
+      svrtype  = atoi(optarg);
       break;
     case 'j':
       strcpy(node_3des_iv, optarg);
@@ -282,7 +311,7 @@ if(debugl >= 1) {
   }
 
 if (debugl >= 1) {
-  printf("debugl: %d\ninit url: %s\nget url: %s\nreport url: %s\nrefresh interval %d\ncpu_average_interval %d\nmem_average_interval %d\ndsk_average_interval %d\nnet_average_interval %d\nwanip:%s, wanport %hd, lanip %s, lanport %hd, homedir %s\nserver time zone %d\nnumber of loops %d\nway to get cons %d\nlogfile %s\n",debugl, url[0], url[1], url[2], refresh_interval, cpu_average_interval, mem_average_interval, dsk_average_interval, net_average_interval,WanIp,WanPort,LanIp,LanPort,HomeDir,servertimezone, looptimes, waytogetcons,file_stdout);
+  printf("debugl: %d\ninit url: %s\nget url: %s\nreport url: %s\nparamlist url: %s\nparamlist_interval: %d, refresh interval %d\ncpu_average_interval %d\nmem_average_interval %d\ndsk_average_interval %d\nnet_average_interval %d\nwanip:%s, wanport %hd, lanip %s, lanport %hd, homedir %s\nserver time zone %d\nnumber of loops %d\nway to get cons %d\nlogfile %s\nsvrtype %d,svrversion %d\n",debugl, url[0], url[1], url[2], url[3], paramlist_interval, refresh_interval, cpu_average_interval, mem_average_interval, dsk_average_interval, net_average_interval,WanIp,WanPort,LanIp,LanPort,HomeDir,servertimezone, looptimes, waytogetcons,file_stdout,svrtype,svrversion);
 }
 
 return flags;

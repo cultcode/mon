@@ -7,7 +7,6 @@
 #define FN_LEN 1024
 #define HOMEDIR_LEN 128
 #define VERSION_LEN 32
-#define VERSION "1.0"
 
 #define DEFAULT_SERVERTIMEZONE 8
 

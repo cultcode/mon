@@ -131,6 +131,7 @@ if(debugl >= 3) {
   printf("===========================   ReportNodeStatus() START   ===========================\n");
   printf("====================================================================================\n");
 }
+  memset(nrs,0,sizeof(struct NodeResourceStatus));
 
   if(!proc[P_CPUINFO].filename) {
     proc_init(proc);

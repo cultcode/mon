@@ -42,6 +42,8 @@ void ReportNodeStatus(struct NodeStatusList* nsl, struct NodeResourceStatus* nrs
     ParseUrl(url, NULL, ip, &port, NULL);
   }
 
+  memset(nrs,0,sizeof(struct NodeResourceStatus));
+
   nrs->EpochTime = GetLocaltimeSeconds(servertimezone);
 
   nrs->NodeId = nsl->NodeId;
@@ -146,10 +148,12 @@ CREATEHTTP:
       exit(1);
     }
 
-    item = root->child;
+    //item = root->child;
+
+    item = cJSON_GetObjectItem(root,"Status");
     nrs->Status = item->valueint;
 
-    item = item->next;
+    item = cJSON_GetObjectItem(root,"StatusDesc");
     strcpy(nrs->StatusDesc, item->valuestring);
 
     cJSON_Delete(root);

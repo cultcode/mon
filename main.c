@@ -18,6 +18,7 @@
 #include <arpa/inet.h>
 #include "NodeResourceStatus.h"
 #include "InitNodeStatus.h"
+#include "GetNodeSvrSysParamList.h"
 #include "GetNodeStatusList.h"
 #include "NodeResourceStatus.h"
 #include "GetNodeResourceStatus.h"
@@ -40,9 +41,10 @@ char   LanIp[IP_LEN];
 char   WanIp[IP_LEN];
 short  LanPort;
 short  WanPort;
-char   url[3][URL_LEN];
+char   url[4][URL_LEN];
 char *SelfName;
 
+int paramlist_interval=0;
 
 int main(int argc, char **argv)
 {
@@ -51,6 +53,7 @@ int main(int argc, char **argv)
   struct NodeStatus ns = {0};
   struct NodeStatusList nsl = {0};
   struct NodeResourceStatus nrs = {0};
+  struct NodeSvrSysParamList nsspl = {0};
 
   char **options=NULL;
   char ConfigXml[FN_LEN] = {0};
@@ -181,6 +184,20 @@ while(looptimes) {
     GetNodeResourceStatus(&nsl, &nrs);
   }
   else {
+/********************************************************
+ * GetNodeSvrSysParamList
+ ********************************************************/
+    if(strlen(url[3]) && ((GetLocaltimeSeconds(servertimezone) - nsspl.EpochTime) >= paramlist_interval)){
+      GetNodeSvrSysParamList(&nsspl, url[3]);
+      dsk_average_interval = nsspl.NS_ResMon_CollectRateDiskIO;
+if (debugl >= 1) {
+      printf("dsk_average_interval: %d\n",dsk_average_interval);
+}
+    }
+
+/********************************************************
+ * ReportNodeStatus
+ ********************************************************/
     ReportNodeStatus(&nsl, &nrs, url[2]);
   }
 

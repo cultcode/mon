@@ -18,7 +18,11 @@ extern char   LanIp[IP_LEN];
 extern char   WanIp[IP_LEN];
 extern short  LanPort;
 extern short  WanPort;
-extern char   url[3][URL_LEN];
+extern char   url[4][URL_LEN];
 extern char* SelfName;
+
+extern int paramlist_interval;
+
+extern int dsk_average_interval;
 
 #endif

@@ -25,7 +25,8 @@ __attribute__((weak)) int debugl = DEFAULT_DEBUGL;
 void GetNodeStatusList(struct NodeStatus* ns, struct NodeStatusList* nsl, char * url)
 {
   static int sockfd=-1;
-  char content[CONTENT_LEN];
+  char content_send[CONTENT_LEN]={0};
+  char content[CONTENT_LEN] = {0};
   char connection[CONNECTION_LEN] = "Close";
   //int ret=0;
 
@@ -40,7 +41,7 @@ void GetNodeStatusList(struct NodeStatus* ns, struct NodeStatusList* nsl, char *
 /*structure http request
 {"EpochTime":"97d76a","NodeId ":0}
 */
-  memset(content, 0, sizeof(content));
+  memset(nsl, 0, sizeof(struct NodeStatusList));
 
   nsl->EpochTime = GetLocaltimeSeconds(servertimezone);
   nsl->NodeId = ns->NodeId;
@@ -66,19 +67,29 @@ void GetNodeStatusList(struct NodeStatus* ns, struct NodeStatusList* nsl, char *
 
   free(out);
 
+  strcpy(content_send, content);
+
+CREATEHTTP:
   if(sockfd == -1) {
     sockfd = createHttp(ip,port,SOCK_STREAM);
   }
 
-  sendHttp(&sockfd, url, connection, content, 1, NULL);
+  sendHttp(&sockfd, url, connection, content_send, 1, NULL);
+
+  if(sockfd == -1) goto CREATEHTTP;
+
+  memset(content, 0, sizeof(content));
+
+  recvHttp(&sockfd,url,content,1);
+
+  if(sockfd == -1) goto CREATEHTTP;
+
 
 /*analyze http content received
 {"Status":1,"StatusDesc":"success","HomeDir":"x:\Clips","LanIp":"192.168.1.1","WanIp":"10.0.0.1","LanPort":"21","WanPort":80}
 
 {"Status":0,"StatusDesc":"CheckFailed","HomeDir":"",",anIp":"","WanIp":"","LanPort":0,"WanPort":0}
 */
-  memset(content, 0, sizeof(content));
-  recvHttp(&sockfd,url,content, 1);
 
 //if (debugl >= 3) {
 //  printf("GetNodeStatusList() http content received:\n%s\n",content);
@@ -109,26 +120,30 @@ void GetNodeStatusList(struct NodeStatus* ns, struct NodeStatusList* nsl, char *
       exit(1);
     }
 
-    item = root->child;
+    //item = root->child;
+
+    item = cJSON_GetObjectItem(root,"Status");
     nsl->Status = item->valueint;
 
-    item = item->next;
+    item = cJSON_GetObjectItem(root,"StatusDesc");
     strcpy(nsl->StatusDesc, item->valuestring);
 
-    item = item->next;
-    strcpy(nsl->HomeDir, item->valuestring);
+    if(ns->Status == SUCESS) {
+      item = cJSON_GetObjectItem(root,"HomeDir");
+      strcpy(nsl->HomeDir, item->valuestring);
 
-    item = item->next;
-    strcpy( nsl->LanIp, item->valuestring);
+      item = cJSON_GetObjectItem(root,"LanIp");
+      strcpy( nsl->LanIp, item->valuestring);
 
-    item = item->next;
-    strcpy( nsl->WanIp, item->valuestring);
+      item = cJSON_GetObjectItem(root,"WanIp");
+      strcpy( nsl->WanIp, item->valuestring);
 
-    item = item->next;
-    nsl->LanPort = item->valueint;
+      item = cJSON_GetObjectItem(root,"LanPort");
+      nsl->LanPort = item->valueint;
 
-    item = item->next;
-    nsl->WanPort = item->valueint;
+      item = cJSON_GetObjectItem(root,"WanPort");
+      nsl->WanPort = item->valueint;
+    }
 
     cJSON_Delete(root);
 
