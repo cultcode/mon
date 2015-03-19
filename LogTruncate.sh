@@ -22,7 +22,8 @@ if [ ! -f "$2" ];then
   exit 1;
 fi;
 
-SERVICE_NAME=$1
+SERVICE_DIR=$(dirname "$1")
+SERVICE_NAME=$(basename "$1")
 
 LOG_FILE=$2
 LOG_FILE_BAK=${LOG_FILE}"."$(date +"%Y%m%d_%H%M%S")
@@ -31,15 +32,20 @@ RETVAL=0
 items=""
 pids=""
 length=0
+IFS="!!"
 
 init () {
-  items=(`ps -ef | grep -v $0 | grep "$SERVICE_NAME\\s" | grep -v "grep"`)
+  items=(`ps -ef | grep "[0-9]\+:[0-9]\+:[0-9]\+ $SERVICE_DIR/$SERVICE_NAME\b"`)
   length=${#items[@]}
 
-  for ((i=0; i<$length; i++))
-  do
-    pids[$i]=`echo ${items[$i]} | awk '{print $2}'`
-  done
+  if [ "$length" -gt 0 ];then
+    for ((i=0; i<$length; i++))
+    do
+      pids[$i]=`echo ${items[$i]} | awk '{print $2}'`
+      echo ${items[$i]}
+      echo ${pids[$i]}
+    done
+  fi;
 
   mv $LOG_FILE $LOG_FILE_BAK
   RETVAL=$?

@@ -16,7 +16,7 @@ void ReopenLog(int signum)
 
   printf("Caught signal %d\n",signum);
 
-  if((fp=fopen(file_stdout,"w")) == NULL) {
+  if((fp=fopen(file_stdout,"a")) == NULL) {
     perror("fopen");
     fprintf(stderr,"ERROR: %s\n",file_stdout);
   }
@@ -24,7 +24,7 @@ void ReopenLog(int signum)
   {
     fclose(fp);
     fclose(stdout);
-    if((fp=freopen(file_stdout,"w", stdout)) == NULL) {
+    if((fp=freopen(file_stdout,"a", stdout)) == NULL) {
       perror("freopen stdout");
     }
   }
@@ -33,7 +33,7 @@ void ReopenLog(int signum)
     dup2(fileno(stdout), fileno(stderr));
   }
   else {
-    if((fp=fopen(file_stderr,"w")) == NULL) {
+    if((fp=fopen(file_stderr,"a")) == NULL) {
       perror("fopen");
       fprintf(stderr,"ERROR: %s\n",file_stderr);
     }
@@ -41,7 +41,7 @@ void ReopenLog(int signum)
     {
       fclose(fp);
       fclose(stderr);
-      if((fp=freopen(file_stderr,"w", stderr)) == NULL) {
+      if((fp=freopen(file_stderr,"a", stderr)) == NULL) {
         perror("freopen stderr");
       }
     }
