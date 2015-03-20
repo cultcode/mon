@@ -44,11 +44,11 @@ void ReportNodeStatus(struct NodeStatusList* nsl, struct NodeResourceStatus* nrs
 
   memset(nrs,0,sizeof(struct NodeResourceStatus));
 
+  GetNodeResourceStatus(nsl, nrs);
+
   nrs->EpochTime = GetLocaltimeSeconds(servertimezone);
 
   nrs->NodeId = nsl->NodeId;
-
-  GetNodeResourceStatus(nsl, nrs);
 
 /*structure http request
 
