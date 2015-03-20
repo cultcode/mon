@@ -28,7 +28,7 @@ length=0
 init () {
   IFS_old=$IFS
   IFS=$'\x0A'
-  items=(`ps -ef | grep "[0-9]\+:[0-9]\+:[0-9]\+ $SERVICE_DIR/$SERVICE_NAME\b"`)
+  items=(`ps -ef | grep "[0-9]\+:[0-9]\+:[0-9]\+ \S*$SERVICE_NAME\b"`)
   IFS=$IFS_old
   length=${#items[@]}
 
@@ -71,11 +71,11 @@ start() {
 stop () {
   init;
   echo "Stopping $SERVICE_NAME......" 
-  cmd_stop=""
+  cmd_stop="kill -9"
 
   if [ "${#items}" -gt 0 ];then
     for p in ${pids[@]}; do
-      cmd_stop="$cmd_stop""kill -9 $p;"
+      cmd_stop="$cmd_stop"" $p"
     done
     echo ${cmd_stop}
     echo ${cmd_stop}|awk '{system($0)}'
