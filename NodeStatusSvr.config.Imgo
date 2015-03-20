@@ -33,9 +33,6 @@
     <!--specify period for average net usage, unit is second-->
     <add key="net"        value="5"/>
 
-    <!--specify server program type, 2 is for 2nd CDN server, 3 is for 3rd CDN server-->
-    <add key="servegoal"  value="2"/>
-
     <!--specify stdout&stderr redirection log file-->
     <add key="logfile"  value="/home/Imgo.NodeStatusSvr/NodeStatusSvr.log"/>
 

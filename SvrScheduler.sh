@@ -24,10 +24,12 @@ RETVAL=0
 items=""
 pids=""
 length=0
-IFS="!!"
 
 init () {
+  IFS_old=$IFS
+  IFS=$'\x0A'
   items=(`ps -ef | grep "[0-9]\+:[0-9]\+:[0-9]\+ $SERVICE_DIR/$SERVICE_NAME\b"`)
+  IFS=$IFS_old
   length=${#items[@]}
 
   if [ "$length" -gt 0 ];then
