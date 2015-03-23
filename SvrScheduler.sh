@@ -80,6 +80,7 @@ stop () {
     echo ${cmd_stop}
     echo ${cmd_stop}|awk '{system($0)}'
     RETVAL=$?
+    sleep 3;
   else
     echo "$SERVICE_NAME doesn't run"
     RETVAL=$?
