@@ -226,9 +226,9 @@ if (debugl >= 4) {
   if(strstr(recvline,"OK") == NULL) {
     printf("wrong HTTP response received\n");
 
-if (debugl < 4) {
-    printf("recvline:\n%s\n",recvline);
-}
+//if (debugl < 4) {
+//    printf("recvline:\n%s\n",recvline);
+//}
     closeHttp(sockfd);
     *sockfdp = -1;
     

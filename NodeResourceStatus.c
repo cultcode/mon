@@ -1457,20 +1457,19 @@ unsigned long long http_cons(char* ip, short port)
 
   strcat(url,"/admin.info");
 
-CREATEHTTP:
   if(sockfd == -1) {
     sockfd = createHttp(ip,port,SOCK_STREAM);
   }
 
   sendHttp(&sockfd, url, connection, "", 0, extra_header);
 
-  if(sockfd == -1) goto CREATEHTTP;
+  if(sockfd == -1) return 0;
 
   memset(content, 0, sizeof(content));
 
   recvHttp(&sockfd,url,content,0);
 
-  if(sockfd == -1) goto CREATEHTTP;
+  if(sockfd == -1) return 0;
 
   if(!strcasecmp(connection, "Close")){
     closeHttp(sockfd);
