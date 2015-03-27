@@ -231,7 +231,9 @@ if (debugl >= 4) {
 }
 
   if(strstr(recvline,"OK") == NULL) {
+if(debugl >= 2) {
     printf("ERROR:non-OK HTTP response received from %s\n",url);
+}
 
 //if (debugl < 4) {
 //    printf("recvline:\n%s\n",recvline);

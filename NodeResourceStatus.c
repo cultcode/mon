@@ -467,6 +467,7 @@ static FILE * mfp = NULL; /* FILE pointer for mtab file*/
 struct mntent *mp=NULL; /* mnt point stats */
 //static int jfs_loaded = 0;
 int jfses = 0;
+char buf[1024]={0};
 
   char *linkname=NULL;
   struct stat sb={0};
@@ -585,6 +586,11 @@ if(debugl >= 4) {
       while((entry=(readdir(dirptr))))
       {
         if(!strncmp(entry->d_name ,".",1)) continue;
+
+        sprintf(buf,"%s/%s", fn, entry->d_name);
+        if(access(buf, 0) == -1) {
+          continue;
+        }
 
         strcat(jfs[k].slaves,entry->d_name);
         strcat(jfs[k].slaves," ");
