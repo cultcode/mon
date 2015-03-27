@@ -1443,6 +1443,7 @@ unsigned long long http_cons(char* ip, short port)
   char port_s[PORT_LEN]={0};
   unsigned long long cons=0;
   char extra_header[HTTP_HEADER_LEN]={0};
+  int debugl_old = 0;
 
   strcat(extra_header,"stat: sessioncount");
   strcat(extra_header, HTTP_NEWLINE);
@@ -1457,24 +1458,31 @@ unsigned long long http_cons(char* ip, short port)
 
   strcat(url,"/admin.info");
 
+  debugl_old = debugl;
+  if(debugl == 1) {
+    debugl = 0;
+  }
+CREATEHTTP:
   if(sockfd == -1) {
     sockfd = createHttp(ip,port,SOCK_STREAM);
   }
 
   sendHttp(&sockfd, url, connection, "", 0, extra_header);
 
-  if(sockfd == -1) return 0;
+  if(sockfd == -1) goto CREATEHTTP;
 
   memset(content, 0, sizeof(content));
 
   recvHttp(&sockfd,url,content,0);
 
-  if(sockfd == -1) return 0;
+  if(sockfd == -1) goto CREATEHTTP;
 
   if(!strcasecmp(connection, "Close")){
     closeHttp(sockfd);
     sockfd = -1;
   }
+
+  debugl = debugl_old;
 
   if(strlen(content)) {
     errno = 0;

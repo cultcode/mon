@@ -6,6 +6,7 @@
 #include <sys/errno.h>
 #include <arpa/inet.h>
 #include <time.h>
+#include <libgen.h>
 #include "SocketHttp.h"
 #include "NodeResourceStatus.h"
 #include "Security.h"
@@ -97,7 +98,7 @@ void sendHttp(int* sockfdp, char * url, char * connection, char * input, int enc
 
 if (debugl >= 1) {
   strftime(buf, 64, "%Y-%m-%d %H:%M:%S", localtime(&t));  
-  printf("[%s] sent     to   %s:\t%s\n",buf,url,input);
+  printf("[%s] sent     to   %s:\t%s\n",buf,basename(url),input);
 }
 
   if(encode){
@@ -213,24 +214,30 @@ void recvHttp(int* sockfdp, char * url, char* output, int encode)
     perror("read()");
     exit(1);
   }
-
-  if (length == (sizeof(recvline)-1)) {
+  else if(length == 0) {
+    closeHttp(sockfd);
+    *sockfdp = -1;
+    
+    strcpy(output,"");
+  }
+  else if (length == (sizeof(recvline)-1)) {
     fprintf(stderr,"ERROR: http response is too large to store\n");
     exit(1);
   }
+  else {
 
 if (debugl >= 4) {
   printf("recvline:\n%s\n",recvline);
 }
 
   if(strstr(recvline,"OK") == NULL) {
-    printf("wrong HTTP response received\n");
+    printf("ERROR:non-OK HTTP response received from %s\n",url);
 
 //if (debugl < 4) {
 //    printf("recvline:\n%s\n",recvline);
 //}
-    closeHttp(sockfd);
-    *sockfdp = -1;
+//    closeHttp(sockfd);
+//    *sockfdp = -1;
     
     strcpy(output,"");
   }
@@ -280,12 +287,13 @@ if (debugl >= 4) {
 
     free(plain);
   }
+}
 
   StripNewLine(output);
 
 if (debugl >= 1) {
   strftime(buf, 64, "%Y-%m-%d %H:%M:%S", localtime(&t));  
-  printf("[%s] received from %s:\t%s\n",buf,url, output);
+  printf("[%s] received from %s:\t%s\n",buf,basename(url), output);
 }
 
   return;
