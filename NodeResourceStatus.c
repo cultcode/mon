@@ -1495,11 +1495,11 @@ CREATEHTTP:
     cons = strtol(content,NULL,0);
     if(errno) {
       perror("strtol() of receved connections");
-      cons = -1;
+      cons = 0;
     }
   }
   else {
-    cons = -1;
+    cons = 0;
   }
 
   return cons;
