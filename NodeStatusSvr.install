@@ -2,10 +2,10 @@
 #set -x
 
 usage () {
-  echo "Usage: $0 PATH_INSTALL ROOT_PASSWORD"
+  echo "Usage: $0 PATH_INSTALL ROOT_PASSWORD LOG_FILE"
 }
 
-if [ "$#" -ne 2 ];then
+if [ "$#" -ne 3 ];then
   usage;
   exit 1;
 fi;
@@ -15,6 +15,7 @@ RETVAL=0
 path_store=$HOME
 path_install=$1
 password=$2
+log_file=$3
 
 expect -version || exit 1;
  
@@ -63,7 +64,7 @@ exec_su $CMD
 
 PROGRAM=NodeStatusSvr 
 CRONTAB1="\* \* \* \* \* $path_install/SvrScheduler.sh $path_install/NodeStatusSvr start > /dev/null  2>\&1"
-CRONTAB2="0 0 \* \* \* $path_install/LogTruncate.sh  $path_install/NodeStatusSvr $path_install/NodeStatusSvr.log > /dev/null  2>\&1"
+CRONTAB2="0 0 \* \* \* $path_install/LogTruncate.sh  $path_install/NodeStatusSvr $log_file > /dev/null  2>\&1"
 #CMD="crontab -l | sed /NodeStatusSvr/d | sed '1i$CRONTAB2' | sed '1i$CRONTAB1' | crontab"
 CMD="\
 touch /var/spool/cron/root && \

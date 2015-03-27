@@ -35,6 +35,7 @@ password_user=$4
 password_su=$5
 config_file=$6
 path_store="~"
+log_file=`grep logfile $config_file | awk -F' ' '{printf $3}' | awk -F'=' '{print $2}' | awk -F'"' '{print $2}'`
 
 for ip in $(cat $file_ip | sed '/^\s*#/d' | sed '/^\s*\$/d')
 do
@@ -50,7 +51,7 @@ do
 export PATH=\\\$PATH:$path_store && export LD_LIBRARY_PATH=\\\$LD_LIBRARY_PATH:$path_store && \
 expect -version && \
 chmod +x $path_store/NodeStatusSvr.install && \
-$path_store/NodeStatusSvr.install $path_install $password_su >& $path_store/NodeStatusSvr.install.log && \
+$path_store/NodeStatusSvr.install $path_install $password_su $log_file >& $path_store/NodeStatusSvr.install.log && \
 rm -rf $path_store/NodeStatusSvr.install $path_store/expect $path_store/libexpect*\
 "
 echo $CMD
