@@ -22,6 +22,7 @@ int createHttp(char * ip, short port, int type)
 {
   int    sockfd=-1;
   struct sockaddr_in    servaddr={0};
+  struct timeval timeout={10,0};
 
   servaddr.sin_family = AF_INET;
   servaddr.sin_port = htons(port);
@@ -36,6 +37,15 @@ int createHttp(char * ip, short port, int type)
     exit(1);
   }
 
+  if(setsockopt(sockfd,SOL_SOCKET,SO_SNDTIMEO,(char*)&timeout,sizeof(struct timeval)) == -1) {
+    perror("setsockopt");
+    exit(1);
+  }
+
+  if(setsockopt(sockfd,SOL_SOCKET,SO_RCVTIMEO,(char*)&timeout,sizeof(struct timeval)) == -1) {
+    perror("setsockopt");
+    exit(1);
+  }
 
   if (debugl >= 1) {
     printf("Connecting to server[%s:%hd]......",ip,port);
