@@ -5,6 +5,7 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <signal.h>
 #include "common.h"
 
 char file_stdout[FN_LEN];
@@ -14,6 +15,7 @@ void ReopenLog(int signum)
 {
   FILE *fp=NULL;
 
+  signal(SIGUSR1,ReopenLog);
   printf("Caught signal %d\n",signum);
 
 //  if((fp=fopen(file_stdout,"a")) == NULL) {

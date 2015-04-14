@@ -46,6 +46,12 @@ char *SelfName;
 
 int paramlist_interval=0;
 
+static void handler_sigpipe(int signum)
+{
+  signal(SIGPIPE,handler_sigpipe);
+  printf("Caught signal %d\n",signum);
+}
+
 int main(int argc, char **argv)
 {
   int i=0;
@@ -151,10 +157,10 @@ if(standalone) {
  * Handle SIGPIPE
  ********************************************************/
 if(!standalone) {
-  signal(SIGPIPE, SIG_IGN);
+  signal(SIGPIPE,handler_sigpipe);
 }
 
-signal(SIGUSR1, ReopenLog);
+  signal(SIGUSR1,ReopenLog);
 
 /********************************************************
  * InitNodeStatus

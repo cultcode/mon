@@ -182,13 +182,12 @@ if (debugl >= 4) {
 
   ret = write(sockfd,sendline,strlen(sendline));
   if (ret < 0) {
-    perror("write() The following error occurred");
-
     if(errno == EPIPE) {
       closeHttp(sockfd);
       *sockfdp = -1;
     }
     else {
+      perror("write() The following error occurred");
       exit(1);
     }
   }else{
@@ -221,8 +220,13 @@ void recvHttp(int* sockfdp, char * url, char* output, int encode)
   length = read(sockfd, recvline, sizeof(recvline)-1);
 
   if(length == -1) {
-    perror("read()");
-    exit(1);
+    if(errno == EAGAIN) {
+      strcpy(output,"");
+    }
+    else {
+      perror("read()");
+      exit(1);
+    }
   }
   else if(length == 0) {
     closeHttp(sockfd);

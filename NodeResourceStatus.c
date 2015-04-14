@@ -1468,20 +1468,21 @@ unsigned long long http_cons(char* ip, short port)
   if(debugl == 1) {
     debugl = 0;
   }
-CREATEHTTP:
+
+  memset(content, 0, sizeof(content));
+
   if(sockfd == -1) {
     sockfd = createHttp(ip,port,SOCK_STREAM);
   }
 
   sendHttp(&sockfd, url, connection, "", 0, extra_header);
 
-  if(sockfd == -1) goto CREATEHTTP;
-
-  memset(content, 0, sizeof(content));
+  if(sockfd == -1) goto ENDHTTP;
 
   recvHttp(&sockfd,url,content,0);
 
-  if(sockfd == -1) goto CREATEHTTP;
+  if(sockfd == -1) goto ENDHTTP;
+ENDHTTP:
 
   if(!strcasecmp(connection, "Close")){
     closeHttp(sockfd);
