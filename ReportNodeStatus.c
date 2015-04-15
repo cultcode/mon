@@ -42,7 +42,7 @@ void ReportNodeStatus(struct NodeStatusList* nsl, struct NodeResourceStatus* nrs
     ParseUrl(url, NULL, ip, &port, NULL);
   }
 
-  memset(nrs,0,sizeof(struct NodeResourceStatus));
+  //memset(nrs,0,sizeof(struct NodeResourceStatus));
 
   GetNodeResourceStatus(nsl, nrs);
 

@@ -120,18 +120,18 @@ void GetMemConcernedState(struct mem_data *data, float * usage) {
 
 void GetNodeResourceStatus(struct NodeStatusList* nsl, struct NodeResourceStatus* nrs)
 {
-  static struct proc proc[P_NUMBER] = {{0}};
-  static struct net_data net_data = {0};
-  static struct dsk_data dsk_data = {0};
-  static struct cpu_data cpu_data = {0};
-  static struct mem_data mem_data = {0};
+  static struct proc proc[P_NUMBER];
+  static struct net_data net_data;
+  static struct dsk_data dsk_data;
+  static struct cpu_data cpu_data;
+  static struct mem_data mem_data;
 
 if(debugl >= 3) {
   printf("====================================================================================\n");
   printf("===========================   ReportNodeStatus() START   ===========================\n");
   printf("====================================================================================\n");
 }
-  memset(nrs,0,sizeof(struct NodeResourceStatus));
+  //memset(nrs,0,sizeof(struct NodeResourceStatus));
 
   if(!proc[P_CPUINFO].filename) {
     proc_init(proc);
@@ -165,6 +165,7 @@ if(debugl >= 3) {
       net_data.q = &net_data.net_stats[1];
   }
 
+  //Net
   if((doubletime() - net_data.p->time) >= net_average_interval) {
     GetNetworkState(&net_data);
     GetNetworkConcernedStatus(&net_data, nsl->WanIp, nsl->WanPort, &nrs->WanUsage, &nrs->WanIpState, &nrs->CurrentBandwidth, &nrs->CurrentConn);
