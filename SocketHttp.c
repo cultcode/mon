@@ -293,13 +293,17 @@ if (debugl >= 4) {
     }
 
     if(length < 0) {
+      if(debugl>=2) {
       fprintf(stderr,"ERROR: ContentDecode failed\n");
-      free(plain);
-      exit(1);
+      }
+      output[0] = 0;
+      //free(plain);
+      //exit(1);
     }
-
-    memcpy(output, plain, length);
-    output[length] = 0;
+    else {
+      memcpy(output, plain, length);
+      output[length] = 0;
+    }
 
     free(plain);
   }
