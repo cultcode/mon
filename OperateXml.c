@@ -8,6 +8,7 @@
 #include "common.h"
 #include "main.h"
 #include "GetNodeResourceStatus.h"
+#include "ReportNodeStatus.h"
 #include "SocketHttp.h"
 
 int ReadConfigXml(char * fn_xml, char *** opt)
@@ -158,7 +159,7 @@ int ParseOptions(int argc,char**argv)
 {
   int  i=0;
   int flags=0;
-  char* const short_options = "a:b:r:i:g:p:c:m:d:n:C:w:l:o:z:t:s:q:u:U:e:f:hvj:k:";
+  char* const short_options = "a:b:r:i:g:p:T:P:c:m:d:n:C:w:l:o:z:t:s:q:u:U:e:f:hvj:k:";
   struct option long_options[] = {  
     { "standalone",  1,  NULL,  'a'},  
     { "debugl",  1,  NULL,  'b'},  
@@ -166,6 +167,8 @@ int ParseOptions(int argc,char**argv)
     { "init",  1,  NULL,  'i'},  
     { "get",  1,  NULL,  'g'},  
     { "report",  1,  NULL,  'p'},  
+    { "reporttype",  1,  NULL,  'T'},  
+    { "portudp",  1,  NULL,  'P'},  
     { "cpu",  1,  NULL,  'c'},  
     { "mem",  1,  NULL,  'm'},  
     { "dsk", 1,  NULL,  'd'},  
@@ -234,6 +237,12 @@ if(debugl >= 1) {
       break;
     case 'p':
       strcpy(url[2], optarg);
+      break;
+    case 'T':
+      strcpy(report_type_s, optarg);
+      break;
+    case 'P':
+      port_udp = atoi(optarg);
       break;
     case 'u':
       strcpy(url[3], optarg);
@@ -315,7 +324,7 @@ if(debugl >= 1) {
   }
 
 if (debugl >= 1) {
-  printf("debugl: %d\ninit url: %s\nget url: %s\nreport url: %s\nparamlist url: %s\nparamlist_interval: %d, refresh interval %d\ncpu_average_interval %d\nmem_average_interval %d\ndsk_average_interval %d\nnet_average_interval %d\ncon_average_interval %d\nwanip:%s, wanport %hd, lanip %s, lanport %hd, homedir %s\nserver time zone %d\nnumber of loops %d\nway to get cons %d\nlogfile %s\nsvrtype %d,svrversion %d\n",debugl, url[0], url[1], url[2], url[3], paramlist_interval, refresh_interval, cpu_average_interval, mem_average_interval, dsk_average_interval, net_average_interval,con_average_interval,WanIp,WanPort,LanIp,LanPort,HomeDir,servertimezone, looptimes, waytogetcons,file_stdout,svrtype,svrversion);
+  printf("debugl: %d\ninit url: %s\nget url: %s\nreport url: %s\nparamlist url: %s\nreport_type_s: %s port_udp: %d\nparamlist_interval: %d, refresh interval %d\ncpu_average_interval %d\nmem_average_interval %d\ndsk_average_interval %d\nnet_average_interval %d\ncon_average_interval %d\nwanip:%s, wanport %hd, lanip %s, lanport %hd, homedir %s\nserver time zone %d\nnumber of loops %d\nway to get cons %d\nlogfile %s\nsvrtype %d,svrversion %d\n",debugl, url[0], url[1], url[2], url[3], report_type_s, port_udp, paramlist_interval, refresh_interval, cpu_average_interval, mem_average_interval, dsk_average_interval, net_average_interval,con_average_interval,WanIp,WanPort,LanIp,LanPort,HomeDir,servertimezone, looptimes, waytogetcons,file_stdout,svrtype,svrversion);
 }
 
 return flags;

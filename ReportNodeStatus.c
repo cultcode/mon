@@ -21,9 +21,11 @@
 
 __attribute__((weak)) int servertimezone=DEFAULT_SERVERTIMEZONE;
 __attribute__((weak)) int debugl = DEFAULT_DEBUGL;
-int report_type = SOCK_STREAM;
+char report_type_s[8]="TCP";
+int  report_type;
+int port_udp=8942;
 
-void ReportNodeStatus(struct NodeStatusList* nsl, struct NodeResourceStatus* nrs, char * url)
+void ReportNodeStatus(struct NodeStatusList* nsl, struct NodeResourceStatus* nrs, char * url_o)
 {
   static int sockfd=-1;
   char content_send[CONTENT_LEN]={0};
@@ -32,16 +34,19 @@ void ReportNodeStatus(struct NodeStatusList* nsl, struct NodeResourceStatus* nrs
   //char connection[CONNECTION_LEN] = "Close";
   //int ret=0;
 
-  static char ip[IP_LEN] = {0};
-  static short port=0;
+  char ip[IP_LEN] = {0};
+  short port=0;
+  char url[URL_LEN]={0};
 
   char *out=NULL;
   char EpochTime[16]={0};
   cJSON *root=NULL, *item=NULL;
 
-  if(!(strlen(ip) && port)) {
-    ParseUrl(url, NULL, ip, &port, NULL);
-  }
+  InsertPort(url, url_o, report_type==SOCK_STREAM?80:port_udp);
+
+  ParseUrl(url, NULL, ip, &port, NULL);
+
+  //, report_type==SOCK_STREAM?80:port_udp
 
   //memset(nrs,0,sizeof(struct NodeResourceStatus));
 
@@ -114,7 +119,7 @@ void ReportNodeStatus(struct NodeStatusList* nsl, struct NodeResourceStatus* nrs
 
 CREATEHTTP:
   if(sockfd == -1) {
-    sockfd = createHttp(ip,port,SOCK_STREAM,-1);
+    sockfd = createHttp(ip,port,report_type,(report_type==SOCK_STREAM)?-1:-2);
   }
 
   sendHttp(&sockfd, url, connection, content_send, 1, NULL);

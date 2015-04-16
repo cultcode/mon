@@ -17,6 +17,8 @@ extern void StripNewLine(char *buf);
 
 extern long GetLocaltimeSeconds();
 
+extern void InsertPort(char* url, char* url_o, short port);
+
 extern void ParseUrl(char * url, char * protocol, char * host, short * port, char* path);
 
 extern void ReopenLog(int signum);

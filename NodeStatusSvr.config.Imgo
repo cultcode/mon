@@ -12,6 +12,10 @@
     <!--specify URL for NodeStatusReport, like http://XXXX/ndas/NodeStatusReport-->
     <add key="report"	value="http://dbagent.cdn.imgo.tv/ndas/NodeResMonReport"/>
 
+    <add key="reporttype"	value="TCP"/>
+
+    <add key="udpport"	value="8942"/>
+
     <!--interval of reporting status, unit is second -->
     <add key="refresh"		value="1"/>
 
@@ -31,7 +35,7 @@
     <add key="dsk"        value="5"/>
 
     <!--specify period for average net usage, unit is second-->
-    <add key="net"        value="5"/>
+    <add key="net"        value="10"/>
 
     <!--specify period for connections number, unit is second-->
     <add key="con"        value="1"/>

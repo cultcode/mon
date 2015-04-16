@@ -11,6 +11,30 @@
 char file_stdout[FN_LEN];
 char file_stderr[FN_LEN];
 
+void InsertPort(char* url, char* url_o, short port) {
+  char *p_ds, *p_s;
+  char tmp[URL_LEN]={0};
+
+  if((p_ds = strstr(url_o, "//")) == NULL) {//NO "//"
+    p_s = strchr(url_o, '/');
+  }
+  else{
+    p_s = strchr(p_ds+2,'/');
+  }
+
+  if(strchr(p_ds+2, ':') != NULL) {
+  }
+  else if(p_s != NULL ) {
+    strncpy(url, url_o, p_s-url_o);
+    sprintf(tmp,":%d",port);
+    strcat(url, tmp);
+    strcat(url, p_s);
+  }
+  else {
+    sprintf(url,"%s:%d",url_o, port);
+  }
+}
+
 void ReopenLog(int signum)
 {
   FILE *fp=NULL;
@@ -226,34 +250,36 @@ void ParseUrl(char * url, char * protocol, char * ip, short * port, char* path) 
       break;
   } 
 
-  if((host[0] >= '0') && (host[0] <= '9')) {
-    if(ip) {strcpy(ip, host);}
-  }
-  else {
-    if( (hptr = gethostbyname(host) ) == NULL )
-    {
-      herror("gethostbyname()");
-      fprintf(stderr,"ERROR: host:%s\n",host);
-      exit(1);
+  if(ip) {
+    if((host[0] >= '0') && (host[0] <= '9')) {
+      strcpy(ip, host);
     }
-    switch(hptr->h_addrtype)
-    {
-    case AF_INET:
-    case AF_INET6:
-      pptr=hptr->h_addr_list;
-      for(;*pptr!=NULL;pptr++) {
-        if(inet_ntop(hptr->h_addrtype, *pptr, str, sizeof(str)) == NULL) {
-          perror("inet_ntop()");
-          exit(1);
-        }
+    else {
+      if( (hptr = gethostbyname(host) ) == NULL )
+      {
+        herror("gethostbyname()");
+        fprintf(stderr,"ERROR: host:%s\n",host);
+        exit(1);
       }
-      break;
-    default:
-      printf("unknown address type/n");
-      break;
-    }
+      switch(hptr->h_addrtype)
+      {
+      case AF_INET:
+      case AF_INET6:
+        pptr=hptr->h_addr_list;
+        for(;*pptr!=NULL;pptr++) {
+          if(inet_ntop(hptr->h_addrtype, *pptr, str, sizeof(str)) == NULL) {
+            perror("inet_ntop()");
+            exit(1);
+          }
+        }
+        break;
+      default:
+        printf("unknown address type/n");
+        break;
+      }
 
-    if(ip) {strcpy(ip, str);}
+      strcpy(ip, str);
+    }
   }
 
   if(port) {
