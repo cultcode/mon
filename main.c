@@ -66,6 +66,7 @@ int main(int argc, char **argv)
   int argcount=0;
   struct stat laststat={0}, tempstat={0};
   int ArgMode=0;
+  double time=0,elapsed=0;
 
   SelfName=argv[0];
 
@@ -186,6 +187,8 @@ if(!standalone){
  ********************************************************/
 
 while(looptimes) {
+  time = doubletime();
+
   if(standalone) {
     GetNodeResourceStatus(&nsl, &nrs);
   }
@@ -198,6 +201,14 @@ while(looptimes) {
       dsk_average_interval = nsspl.NS_ResMon_CollectRateDiskIO;
 if (debugl >= 1) {
       printf("dsk_average_interval: %d\n",dsk_average_interval);
+
+      if(!strcmp(nsspl.NS_ResMon_ReportType,"TCP")) report_type = SOCK_STREAM;
+      else if(!strcmp(nsspl.NS_ResMon_ReportType,"UDP")) report_type = SOCK_DGRAM;
+      else {
+        fprintf(stderr,"illegal report type=%s\n",nsspl.NS_ResMon_ReportType);
+        exit(1);
+      }
+      printf("report type: %s\n",nsspl.NS_ResMon_ReportType);
 }
     }
 
@@ -215,7 +226,12 @@ if (debugl >= 1) {
 
   if(!looptimes) break;
 
-  sleep(refresh_interval);
+  elapsed = doubletime()-time;
+  if( (int)elapsed >= refresh_interval) {
+  }
+  else {
+    sleep(refresh_interval-(int)elapsed);
+  }
 
   if(ArgMode == 0) continue;
 

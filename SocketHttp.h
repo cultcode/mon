@@ -15,7 +15,7 @@
 extern char node_3des_key[KEY_LEN];
 extern char node_3des_iv[KEY_LEN];
 
-extern int createHttp(char * ip, short port, int type);
+extern int createHttp(char * ip, short port, int type, int to);
 
 extern void closeHttp(int sockfd);
 

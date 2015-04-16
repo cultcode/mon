@@ -92,7 +92,7 @@ if(svrtype) {
 
 CREATEHTTP:
   if(sockfd == -1) {
-    sockfd = createHttp(ip,port,SOCK_STREAM);
+    sockfd = createHttp(ip,port,SOCK_STREAM,-1);
   }
 
   sendHttp(&sockfd, url, connection, content_send, 1, NULL);

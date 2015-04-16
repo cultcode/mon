@@ -1472,7 +1472,7 @@ unsigned long long http_cons(char* ip, short port)
   memset(content, 0, sizeof(content));
 
   if(sockfd == -1) {
-    sockfd = createHttp(ip,port,SOCK_STREAM);
+    sockfd = createHttp(ip,port,SOCK_STREAM,-2);
   }
 
   sendHttp(&sockfd, url, connection, "", 0, extra_header);
@@ -1496,11 +1496,11 @@ ENDHTTP:
     cons = strtol(content,NULL,0);
     if(errno) {
       perror("strtol() of receved connections");
-      cons = 0;
+      cons = -1;
     }
   }
   else {
-    cons = 0;
+    cons = -1;
   }
 
   return cons;

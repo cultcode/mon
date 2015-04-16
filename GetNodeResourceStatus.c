@@ -21,9 +21,10 @@ int cpu_average_interval=DEFAULT_CPU_AVERAGE_INTERVAL;  /*time interval to avera
 int mem_average_interval=DEFAULT_MEM_AVERAGE_INTERVAL;  /*time interval to average */
 int dsk_average_interval=DEFAULT_DSK_AVERAGE_INTERVAL;  /*time interval to average */
 int net_average_interval=DEFAULT_NET_AVERAGE_INTERVAL;  /*time interval to average */
+int con_average_interval=DEFAULT_CON_AVERAGE_INTERVAL;  /*time interval to average */
 __attribute__((weak)) int debugl = DEFAULT_DEBUGL;
 
-void GetNetworkConcernedStatus(struct net_data *data, char * ip, short port, float * usage, int * ipstate, long long * bandwidth, long long * cons) {
+void GetNetworkConcernedStatus(struct net_data *data, char * ip, short port, float * usage, int * ipstate, long long * bandwidth) {
   int i=0;
   struct net_param *pa=NULL;
 
@@ -44,9 +45,6 @@ void GetNetworkConcernedStatus(struct net_data *data, char * ip, short port, flo
     exit(1);
   }
 
-  if(cons != NULL) {
-    *cons = GetCurrentConn(ip, port);
-  }
 }
 
 void GetFsDiskConcernedState(struct dsk_data * data, char *HomeDir, long long *DiskTotalSpace, long long *DiskFreeSpace, float* IoUsage)
@@ -125,6 +123,8 @@ void GetNodeResourceStatus(struct NodeStatusList* nsl, struct NodeResourceStatus
   static struct dsk_data dsk_data;
   static struct cpu_data cpu_data;
   static struct mem_data mem_data;
+  static double con_time;
+  long long cons = -1;
 
 if(debugl >= 3) {
   printf("====================================================================================\n");
@@ -168,8 +168,14 @@ if(debugl >= 3) {
   //Net
   if((doubletime() - net_data.p->time) >= net_average_interval) {
     GetNetworkState(&net_data);
-    GetNetworkConcernedStatus(&net_data, nsl->WanIp, nsl->WanPort, &nrs->WanUsage, &nrs->WanIpState, &nrs->CurrentBandwidth, &nrs->CurrentConn);
-    GetNetworkConcernedStatus(&net_data, nsl->LanIp, nsl->LanPort, &nrs->LanUsage, &nrs->LanIpState, NULL, NULL);
+    GetNetworkConcernedStatus(&net_data, nsl->WanIp, nsl->WanPort, &nrs->WanUsage, &nrs->WanIpState, &nrs->CurrentBandwidth);
+    GetNetworkConcernedStatus(&net_data, nsl->LanIp, nsl->LanPort, &nrs->LanUsage, &nrs->LanIpState, NULL);
+  }
+
+  if((doubletime() - con_time) >= con_average_interval) {
+    con_time = doubletime();
+    cons = GetCurrentConn(nsl->WanIp, nsl->WanPort);
+    if(cons != -1) nrs->CurrentConn = cons;
   }
 
   //Disk & Filesystem

@@ -13,7 +13,7 @@
     <add key="report"	value="http://dbagent.cdn.imgo.tv/ndas/NodeResMonReport"/>
 
     <!--interval of reporting status, unit is second -->
-    <add key="refresh"		value="5"/>
+    <add key="refresh"		value="1"/>
 
     <!--specify report times if necessary, default to dead-while-->
     <add key="looptimes"	value="-1"/>
@@ -32,6 +32,9 @@
 
     <!--specify period for average net usage, unit is second-->
     <add key="net"        value="5"/>
+
+    <!--specify period for connections number, unit is second-->
+    <add key="con"        value="1"/>
 
     <!--specify stdout&stderr redirection log file-->
     <add key="logfile"  value="/var/log/cdn/Imgo.NodeResMonSvr/NodeStatusSvr.log"/>

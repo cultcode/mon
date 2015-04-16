@@ -61,7 +61,7 @@ void GetNodeSvrSysParamList(struct NodeSvrSysParamList* nsspl, char* url)
 
 CREATEHTTP:
   if(sockfd == -1) {
-    sockfd = createHttp(ip,port,SOCK_STREAM);
+    sockfd = createHttp(ip,port,SOCK_STREAM,-1);
   }
 
   sendHttp(&sockfd, url, connection, content_send, 1, NULL);
@@ -101,6 +101,10 @@ CREATEHTTP:
       while(item) {
         if(!strcmp(cJSON_GetObjectItem(item,"ParmName")->valuestring, "NS_ResMon_CollectRateDiskIO")) {
           nsspl->NS_ResMon_CollectRateDiskIO = atoi(cJSON_GetObjectItem(item,"ParmValue")->valuestring);
+          break;
+        }
+        if(!strcmp(cJSON_GetObjectItem(item,"ParmName")->valuestring, "NS_ResMon_ReportType")) {
+          strcpy(nsspl->NS_ResMon_ReportType , cJSON_GetObjectItem(item,"ParmValue")->valuestring);
           break;
         }
         item = item->next;

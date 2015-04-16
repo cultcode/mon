@@ -158,7 +158,7 @@ int ParseOptions(int argc,char**argv)
 {
   int  i=0;
   int flags=0;
-  char* const short_options = "a:b:r:i:g:p:c:m:d:n:w:l:o:z:t:s:q:u:U:e:f:hvj:k:";
+  char* const short_options = "a:b:r:i:g:p:c:m:d:n:C:w:l:o:z:t:s:q:u:U:e:f:hvj:k:";
   struct option long_options[] = {  
     { "standalone",  1,  NULL,  'a'},  
     { "debugl",  1,  NULL,  'b'},  
@@ -170,6 +170,7 @@ int ParseOptions(int argc,char**argv)
     { "mem",  1,  NULL,  'm'},  
     { "dsk", 1,  NULL,  'd'},  
     { "net",  1,  NULL,  'n'},  
+    { "con",  1,  NULL,  'C'},  
     { "wanip",  1,  NULL,  'w'},  
     { "lanip",  1,  NULL,  'l'},  
     { "homedir",  1,  NULL,  'o'},  
@@ -252,6 +253,9 @@ if(debugl >= 1) {
     case 'n':
       net_average_interval = atoi(optarg);
       break;
+    case 'C':
+      con_average_interval = atoi(optarg);
+      break;
     case 'w':
       //standalone  = 1;
       ParseUrl(optarg,NULL,WanIp,&WanPort,NULL);
@@ -311,7 +315,7 @@ if(debugl >= 1) {
   }
 
 if (debugl >= 1) {
-  printf("debugl: %d\ninit url: %s\nget url: %s\nreport url: %s\nparamlist url: %s\nparamlist_interval: %d, refresh interval %d\ncpu_average_interval %d\nmem_average_interval %d\ndsk_average_interval %d\nnet_average_interval %d\nwanip:%s, wanport %hd, lanip %s, lanport %hd, homedir %s\nserver time zone %d\nnumber of loops %d\nway to get cons %d\nlogfile %s\nsvrtype %d,svrversion %d\n",debugl, url[0], url[1], url[2], url[3], paramlist_interval, refresh_interval, cpu_average_interval, mem_average_interval, dsk_average_interval, net_average_interval,WanIp,WanPort,LanIp,LanPort,HomeDir,servertimezone, looptimes, waytogetcons,file_stdout,svrtype,svrversion);
+  printf("debugl: %d\ninit url: %s\nget url: %s\nreport url: %s\nparamlist url: %s\nparamlist_interval: %d, refresh interval %d\ncpu_average_interval %d\nmem_average_interval %d\ndsk_average_interval %d\nnet_average_interval %d\ncon_average_interval %d\nwanip:%s, wanport %hd, lanip %s, lanport %hd, homedir %s\nserver time zone %d\nnumber of loops %d\nway to get cons %d\nlogfile %s\nsvrtype %d,svrversion %d\n",debugl, url[0], url[1], url[2], url[3], paramlist_interval, refresh_interval, cpu_average_interval, mem_average_interval, dsk_average_interval, net_average_interval,con_average_interval,WanIp,WanPort,LanIp,LanPort,HomeDir,servertimezone, looptimes, waytogetcons,file_stdout,svrtype,svrversion);
 }
 
 return flags;

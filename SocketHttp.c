@@ -18,11 +18,21 @@ __attribute__((weak)) int debugl = DEFAULT_DEBUGL;
 /*
  * connect to server ip:port
  */
-int createHttp(char * ip, short port, int type)
+int createHttp(char * ip, short port, int type, int to)
 {
   int    sockfd=-1;
   struct sockaddr_in    servaddr={0};
-  struct timeval timeout={10,0};
+  struct timeval timeout;
+
+  switch(to) {
+    case -1:
+      to = 60;
+      break;
+    case -2:
+      break;
+    default:
+      break;
+  }
 
   servaddr.sin_family = AF_INET;
   servaddr.sin_port = htons(port);
@@ -37,14 +47,19 @@ int createHttp(char * ip, short port, int type)
     exit(1);
   }
 
-  if(setsockopt(sockfd,SOL_SOCKET,SO_SNDTIMEO,(char*)&timeout,sizeof(struct timeval)) == -1) {
-    perror("setsockopt");
-    exit(1);
-  }
+  if(to >= 0) {
+    timeout.tv_sec = to;
+    timeout.tv_usec = 0;
 
-  if(setsockopt(sockfd,SOL_SOCKET,SO_RCVTIMEO,(char*)&timeout,sizeof(struct timeval)) == -1) {
-    perror("setsockopt");
-    exit(1);
+    if(setsockopt(sockfd,SOL_SOCKET,SO_SNDTIMEO,(char*)&timeout,sizeof(struct timeval)) == -1) {
+      perror("setsockopt");
+      exit(1);
+    }
+
+    if(setsockopt(sockfd,SOL_SOCKET,SO_RCVTIMEO,(char*)&timeout,sizeof(struct timeval)) == -1) {
+      perror("setsockopt");
+      exit(1);
+    }
   }
 
   if (debugl >= 1) {
@@ -59,7 +74,6 @@ int createHttp(char * ip, short port, int type)
   if (debugl >= 1) {
     printf("Connected\n");
   }
-
 
   return sockfd;
 }
@@ -205,7 +219,7 @@ void recvHttp(int* sockfdp, char * url, char* output, int encode)
   char * content=NULL;
   int length=0;
   char buf[128] = {0};
-  time_t t=time(NULL);
+  time_t t;
   int sockfd = *sockfdp;
   char content_body[CONTENT_LEN] = {0};
   int content_length=0;
@@ -312,6 +326,7 @@ if (debugl >= 4) {
   StripNewLine(output);
 
 if (debugl >= 1) {
+  t=time(NULL);
   strftime(buf, 64, "%Y-%m-%d %H:%M:%S", localtime(&t));  
   printf("[%s] received from %s:\t%s\n",buf,basename(url), output);
 }

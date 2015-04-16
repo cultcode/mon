@@ -21,6 +21,7 @@
 
 __attribute__((weak)) int servertimezone=DEFAULT_SERVERTIMEZONE;
 __attribute__((weak)) int debugl = DEFAULT_DEBUGL;
+int report_type = SOCK_STREAM;
 
 void ReportNodeStatus(struct NodeStatusList* nsl, struct NodeResourceStatus* nrs, char * url)
 {
@@ -113,7 +114,7 @@ void ReportNodeStatus(struct NodeStatusList* nsl, struct NodeResourceStatus* nrs
 
 CREATEHTTP:
   if(sockfd == -1) {
-    sockfd = createHttp(ip,port,SOCK_STREAM);
+    sockfd = createHttp(ip,port,SOCK_STREAM,-1);
   }
 
   sendHttp(&sockfd, url, connection, content_send, 1, NULL);
