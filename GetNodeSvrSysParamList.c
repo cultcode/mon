@@ -154,7 +154,7 @@ if (debugl >= 3) {
   dsk_average_interval = nsspl->NS_ResMon_CollectRateDiskIO;
   net_average_interval = nsspl->NS_ResMon_CollectRateNetFlow;
 
-if (debugl >= 1) {
+if (debugl >= 3) {
   printf("report_type_s: %s\n",report_type_s);
   printf("dsk_average_interval: %d\n",dsk_average_interval);
   printf("net_average_interval: %d\n",net_average_interval);
