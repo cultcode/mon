@@ -3,16 +3,20 @@
 
   <appSettings>
     <!--specify URL for NodeStatusInit, like http://XXXX/ndas/NodeStatusInit-->
-    <add key="init"             value="http://10.200.8.3:8008/DBAgentSvr/SvrInit"/>
+    <add key="init"             value="http://118.26.188.134:80/DBAgentSvr/SvrInit"/>
 
     <!--specify URL for GetNodeStatusList, like http://XXXX/ndas/GetNodeStatusList-->
-    <add key="get"              value="http://10.200.8.3:8008/DBAgentSvr/NodeStatusSvr/GetList"/>
+    <add key="get"              value="http://118.26.188.134:80/DBAgentSvr/NodeStatusSvr/GetList"/>
 
     <!--specify URL for NodeStatusReport, like http://XXXX/ndas/NodeStatusReport-->
-    <add key="report"           value="http://10.200.8.3:8008/DBAgentSvr/NodeStatusSvr/NodeStatusReport"/>
+    <add key="report"           value="http://118.26.188.134:80/DBAgentSvr/NodeStatusSvr/NodeStatusReport"/>
+
+    <add key="reporttype"	value="TCP"/>
+
+    <add key="udpport"	value="8942"/>
 
     <!--specify URL for GetNodeSvrSysParamList-->
-    <add key="paramlisturl"     value="http://10.200.8.3:8008/DBAgentSvr/GetNodeSvrSysParmList"/>
+    <add key="paramlisturl"     value="http://118.26.188.134:80/DBAgentSvr/GetNodeSvrSysParmList"/>
 
     <!--specify interval for getting GetNodeSvrSysParamList-->
     <add key="paramlistiv"      value="300"/>
@@ -37,6 +41,9 @@
 
     <!--specify period for average net usage, unit is second-->
     <add key="net"        value="5"/>
+
+    <!--specify period for connections number, unit is second-->
+    <add key="con"        value="1"/>
 
     <!--Whether to insert Service Version into Init-->
     <add key="svrversion"  value="1"/>

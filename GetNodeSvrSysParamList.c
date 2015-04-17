@@ -101,11 +101,15 @@ CREATEHTTP:
       while(item) {
         if(!strcmp(cJSON_GetObjectItem(item,"ParmName")->valuestring, "NS_ResMon_CollectRateDiskIO")) {
           nsspl->NS_ResMon_CollectRateDiskIO = atoi(cJSON_GetObjectItem(item,"ParmValue")->valuestring);
-          break;
         }
-        if(!strcmp(cJSON_GetObjectItem(item,"ParmName")->valuestring, "NS_ResMon_ReportType")) {
+        else if(!strcmp(cJSON_GetObjectItem(item,"ParmName")->valuestring, "NS_ResMon_CollectRateIP")) {
+          nsspl->NS_ResMon_CollectRateIP = atoi(cJSON_GetObjectItem(item,"ParmValue")->valuestring);
+        }
+        else if(!strcmp(cJSON_GetObjectItem(item,"ParmName")->valuestring, "NS_ResMon_CollectRateNetFlow")) {
+          nsspl->NS_ResMon_CollectRateNetFlow = atoi(cJSON_GetObjectItem(item,"ParmValue")->valuestring);
+        }
+        else if(!strcmp(cJSON_GetObjectItem(item,"ParmName")->valuestring, "NS_ResMon_ReportType")) {
           strcpy(nsspl->NS_ResMon_ReportType , cJSON_GetObjectItem(item,"ParmValue")->valuestring);
-          break;
         }
         item = item->next;
       }
@@ -118,12 +122,18 @@ if (debugl >= 3) {
       "{"
       "\"Status\":%d,"
       "\"StatusDesc\":\"%s\","
-      "\"NS_ResMon_CollectRateDiskIO\":%d"
+      "\"NS_ResMon_CollectRateDiskIO\":%d,"
+      "\"NS_ResMon_CollectRateIP\":%d,"
+      "\"NS_ResMon_CollectRateNetFlow\":%d,"
+      "\"NS_ResMon_ReportType\":%s,"
       "}"
       "\n",
       nsspl->Status,
       nsspl->StatusDesc,
-      nsspl->NS_ResMon_CollectRateDiskIO
+      nsspl->NS_ResMon_CollectRateDiskIO,
+      nsspl->NS_ResMon_CollectRateIP,
+      nsspl->NS_ResMon_CollectRateNetFlow,
+      nsspl->NS_ResMon_ReportType
     );
 }
   }
@@ -139,6 +149,16 @@ if (debugl >= 3) {
     fprintf(stderr,"ERROR: GetNodeSvrSysParamList() received FAIL: %s\n", nsspl->StatusDesc);
     exit(1);
   }
+
+  strcpy(report_type_s, nsspl->NS_ResMon_ReportType);
+  dsk_average_interval = nsspl->NS_ResMon_CollectRateDiskIO;
+  net_average_interval = nsspl->NS_ResMon_CollectRateNetFlow;
+
+if (debugl >= 1) {
+  printf("report_type_s: %s\n",report_type_s);
+  printf("dsk_average_interval: %d\n",dsk_average_interval);
+  printf("net_average_interval: %d\n",net_average_interval);
+}
 
 }
 

@@ -21,8 +21,8 @@
 
 __attribute__((weak)) int servertimezone=DEFAULT_SERVERTIMEZONE;
 __attribute__((weak)) int debugl = DEFAULT_DEBUGL;
-char report_type_s[8]="TCP";
-int  report_type;
+
+char report_type_s[REPORT_TYPE_LEN]="TCP";
 int port_udp=8942;
 
 void ReportNodeStatus(struct NodeStatusList* nsl, struct NodeResourceStatus* nrs, char * url_o)
@@ -41,6 +41,12 @@ void ReportNodeStatus(struct NodeStatusList* nsl, struct NodeResourceStatus* nrs
   char *out=NULL;
   char EpochTime[16]={0};
   cJSON *root=NULL, *item=NULL;
+
+  int  report_type;
+
+  if(!strcmp(report_type_s,"TCP")) report_type = SOCK_STREAM;
+  else if(!strcmp(report_type_s,"UDP")) report_type = SOCK_DGRAM;
+  else report_type = SOCK_STREAM;
 
   InsertPort(url, url_o, report_type==SOCK_STREAM?80:port_udp);
 

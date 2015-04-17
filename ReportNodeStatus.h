@@ -2,7 +2,10 @@
 #define REPORTNODESTATUSLIST_H
 
 #include "GetNodeResourceStatus.h"
-extern char report_type_s[8];
+
+#define REPORT_TYPE_LEN 8
+
+extern char report_type_s[REPORT_TYPE_LEN];
 extern int report_type;
 extern int port_udp;
 

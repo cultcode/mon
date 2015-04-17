@@ -194,6 +194,7 @@ if (debugl >= 4) {
   printf("sendline:\n%s\n", sendline);
 }
 
+  //must getsockopt if tcp/udp is configured
   ret = write(sockfd,sendline,strlen(sendline));
   if (ret < 0) {
     if(errno == EPIPE) {

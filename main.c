@@ -198,27 +198,11 @@ while(looptimes) {
  ********************************************************/
     if(strlen(url[3]) && ((GetLocaltimeSeconds(servertimezone) - nsspl.EpochTime) >= paramlist_interval)){
       GetNodeSvrSysParamList(&nsspl, url[3]);
-
-      dsk_average_interval = nsspl.NS_ResMon_CollectRateDiskIO;
-if (debugl >= 1) {
-      printf("dsk_average_interval: %d\n",dsk_average_interval);
-}
-
-      strcpy(report_type_s, nsspl.NS_ResMon_ReportType);
-if (debugl >= 1) {
-      printf("report type: %s\n",report_type_s);
-}
     }
 
 /********************************************************
  * ReportNodeStatus
  ********************************************************/
-  if(!strcmp(report_type_s,"TCP")) report_type = SOCK_STREAM;
-  else if(!strcmp(report_type_s,"UDP")) report_type = SOCK_DGRAM;
-  else {
-    fprintf(stderr,"illegal report type=%s\n",report_type_s);
-    exit(1);
-  }
 
     ReportNodeStatus(&nsl, &nrs, url[2]);
   }

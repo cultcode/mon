@@ -23,6 +23,7 @@ void InsertPort(char* url, char* url_o, short port) {
   }
 
   if(strchr(p_ds+2, ':') != NULL) {
+    sprintf(url,"%s",url_o);
   }
   else if(p_s != NULL ) {
     strncpy(url, url_o, p_s-url_o);
@@ -258,7 +259,7 @@ void ParseUrl(char * url, char * protocol, char * ip, short * port, char* path) 
       if( (hptr = gethostbyname(host) ) == NULL )
       {
         herror("gethostbyname()");
-        fprintf(stderr,"ERROR: host:%s\n",host);
+        fprintf(stderr,"ERROR: host:%s from url:%s\n",host,url);
         exit(1);
       }
       switch(hptr->h_addrtype)
