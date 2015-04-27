@@ -15,6 +15,7 @@
 #include <linux/ethtool.h>
 #include <linux/sockios.h>
 #include <netinet/in.h>
+#include "SocketHttp.h"
 #include "GetNodeResourceStatus.h"
 
 int cpu_average_interval=DEFAULT_CPU_AVERAGE_INTERVAL;  /*time interval to average */
@@ -33,7 +34,8 @@ void GetNetworkConcernedStatus(struct net_data *data, char * ip, short port, flo
   for(i=0; i<data->nets; i++) {
     if(!strcmp(ip, pa[i].ip)) {
       *usage   = pa[i].usage;
-      *ipstate =(pa[i].flags & IFF_RUNNING) >0;
+      //*ipstate =(pa[i].flags & IFF_RUNNING) >0;
+      *ipstate =((pa[i].flags & IFF_RUNNING) >0) && (isOpen(ip,port,SOCK_STREAM));
       if(bandwidth != NULL) {
         *bandwidth = (/*pa[i].speed_ib +*/ pa[i].speed_ob)*8;
       }
