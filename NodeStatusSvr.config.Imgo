@@ -17,7 +17,7 @@
     <add key="udpport"	value="8942"/>
 
     <!--interval of reporting status, unit is second -->
-    <add key="refresh"		value="1"/>
+    <add key="refresh"		value="2"/>
 
     <!--specify report times if necessary, default to dead-while-->
     <add key="looptimes"	value="-1"/>

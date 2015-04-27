@@ -41,7 +41,7 @@ void GetNodeStatusList(struct NodeStatus* ns, struct NodeStatusList* nsl, char *
 /*structure http request
 {"EpochTime":"97d76a","NodeId ":0}
 */
-  memset(nsl, 0, sizeof(struct NodeStatusList));
+  //memset(nsl, 0, sizeof(struct NodeStatusList));
 
   nsl->EpochTime = GetLocaltimeSeconds(servertimezone);
   nsl->NodeId = ns->NodeId;
@@ -136,7 +136,9 @@ CREATEHTTP:
       strcpy( nsl->LanIp, item->valuestring);
 
       item = cJSON_GetObjectItem(root,"WanIp");
+      if(!strlen(nsl->WanIp)) {
       strcpy( nsl->WanIp, item->valuestring);
+      }
 
       item = cJSON_GetObjectItem(root,"LanPort");
       nsl->LanPort = item->valueint;

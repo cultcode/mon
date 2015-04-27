@@ -22,7 +22,7 @@
     <add key="paramlistiv"      value="300"/>
 
     <!--interval of reporting status, unit is second -->
-    <add key="refresh"		value="5"/>
+    <add key="refresh"		value="2"/>
 
     <!--specify report times if necessary, default to dead-while-->
     <add key="looptimes"	value="-1"/>
@@ -62,8 +62,8 @@
     <!--when in standalone mode, specify local ip:port-->
     <add key="lanip" value="127.0.0.1:21"/>
 
-    <!--when in standalone mode, specify wide  ip:port-->
-    <add key="wanip" value="127.0.0.1:80"/>
+    <!--when in standalone-mode/NAT, specify wide  ip-->
+    <!--add key="wanip" value="192.168.5.175"/-->
 
     <!--when in standalone mode, specify home direcotry-->
     <add key="homedir" value="/data"/>
