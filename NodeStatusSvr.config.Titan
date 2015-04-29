@@ -13,7 +13,7 @@
 
     <add key="reporttype"	value="TCP"/>
 
-    <add key="udpport"	value="8942"/>
+    <add key="portudp"	value="8942"/>
 
     <!--specify URL for GetNodeSvrSysParamList-->
     <add key="paramlisturl"     value="http://118.26.188.134:80/DBAgentSvr/GetNodeSvrSysParmList"/>

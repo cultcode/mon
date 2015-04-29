@@ -6,6 +6,10 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <signal.h>
+#include <libgen.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <sys/errno.h>
 #include "common.h"
 
 char file_stdout[FN_LEN];
@@ -39,9 +43,26 @@ void InsertPort(char* url, char* url_o, short port) {
 void ReopenLog(int signum)
 {
   FILE *fp=NULL;
+  char file_stdout_dir[FN_LEN] = {0};
 
   signal(SIGUSR1,ReopenLog);
   printf("Caught signal %d\n",signum);
+
+  strcpy(file_stdout_dir,file_stdout);
+  dirname(file_stdout_dir);
+
+  if(mkdir(file_stdout_dir, 0x777) == -1) {
+    if(errno == EEXIST) {
+      //printf("Log directory %s already exists\n", file_stdout_dir);
+    }
+    else {
+      fprintf(stderr, "ERROR: mkdir %s failed\n", file_stdout_dir);
+      exit(1);
+    }
+  }
+  else {
+    printf("Log directory %s created\n", file_stdout_dir);
+  }
 
 //  if((fp=fopen(file_stdout,"a")) == NULL) {
 //    perror("fopen");
