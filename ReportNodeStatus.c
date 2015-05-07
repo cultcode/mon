@@ -26,6 +26,7 @@ __attribute__((weak)) int debugl = DEFAULT_DEBUGL;
 char report_type_s[REPORT_TYPE_LEN]="TCP";
 static char report_type_s_o[REPORT_TYPE_LEN]={0};
 int port_udp=8942;
+int port_tcp=80;
 
 void ReportNodeStatus(struct NodeStatusList* nsl, struct NodeResourceStatus* nrs, char * url_o)
 {
@@ -50,7 +51,7 @@ void ReportNodeStatus(struct NodeStatusList* nsl, struct NodeResourceStatus* nrs
   else if(!strcasecmp(report_type_s,"UDP")) report_type = SOCK_DGRAM;
   else report_type = SOCK_STREAM;
 
-  InsertPort(url, url_o, report_type==SOCK_STREAM?80:port_udp);
+  InsertPort(url, url_o, report_type==SOCK_STREAM?port_tcp:port_udp);
 
   ParseUrl(url, NULL, ip, &port, NULL);
 

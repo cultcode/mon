@@ -16,18 +16,23 @@ char file_stdout[FN_LEN];
 char file_stderr[FN_LEN];
 
 void InsertPort(char* url, char* url_o, short port) {
-  char *p_ds, *p_s;
+  char *p_ds, *p_s, *p_c;
   char tmp[URL_LEN]={0};
 
   if((p_ds = strstr(url_o, "//")) == NULL) {//NO "//"
     p_s = strchr(url_o, '/');
+    p_c = strchr(url_o, ':');
   }
   else{
     p_s = strchr(p_ds+2,'/');
+    p_c = strchr(p_ds+2, ':');
   }
 
-  if(strchr(p_ds==NULL?url_o:p_ds+2, ':') != NULL) {
-    sprintf(url,"%s",url_o);
+  if(p_c != NULL) {
+    strncpy(url, url_o, p_c-url_o);
+    sprintf(tmp,":%d",port);
+    strcat(url, tmp);
+    strcat(url, p_s);
   }
   else if(p_s != NULL ) {
     strncpy(url, url_o, p_s-url_o);

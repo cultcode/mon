@@ -7,6 +7,7 @@
 
 extern char report_type_s[REPORT_TYPE_LEN];
 extern int port_udp;
+extern int port_tcp;
 
 extern void ReportNodeStatus(struct NodeStatusList* nsl, struct NodeResourceStatus* nrs, char * url);
 #endif
