@@ -198,7 +198,22 @@ while(looptimes) {
  * GetNodeSvrSysParamList
  ********************************************************/
     if(strlen(url[3]) && ((GetLocaltimeSeconds(servertimezone) - nsspl.EpochTime) >= paramlist_interval)){
-      GetNodeSvrSysParamList(&nsspl, url[3]);
+      GetNodeSvrSysParamList(&ns, &nsspl, url[3]);
+
+      if(strlen(nsspl.NS_ResMon_ReportType)) strcpy(report_type_s, nsspl.NS_ResMon_ReportType);
+      if(nsspl.NS_ResMon_CollectRateDiskIO)  dsk_average_interval = nsspl.NS_ResMon_CollectRateDiskIO;
+      if(nsspl.NS_ResMon_CollectRateNetFlow) net_average_interval = nsspl.NS_ResMon_CollectRateNetFlow;
+      if(strlen(nsspl.des3_key)) strcpy(node_3des_key, nsspl.des3_key);
+      if(strlen(nsspl.des3_iv))  strcpy(node_3des_iv,  nsspl.des3_iv);
+
+if (debugl >= 3) {
+      printf("report_type_s: %s\n",report_type_s);
+      printf("dsk_average_interval: %d\n",dsk_average_interval);
+      printf("net_average_interval: %d\n",net_average_interval);
+      printf("des3_key:%s\n",node_3des_key);
+      printf("des3_iv:%s\n",node_3des_iv);
+}
+
     }
 
 /********************************************************

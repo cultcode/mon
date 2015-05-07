@@ -23,7 +23,7 @@ __attribute__((weak)) int servertimezone=DEFAULT_SERVERTIMEZONE;
 __attribute__((weak)) int debugl = DEFAULT_DEBUGL;
 
 
-void GetNodeSvrSysParamList(struct NodeSvrSysParamList* nsspl, char* url_o)
+void GetNodeSvrSysParamList(struct NodeStatus* ns, struct NodeSvrSysParamList* nsspl, char* url_o)
 {
   static int sockfd=-1;
   char content_send[CONTENT_LEN]={0};
@@ -45,14 +45,18 @@ void GetNodeSvrSysParamList(struct NodeSvrSysParamList* nsspl, char* url_o)
 /*structure http request
 {"EpochTime":"97d76a"} 
 */
-  memset(nsspl,0,sizeof(struct NodeSvrSysParamList));
+  //memset(nsspl,0,sizeof(struct NodeSvrSysParamList));
 
   nsspl->EpochTime = GetLocaltimeSeconds(servertimezone);
+  nsspl->NodeId = ns->NodeId;
 
   root=cJSON_CreateObject();
 
   sprintf(EpochTime,"%lx",nsspl->EpochTime);
   cJSON_AddStringToObject(root,"EpochTime",EpochTime);
+  if(!svrversion) {
+    cJSON_AddNumberToObject(root,"NodeId",nsspl->NodeId);
+  }
 
   strcpy(content, out=cJSON_PrintUnformatted(root));
 
@@ -152,16 +156,6 @@ if (debugl >= 3) {
     fprintf(stderr,"ERROR: GetNodeSvrSysParamList() received FAIL: %s\n", nsspl->StatusDesc);
     exit(1);
   }
-
-  strcpy(report_type_s, nsspl->NS_ResMon_ReportType);
-  dsk_average_interval = nsspl->NS_ResMon_CollectRateDiskIO;
-  net_average_interval = nsspl->NS_ResMon_CollectRateNetFlow;
-
-if (debugl >= 3) {
-  printf("report_type_s: %s\n",report_type_s);
-  printf("dsk_average_interval: %d\n",dsk_average_interval);
-  printf("net_average_interval: %d\n",net_average_interval);
-}
 
 }
 

@@ -24,9 +24,11 @@ __attribute__((weak)) int servertimezone=DEFAULT_SERVERTIMEZONE;
 __attribute__((weak)) int debugl = DEFAULT_DEBUGL;
 
 char report_type_s[REPORT_TYPE_LEN]="TCP";
-static char report_type_s_o[REPORT_TYPE_LEN]={0};
 int port_udp=8942;
 int port_tcp=80;
+static char report_type_s_o[REPORT_TYPE_LEN]={0};
+static int port_udp_o;
+static int port_tcp_o;
 
 void ReportNodeStatus(struct NodeStatusList* nsl, struct NodeResourceStatus* nrs, char * url_o)
 {
@@ -47,8 +49,8 @@ void ReportNodeStatus(struct NodeStatusList* nsl, struct NodeResourceStatus* nrs
 
   int  report_type;
 
-  if(!strcasecmp(report_type_s,"TCP")) report_type = SOCK_STREAM;
-  else if(!strcasecmp(report_type_s,"UDP")) report_type = SOCK_DGRAM;
+  if(!strcasecmp(report_type_s,"TCP") || !strcasecmp(report_type_s,"0")) report_type = SOCK_STREAM;
+  else if(!strcasecmp(report_type_s,"UDP") || !strcasecmp(report_type_s,"1")) report_type = SOCK_DGRAM;
   else report_type = SOCK_STREAM;
 
   InsertPort(url, url_o, report_type==SOCK_STREAM?port_tcp:port_udp);
@@ -126,17 +128,17 @@ void ReportNodeStatus(struct NodeStatusList* nsl, struct NodeResourceStatus* nrs
 
   strcpy(content_send, content);
 
-  if(!strlen(report_type_s_o)) {
+  if((strlen(report_type_s_o) && strcasecmp(report_type_s_o, report_type_s))  ||
+     ((report_type == SOCK_STREAM) && port_tcp_o && (port_tcp_o != port_tcp)) ||
+     ((report_type == SOCK_DGRAM)  && port_udp_o && (port_udp_o != port_udp))
+      ) {
+    closeHttp(sockfd);
+    sockfd = -1;
   }
-  else {
-    if(!strcasecmp(report_type_s_o, report_type_s)) {
-    }
-    else{
-      closeHttp(sockfd);
-      sockfd = -1;
-    }
-  }
+
   strcpy(report_type_s_o, report_type_s);
+  port_udp_o = port_udp;
+  port_tcp_o = port_tcp;
 
 CREATEHTTP:
   if(sockfd == -1) {

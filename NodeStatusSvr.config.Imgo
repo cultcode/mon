@@ -12,6 +12,12 @@
     <!--specify URL for NodeStatusReport, like http://XXXX/ndas/NodeStatusReport-->
     <add key="report"	value="http://dbagent.cdn.imgo.tv/ndas/NodeResMonReport"/>
 
+    <!--specify URL for GetNodeSvrSysParamList-->
+    <add key="paramlisturl"     value="http://dbagent.cdn.imgo.tv/ndas/GetNodeSvrSysParmList"/>
+
+    <!--specify interval for getting GetNodeSvrSysParamList-->
+    <add key="paramlistiv"      value="300"/>
+
     <add key="reporttype"	value="TCP"/>
 
     <add key="portudp"	value="8942"/>

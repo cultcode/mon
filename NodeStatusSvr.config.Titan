@@ -11,15 +11,15 @@
     <!--specify URL for NodeStatusReport, like http://XXXX/ndas/NodeStatusReport-->
     <add key="report"           value="http://118.26.188.134:80/DBAgentSvr/NodeStatusSvr/NodeStatusReport"/>
 
-    <add key="reporttype"	value="TCP"/>
-
-    <add key="portudp"	value="8942"/>
-
     <!--specify URL for GetNodeSvrSysParamList-->
     <add key="paramlisturl"     value="http://118.26.188.134:80/DBAgentSvr/GetNodeSvrSysParmList"/>
 
     <!--specify interval for getting GetNodeSvrSysParamList-->
     <add key="paramlistiv"      value="300"/>
+
+    <add key="reporttype"	value="TCP"/>
+
+    <add key="portudp"	value="8942"/>
 
     <!--interval of reporting status, unit is second -->
     <add key="refresh"		value="2"/>
