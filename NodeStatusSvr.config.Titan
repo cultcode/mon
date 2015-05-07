@@ -52,7 +52,7 @@
     <add key="svrtype"  value="5"/>
 
     <!--specify stdout&stderr redirection log file-->
-    <add key="logfile"  value="/home/Titan.NodeStatusSvr/NodeStatusSvr.log"/>
+    <add key="logfile"  value="/var/log/cdn/Titan/NodeStatusSvr/NodeStatusSvr.log"/>
 
     <!--Don't Modify Entries Below-->
 
