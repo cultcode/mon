@@ -6,7 +6,7 @@ HEADERS=cJSON.h common.h Security.h SocketHttp.h NodeResourceStatus.h GetNodeRes
 LIB_ENDECTT=libendectt.so
 LIB_CJSON=libcjson.so
 LIB_GNRS=libgnrs.so
-VERSION=\"4.6.$(shell date +%Y%m%d).$(shell date +%H%M%S)\"
+VERSION=\"4.8.$(shell date +%Y%m%d).$(shell date +%H%M%S)\"
 
 TARGET=NodeStatusSvr
 
