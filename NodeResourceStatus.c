@@ -1475,7 +1475,7 @@ unsigned long long http_cons(char* ip, short port)
     sockfd = createHttp(ip,port,SOCK_STREAM,-2);
   }
 
-  sendHttp(&sockfd, url, connection, "", 0, extra_header);
+  sendHttp(&sockfd, url, connection, "", 0, extra_header, 1);
 
   if(sockfd == -1) goto ENDHTTP;
 

@@ -21,7 +21,7 @@ extern int createHttp(char * ip, short port, int type, int to);
 
 extern void closeHttp(int sockfd);
 
-extern void sendHttp(int* sockfdp, char * url, char * connection, char * input, int encode, char *extra_header);
+extern void sendHttp(int* sockfdp, char * url, char * connection, char * input, int encode, char *extra_header, int ishttp);
 
 extern void recvHttp(int* sockfdp, char * url, char* output, int encode);
 

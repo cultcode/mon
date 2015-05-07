@@ -129,7 +129,7 @@ void closeHttp(int sockfd)
   }
 }
   
-void sendHttp(int* sockfdp, char * url, char * connection, char * input, int encode, char *extra_header)
+void sendHttp(int* sockfdp, char * url, char * connection, char * input, int encode, char *extra_header, int ishttp)
 {
   char sendline[HTTP_LEN]={0};
   char * cipher = NULL;
@@ -221,7 +221,12 @@ if (debugl >= 1) {
 
   //strcat(sendline, content);
 
-  memcpy(&sendline[strlen(sendline)],cipher,length);
+  if(ishttp) {
+    memcpy(&sendline[strlen(sendline)],cipher,length);
+  }
+  else {
+    memcpy(&sendline[0],cipher,length);
+  }
 
   free(cipher);
 

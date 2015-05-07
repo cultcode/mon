@@ -98,7 +98,7 @@ CREATEHTTP:
     sockfd = createHttp(ip,port,SOCK_STREAM,-1);
   }
 
-  sendHttp(&sockfd, url, connection, content_send, 1, NULL);
+  sendHttp(&sockfd, url, connection, content_send, 1, NULL, 1);
 
   if(sockfd == -1) goto CREATEHTTP;
 

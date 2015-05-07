@@ -15,6 +15,7 @@
 #include <linux/ethtool.h>
 #include <linux/sockios.h>
 #include <netinet/in.h>
+#include <string.h>
 #include "SocketHttp.h"
 #include "ReportNodeStatus.h"
 #include "cJSON.h"
@@ -23,6 +24,7 @@ __attribute__((weak)) int servertimezone=DEFAULT_SERVERTIMEZONE;
 __attribute__((weak)) int debugl = DEFAULT_DEBUGL;
 
 char report_type_s[REPORT_TYPE_LEN]="TCP";
+static char report_type_s_o[REPORT_TYPE_LEN]={0};
 int port_udp=8942;
 
 void ReportNodeStatus(struct NodeStatusList* nsl, struct NodeResourceStatus* nrs, char * url_o)
@@ -123,12 +125,24 @@ void ReportNodeStatus(struct NodeStatusList* nsl, struct NodeResourceStatus* nrs
 
   strcpy(content_send, content);
 
+  if(!strlen(report_type_s_o)) {
+  }
+  else {
+    if(!strcasecmp(report_type_s_o, report_type_s)) {
+    }
+    else{
+      closeHttp(sockfd);
+      sockfd = -1;
+    }
+  }
+  strcpy(report_type_s_o, report_type_s);
+
 CREATEHTTP:
   if(sockfd == -1) {
     sockfd = createHttp(ip,port,report_type,(report_type==SOCK_STREAM)?-1:-2);
   }
 
-  sendHttp(&sockfd, url, connection, content_send, 1, NULL);
+  sendHttp(&sockfd, url, connection, content_send, 1, NULL, (report_type==SOCK_STREAM)?1:0);
 
   if(sockfd == -1) goto CREATEHTTP;
 
