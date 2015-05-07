@@ -14,7 +14,7 @@
 
     <add key="reporttype"	value="TCP"/>
 
-    <add key="udpport"	value="8942"/>
+    <add key="portudp"	value="8942"/>
 
     <!--interval of reporting status, unit is second -->
     <add key="refresh"		value="2"/>
