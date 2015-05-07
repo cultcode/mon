@@ -44,8 +44,8 @@ void ReportNodeStatus(struct NodeStatusList* nsl, struct NodeResourceStatus* nrs
 
   int  report_type;
 
-  if(!strcmp(report_type_s,"TCP")) report_type = SOCK_STREAM;
-  else if(!strcmp(report_type_s,"UDP")) report_type = SOCK_DGRAM;
+  if(!strcasecmp(report_type_s,"TCP")) report_type = SOCK_STREAM;
+  else if(!strcasecmp(report_type_s,"UDP")) report_type = SOCK_DGRAM;
   else report_type = SOCK_STREAM;
 
   InsertPort(url, url_o, report_type==SOCK_STREAM?80:port_udp);
@@ -134,9 +134,10 @@ CREATEHTTP:
 
   memset(content, 0, sizeof(content));
 
-  recvHttp(&sockfd,url,content,1);
-
-  if(sockfd == -1) goto CREATEHTTP;
+  if(report_type == SOCK_STREAM) {
+    recvHttp(&sockfd,url,content,1);
+    if(sockfd == -1) goto CREATEHTTP;
+  }
 
 /*analyze http content received
 {"Status":1,"StatusDesc":"success"}

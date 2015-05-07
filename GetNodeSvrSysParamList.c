@@ -23,7 +23,7 @@ __attribute__((weak)) int servertimezone=DEFAULT_SERVERTIMEZONE;
 __attribute__((weak)) int debugl = DEFAULT_DEBUGL;
 
 
-void GetNodeSvrSysParamList(struct NodeSvrSysParamList* nsspl, char* url)
+void GetNodeSvrSysParamList(struct NodeSvrSysParamList* nsspl, char* url_o)
 {
   static int sockfd=-1;
   char content_send[CONTENT_LEN]={0};
@@ -33,10 +33,13 @@ void GetNodeSvrSysParamList(struct NodeSvrSysParamList* nsspl, char* url)
   //int ret=0;
   char ip[IP_LEN] = {0};
   short port=0;
+  char url[URL_LEN]={0};
 
   char *out=NULL;
   char EpochTime[16]={0};
   cJSON *root=NULL, *item=NULL;
+
+  InsertPort(url, url_o, 80);
 
   ParseUrl(url,NULL, ip, &port, NULL);
 /*structure http request

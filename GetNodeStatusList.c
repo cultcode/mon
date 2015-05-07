@@ -22,7 +22,7 @@
 __attribute__((weak))  int servertimezone=DEFAULT_SERVERTIMEZONE;
 __attribute__((weak)) int debugl = DEFAULT_DEBUGL;
 
-void GetNodeStatusList(struct NodeStatus* ns, struct NodeStatusList* nsl, char * url)
+void GetNodeStatusList(struct NodeStatus* ns, struct NodeStatusList* nsl, char * url_o)
 {
   static int sockfd=-1;
   char content_send[CONTENT_LEN]={0};
@@ -32,10 +32,13 @@ void GetNodeStatusList(struct NodeStatus* ns, struct NodeStatusList* nsl, char *
 
   char ip[IP_LEN] = {0};
   short port=0;
+  char url[URL_LEN]={0};
 
   char *out=NULL;
   char EpochTime[16]={0};
   cJSON *root=NULL, *item=NULL;
+
+  InsertPort(url, url_o, 80);
 
   ParseUrl(url, NULL, ip, &port, NULL);
 /*structure http request
@@ -130,21 +133,29 @@ CREATEHTTP:
 
     if(ns->Status == SUCESS) {
       item = cJSON_GetObjectItem(root,"HomeDir");
-      strcpy(nsl->HomeDir, item->valuestring);
+      if(!strlen(nsl->HomeDir)) {
+        strcpy(nsl->HomeDir, item->valuestring);
+      }
 
       item = cJSON_GetObjectItem(root,"LanIp");
-      strcpy( nsl->LanIp, item->valuestring);
+      if(!strlen(nsl->LanIp)) {
+        strcpy( nsl->LanIp, item->valuestring);
+      }
 
       item = cJSON_GetObjectItem(root,"WanIp");
       if(!strlen(nsl->WanIp)) {
-      strcpy( nsl->WanIp, item->valuestring);
+        strcpy( nsl->WanIp, item->valuestring);
       }
 
       item = cJSON_GetObjectItem(root,"LanPort");
-      nsl->LanPort = item->valueint;
+      if(!nsl->LanPort) {
+        nsl->LanPort = item->valueint;
+      }
 
       item = cJSON_GetObjectItem(root,"WanPort");
-      nsl->WanPort = item->valueint;
+      if(!nsl->WanPort) {
+        nsl->WanPort = item->valueint;
+      }
     }
 
     cJSON_Delete(root);

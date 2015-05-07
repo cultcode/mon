@@ -26,7 +26,7 @@ void InsertPort(char* url, char* url_o, short port) {
     p_s = strchr(p_ds+2,'/');
   }
 
-  if(strchr(p_ds+2, ':') != NULL) {
+  if(strchr(p_ds==NULL?url_o:p_ds+2, ':') != NULL) {
     sprintf(url,"%s",url_o);
   }
   else if(p_s != NULL ) {
@@ -309,7 +309,6 @@ void ParseUrl(char * url, char * protocol, char * ip, short * port, char* path) 
       *port = strtol(field,NULL,0);
     }
     else {
-      *port = 80;
     }
   }
   else {

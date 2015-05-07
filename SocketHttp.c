@@ -84,7 +84,7 @@ int createHttp(char * ip, short port, int type, int to)
     exit(1);
   }
 
-  if(to >= 0) {
+  if((type == SOCK_STREAM) && (to >= 0)) {
     timeout.tv_sec = to;
     timeout.tv_usec = 0;
 

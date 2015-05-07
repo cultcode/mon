@@ -143,15 +143,16 @@ GET_ARGUMENTS_XML:
 GET_ARGUMENTS_END:
 
   strcpy(nsl.WanIp,WanIp);
+  strcpy(nsl.LanIp,LanIp);
+  nsl.WanPort = WanPort;
+  nsl.LanPort = LanPort;
+  strcpy(nsl.HomeDir,HomeDir);
+
 if(standalone) {
   if(!(strlen(HomeDir) && strlen(WanIp) && strlen(LanIp) && WanPort && LanPort)) {
     printf("Program runs in standalone mode, but not all arguments provided\n");
     exit(1);
   }
-  strcpy(nsl.HomeDir,HomeDir);
-  strcpy(nsl.LanIp,LanIp);
-  nsl.WanPort = WanPort;
-  nsl.LanPort = LanPort;
 }
 
 /********************************************************
@@ -168,7 +169,7 @@ if(!standalone) {
  ********************************************************/
 if(!standalone){
 
-  InitNodeStatus(&ns, url[0]);
+  if(strlen(url[0])) InitNodeStatus(&ns, url[0]);
 }
 
 
@@ -178,7 +179,7 @@ if(!standalone){
 
 if(!standalone){
 
-  GetNodeStatusList(&ns, &nsl, url[1]);
+  if(strlen(url[1])) GetNodeStatusList(&ns, &nsl, url[1]);
 }
 
 
@@ -204,7 +205,7 @@ while(looptimes) {
  * ReportNodeStatus
  ********************************************************/
 
-    ReportNodeStatus(&nsl, &nrs, url[2]);
+    if(strlen(url[2])) ReportNodeStatus(&nsl, &nrs, url[2]);
   }
 
   if(looptimes == -1 ) {
