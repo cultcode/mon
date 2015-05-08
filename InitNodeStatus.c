@@ -40,7 +40,7 @@ void InitNodeStatus(struct NodeStatus* ns, char* url_o)
   char EpochTime[16]={0};
   cJSON *root=NULL, *item=NULL;
 
-  InsertPort(url, url_o, 80);
+  InsertPort(url, url_o, 80, 0);
 
   ParseUrl(url,NULL, ip, &port, NULL);
 /*structure http request

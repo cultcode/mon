@@ -37,7 +37,7 @@ int mkdirs(const char *pathname, mode_t mode) {
   return ret;
 }
 
-void InsertPort(char* url, char* url_o, short port) {
+void InsertPort(char* url, char* url_o, short port, int rewrite) {
   char *p_ds, *p_s, *p_c;
   char tmp[URL_LEN]={0};
 
@@ -51,10 +51,15 @@ void InsertPort(char* url, char* url_o, short port) {
   }
 
   if(p_c != NULL) {
-    strncpy(url, url_o, p_c-url_o);
-    sprintf(tmp,":%d",port);
-    strcat(url, tmp);
-    strcat(url, p_s);
+    if(rewrite) {
+      strncpy(url, url_o, p_c-url_o);
+      sprintf(tmp,":%d",port);
+      strcat(url, tmp);
+      strcat(url, p_s);
+    }
+    else {
+      sprintf(url,"%s",url_o);
+    }
   }
   else if(p_s != NULL ) {
     strncpy(url, url_o, p_s-url_o);

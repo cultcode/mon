@@ -39,7 +39,7 @@ void GetNodeSvrSysParamList(struct NodeStatus* ns, struct NodeSvrSysParamList* n
   char EpochTime[16]={0};
   cJSON *root=NULL, *item=NULL;
 
-  InsertPort(url, url_o, 80);
+  InsertPort(url, url_o, 80, 0);
 
   ParseUrl(url,NULL, ip, &port, NULL);
 /*structure http request

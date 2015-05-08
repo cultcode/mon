@@ -53,7 +53,7 @@ void ReportNodeStatus(struct NodeStatusList* nsl, struct NodeResourceStatus* nrs
   else if(!strcasecmp(report_type_s,"UDP") || !strcasecmp(report_type_s,"1")) report_type = SOCK_DGRAM;
   else report_type = SOCK_STREAM;
 
-  InsertPort(url, url_o, report_type==SOCK_STREAM?port_tcp:port_udp);
+  InsertPort(url, url_o, report_type==SOCK_STREAM?port_tcp:port_udp, report_type==SOCK_STREAM?0:1);
 
   ParseUrl(url, NULL, ip, &port, NULL);
 
