@@ -3,16 +3,16 @@
 
   <appSettings>
     <!--specify URL for NodeStatusInit, like http://XXXX/ndas/NodeStatusInit-->
-    <add key="init"             value="http://118.26.188.134:80/DBAgentSvr/SvrInit"/>
+    <add key="init"             value="http://118.26.188.134/DBAgentSvr/SvrInit"/>
 
     <!--specify URL for GetNodeStatusList, like http://XXXX/ndas/GetNodeStatusList-->
-    <add key="get"              value="http://118.26.188.134:80/DBAgentSvr/NodeStatusSvr/GetList"/>
+    <add key="get"              value="http://118.26.188.134/DBAgentSvr/NodeStatusSvr/GetList"/>
 
     <!--specify URL for NodeStatusReport, like http://XXXX/ndas/NodeStatusReport-->
-    <add key="report"           value="http://118.26.188.134:80/DBAgentSvr/NodeStatusSvr/NodeStatusReport"/>
+    <add key="report"           value="http://118.26.188.134/DBAgentSvr/NodeStatusSvr/NodeStatusReport"/>
 
     <!--specify URL for GetNodeSvrSysParamList-->
-    <add key="paramlisturl"     value="http://118.26.188.134:80/DBAgentSvr/GetNodeSvrSysParmList"/>
+    <add key="paramlisturl"     value="http://118.26.188.134/DBAgentSvr/GetNodeSvrSysParmList"/>
 
     <!--specify interval for getting GetNodeSvrSysParamList-->
     <add key="paramlistiv"      value="300"/>
