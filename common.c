@@ -15,6 +15,28 @@
 char file_stdout[FN_LEN];
 char file_stderr[FN_LEN];
 
+int mkdirs(const char *pathname, mode_t mode) {
+  char *p=NULL,tmp[1024]={0};
+  int ret=-1;
+
+  if(access(pathname,F_OK) == 0) {
+    return 0;
+  }
+
+  p = strrchr(pathname, '/');
+
+  if(p) {
+    strncpy(tmp, pathname, p-pathname);
+    tmp[p-pathname] = '\0';
+    ret = mkdirs(tmp,mode);
+    if(ret == -1) return ret;
+  }
+
+  ret = mkdir(pathname,mode);
+
+  return ret;
+}
+
 void InsertPort(char* url, char* url_o, short port) {
   char *p_ds, *p_s, *p_c;
   char tmp[URL_LEN]={0};
@@ -56,7 +78,7 @@ void ReopenLog(int signum)
   strcpy(file_stdout_dir,file_stdout);
   dirname(file_stdout_dir);
 
-  if(mkdir(file_stdout_dir, 0x777) == -1) {
+  if(mkdirs(file_stdout_dir, 0x777) == -1) {
     if(errno == EEXIST) {
       //printf("Log directory %s already exists\n", file_stdout_dir);
     }
