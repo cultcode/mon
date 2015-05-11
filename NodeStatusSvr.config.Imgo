@@ -20,7 +20,7 @@
 
     <add key="reporttype"	value="TCP"/>
 
-    <add key="porttcp"	value="81"/>
+    <add key="porttcp"	value="80"/>
 
     <add key="portudp"	value="8942"/>
 
