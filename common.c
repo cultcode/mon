@@ -83,7 +83,7 @@ void ReopenLog(int signum)
   strcpy(file_stdout_dir,file_stdout);
   dirname(file_stdout_dir);
 
-  if(mkdirs(file_stdout_dir, 0x777) == -1) {
+  if(mkdirs(file_stdout_dir, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH) == -1) {
     if(errno == EEXIST) {
       //printf("Log directory %s already exists\n", file_stdout_dir);
     }
