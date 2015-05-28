@@ -1451,6 +1451,14 @@ unsigned long long http_cons(char* ip, short port)
   char extra_header[HTTP_HEADER_LEN]={0};
   int debugl_old = 0;
 
+  if(!isOpen(ip,port,SOCK_STREAM)) 
+  {
+    if (debugl >= 3) {
+      printf("WARN: %s:%hd is not accessible, reset cons as 0\n",ip, port);
+    }
+    return 0;
+  }
+
   strcat(extra_header,"stat: sessioncount");
   strcat(extra_header, HTTP_NEWLINE);
 
