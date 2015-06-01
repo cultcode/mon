@@ -10,11 +10,11 @@ if [ "$#" -ne 2 ];then
   exit 1;
 fi;
 
-if [ ! -f "$1" ];then
-  echo "SERVICE_NAME $1 is not existent"
-  usage;
-  exit 1;
-fi;
+#if [ ! -f "$1" ];then
+#  echo "SERVICE_NAME $1 is not existent"
+#  usage;
+#  exit 1;
+#fi;
 
 if [ ! -f "$2" ];then
   echo "LOG_FILE $2 is not existent"
@@ -27,6 +27,7 @@ SERVICE_NAME=$(basename "$1")
 
 LOG_FILE=$2
 LOG_FILE_BAK=${LOG_FILE}"."$(date +"%Y%m%d_%H%M%S")
+IFS=$'\n'
 
 RETVAL=0
 items=""
@@ -36,7 +37,7 @@ length=0
 init () {
   IFS_old=$IFS
   IFS=$'\x0A'
-  items=(`ps -ef | grep "[0-9]\+:[0-9]\+:[0-9]\+ $SERVICE_DIR/$SERVICE_NAME\b"`)
+  items=(`ps -ef | grep "[0-9]\+:[0-9]\+:[0-9]\+ \S*$SERVICE_NAME\b"`)
   IFS=$IFS_old
   length=${#items[@]}
 
