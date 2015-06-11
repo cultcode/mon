@@ -1443,16 +1443,20 @@ unsigned ConvertIpC2I(char * ip_char) {
 
 unsigned long long http_cons(char* ip, short port)
 {
-  char content[CONTENT_LEN]={0};
+  static char content[CONTENT_LEN]={0};
   static char error[CURL_ERROR_SIZE]={0};
   static char url[URL_LEN]={0};
   unsigned long long cons=0;
 
   sprintf(url,"%s:%hd/admin.info", ip, port);
 
-  FILE *writedata = fmemopen(content, sizeof(content), "wb");
-
-  memset(content, 0, sizeof(content));
+  static FILE *writedata;
+  if(!writedata) {
+    writedata = fmemopen(content, sizeof(content), "wb");
+  }
+  else {
+    rewind(writedata);
+  }
 
   CURLcode res=0;
 
@@ -1471,13 +1475,14 @@ unsigned long long http_cons(char* ip, short port)
     curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 5);
     curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10);
     curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, error);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, writedata);  
    }
-  curl_easy_setopt(curl, CURLOPT_WRITEDATA, writedata);  
 
   res = curl_easy_perform(curl);  
   //curl_easy_cleanup(curl);  
   //curl_slist_free_all(header);
-  fclose(writedata);
+  //fclose(writedata);
+  fputc('\0', writedata);
 
   if(res == CURLE_OK) {
     if(strlen(content)) {
