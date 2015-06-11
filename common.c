@@ -14,6 +14,7 @@
 
 char file_stdout[FN_LEN];
 char file_stderr[FN_LEN];
+int  getlist_interval=300;
 
 int mkdirs(const char *pathname, mode_t mode) {
   char *p=NULL,tmp[1024]={0};

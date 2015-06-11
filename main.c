@@ -142,12 +142,6 @@ GET_ARGUMENTS_XML:
 
 GET_ARGUMENTS_END:
 
-  strcpy(nsl.WanIp,WanIp);
-  strcpy(nsl.LanIp,LanIp);
-  nsl.WanPort = WanPort;
-  nsl.LanPort = LanPort;
-  strcpy(nsl.HomeDir,HomeDir);
-
 if(standalone) {
   if(!(strlen(HomeDir) && strlen(WanIp) && strlen(LanIp) && WanPort && LanPort)) {
     printf("Program runs in standalone mode, but not all arguments provided\n");
@@ -175,16 +169,6 @@ if(!standalone){
 
 
 /********************************************************
- * GetNodeStatusList
- ********************************************************/
-
-if(!standalone){
-
-  if(strlen(url[1])) GetNodeStatusList(&ns, &nsl, url[1]);
-}
-
-
-/********************************************************
  * ReportNodeStatus
  ********************************************************/
 
@@ -195,6 +179,20 @@ while(looptimes) {
     GetNodeResourceStatus(&nsl, &nrs);
   }
   else {
+/********************************************************
+ * GetNodeStatusList
+ ********************************************************/
+
+    if(strlen(url[1]) && ((GetLocaltimeSeconds(servertimezone) - nsl.EpochTime) >= getlist_interval)) {
+      GetNodeStatusList(&ns, &nsl, url[1]);
+
+      if(strlen(WanIp)) strcpy(nsl.WanIp,WanIp);
+      if(strlen(LanIp)) strcpy(nsl.LanIp,LanIp);
+      if(WanPort)       nsl.WanPort = WanPort;
+      if(LanPort)       nsl.LanPort = LanPort;
+      if(strlen(HomeDir)) strcpy(nsl.HomeDir,HomeDir);
+    }
+
 /********************************************************
  * GetNodeSvrSysParamList
  ********************************************************/

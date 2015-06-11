@@ -24,6 +24,7 @@
 #include <dirent.h>
 #include <ifaddrs.h>
 #include <netdb.h>
+#include <curl/curl.h>
 
 int waytogetcons=DEFAULT_WAYTOGETCONS;
 __attribute__((weak)) int debugl = DEFAULT_DEBUGL;
@@ -1442,73 +1443,61 @@ unsigned ConvertIpC2I(char * ip_char) {
 
 unsigned long long http_cons(char* ip, short port)
 {
-  static int sockfd=-1;
-  char content[CONTENT_LEN];
-  char connection[CONNECTION_LEN] = "Keep-Alive";
-  char url[URL_LEN]={0};
-  char port_s[PORT_LEN]={0};
+  char content[CONTENT_LEN]={0};
+  static char error[CURL_ERROR_SIZE]={0};
+  static char url[URL_LEN]={0};
   unsigned long long cons=0;
-  char extra_header[HTTP_HEADER_LEN]={0};
-  int debugl_old = 0;
 
-  if(!isOpen(ip,port,SOCK_STREAM)) 
-  {
-    if (debugl >= 3) {
-      printf("WARN: %s:%hd is not accessible, reset cons as 0\n",ip, port);
-    }
-    return 0;
-  }
+  sprintf(url,"%s:%hd/admin.info", ip, port);
 
-  strcat(extra_header,"stat: sessioncount");
-  strcat(extra_header, HTTP_NEWLINE);
-
-  strcpy(url,ip);
-
-  if(port) {
-    strcat(url,":");
-    sprintf(port_s,"%hd",port);
-    strcat(url,port_s);
-  }
-
-  strcat(url,"/admin.info");
-
-  debugl_old = debugl;
-  if(debugl == 1) {
-    debugl = 0;
-  }
+  FILE *writedata = fmemopen(content, sizeof(content), "wb");
 
   memset(content, 0, sizeof(content));
 
-  if(sockfd == -1) {
-    sockfd = createHttp(ip,port,SOCK_STREAM,-2);
+  CURLcode res=0;
+
+  static struct curl_slist *header=NULL;
+  if(!header) {
+    header = curl_slist_append(header, "stat: sessioncount");
   }
 
-  sendHttp(&sockfd, url, connection, "", 0, extra_header, 1);
+  static CURL *curl=NULL;
+  if(!curl) {
+    curl = curl_easy_init();  
 
-  if(sockfd == -1) goto ENDHTTP;
+    curl_easy_setopt(curl, CURLOPT_URL, url);  
+    curl_easy_setopt(curl, CURLOPT_POST, 1);  
+    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, header);
+    curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 5);
+    curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10);
+    curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, error);
+   }
+  curl_easy_setopt(curl, CURLOPT_WRITEDATA, writedata);  
 
-  recvHttp(&sockfd,url,content,0);
+  res = curl_easy_perform(curl);  
+  //curl_easy_cleanup(curl);  
+  //curl_slist_free_all(header);
+  fclose(writedata);
 
-  if(sockfd == -1) goto ENDHTTP;
-ENDHTTP:
-
-  if(!strcasecmp(connection, "Close")){
-    closeHttp(sockfd);
-    sockfd = -1;
-  }
-
-  debugl = debugl_old;
-
-  if(strlen(content)) {
-    errno = 0;
-    cons = strtol(content,NULL,0);
-    if(errno) {
-      perror("strtol() of receved connections");
-      cons = -1;
+  if(res == CURLE_OK) {
+    if(strlen(content)) {
+      errno = 0;
+      cons = strtol(content,NULL,0);
+      if(errno) {
+        perror("strtol() of receved connections");
+        cons = 0;
+      }
+    }
+    else {
+      cons = 0;
     }
   }
-  else {
-    cons = -1;
+  else
+  {
+    cons = 0;
+    if(debugl >= 2) {
+      printf("%s", error);
+    }
   }
 
   return cons;

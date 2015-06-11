@@ -50,7 +50,7 @@ int isOpen(char * ip, short port, int type) {
     if (debugl >= 3) {
       printf("[%s:%hd] is accessible\n",ip,port);
     }
-    close(sockfd);
+    closeHttp(sockfd);
     return 1;
   }
 } 
@@ -121,9 +121,11 @@ void closeHttp(int sockfd)
 
   if(sockfd == -1) return;
 
+CLOSE_SOCKFD:
   ret = close(sockfd);
 
   if(ret < 0) {
+    if(errno == EINTR) goto CLOSE_SOCKFD;
     perror("close() The following error occurred");
     exit(1);
   }
@@ -239,14 +241,14 @@ if (debugl >= 4) {
   //must getsockopt if tcp/udp is configured
   ret = write(sockfd,sendline,strlen(sendline));
   if (ret < 0) {
-    if(errno == EPIPE) {
+    //if(errno == EPIPE) {
       closeHttp(sockfd);
       *sockfdp = -1;
-    }
-    else {
-      perror("write() The following error occurred");
-      exit(1);
-    }
+    //}
+    //else {
+    //  perror("write() The following error occurred");
+    //  exit(1);
+    //}
   }else{
 if (debugl >= 3) {
     printf("Successfully, %d bytes content has been sent!\n", ret);
@@ -276,7 +278,7 @@ void recvHttp(int* sockfdp, char * url, char* output, int encode)
 
   length = read(sockfd, recvline, sizeof(recvline)-1);
 
-  if(length == -1) {
+  /*if(length == -1) {
     if(errno == EAGAIN) {
       strcpy(output,"");
     }
@@ -285,7 +287,7 @@ void recvHttp(int* sockfdp, char * url, char* output, int encode)
       exit(1);
     }
   }
-  else if(length == 0) {
+  else*/ if(length <= 0) {
     closeHttp(sockfd);
     *sockfdp = -1;
     

@@ -12,6 +12,7 @@
 
 extern char file_stdout[FN_LEN];
 extern char file_stderr[FN_LEN];
+extern int  getlist_interval;
 
 extern void StripNewLine(char *buf);
 

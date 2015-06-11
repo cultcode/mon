@@ -133,29 +133,29 @@ CREATEHTTP:
 
     if(ns->Status == SUCESS) {
       item = cJSON_GetObjectItem(root,"HomeDir");
-      if(!strlen(nsl->HomeDir)) {
+      //if(!strlen(nsl->HomeDir)) {
         strcpy(nsl->HomeDir, item->valuestring);
-      }
+      //}
 
       item = cJSON_GetObjectItem(root,"LanIp");
-      if(!strlen(nsl->LanIp)) {
+      //if(!strlen(nsl->LanIp)) {
         strcpy( nsl->LanIp, item->valuestring);
-      }
+      //}
 
       item = cJSON_GetObjectItem(root,"WanIp");
-      if(!strlen(nsl->WanIp)) {
+      //if(!strlen(nsl->WanIp)) {
         strcpy( nsl->WanIp, item->valuestring);
-      }
+      //}
 
       item = cJSON_GetObjectItem(root,"LanPort");
-      if(!nsl->LanPort) {
+      //if(!nsl->LanPort) {
         nsl->LanPort = item->valueint;
-      }
+      //}
 
       item = cJSON_GetObjectItem(root,"WanPort");
-      if(!nsl->WanPort) {
+      //if(!nsl->WanPort) {
         nsl->WanPort = item->valueint;
-      }
+      //}
     }
 
     cJSON_Delete(root);
