@@ -15,6 +15,9 @@
 #include <linux/ethtool.h>
 #include <linux/sockios.h>
 #include <netinet/in.h>
+#include <curl/curl.h>
+#include "Security.h"
+#include <netdb.h>
 #include <string.h>
 #include "SocketHttp.h"
 #include "ReportNodeStatus.h"
@@ -22,86 +25,23 @@
 
 __attribute__((weak)) int servertimezone=DEFAULT_SERVERTIMEZONE;
 __attribute__((weak)) int debugl = DEFAULT_DEBUGL;
+static int transfered;
 
 char report_type_s[REPORT_TYPE_LEN]="TCP";
 int port_udp=8942;
 int port_tcp=80;
-static char report_type_s_o[REPORT_TYPE_LEN]={0};
-static int port_udp_o;
-static int port_tcp_o;
 
-void ReportNodeStatus(struct NodeStatusList* nsl, struct NodeResourceStatus* nrs, char * url_o)
+static size_t readfunction( void *ptr, size_t size, size_t nmemb, void *userdata)
 {
-  static int sockfd=-1;
-  char content_send[CONTENT_LEN]={0};
-  char content[CONTENT_LEN]={0};
-  char connection[CONNECTION_LEN] = "Keep-Alive";
-  //char connection[CONNECTION_LEN] = "Close";
-  //int ret=0;
-
-  char ip[IP_LEN] = {0};
-  short port=0;
-  char url[URL_LEN]={0};
-
+  int length = -1;
+  char * cipher=NULL, content[CONTENT_LEN]={0};
   char *out=NULL;
   char EpochTime[16]={0};
-  cJSON *root=NULL, *item=NULL;
+  cJSON *root=NULL;
+  struct NodeResourceStatus * nrs = (struct NodeResourceStatus *)userdata;
+  char buf[128] = {0};
 
-  int  report_type;
-
-  if(!strcasecmp(report_type_s,"TCP") || !strcasecmp(report_type_s,"0")) report_type = SOCK_STREAM;
-  else if(!strcasecmp(report_type_s,"UDP") || !strcasecmp(report_type_s,"1")) report_type = SOCK_DGRAM;
-  else report_type = SOCK_STREAM;
-
-  InsertPort(url, url_o, report_type==SOCK_STREAM?port_tcp:port_udp, report_type==SOCK_STREAM?0:1);
-
-  ParseUrl(url, NULL, ip, &port, NULL);
-
-  //, report_type==SOCK_STREAM?80:port_udp
-
-  //memset(nrs,0,sizeof(struct NodeResourceStatus));
-
-  GetNodeResourceStatus(nsl, nrs);
-
-  nrs->EpochTime = GetLocaltimeSeconds(servertimezone);
-
-  nrs->NodeId = nsl->NodeId;
-
-/*structure http request
-
-{"EpochTime":"97d76a","NodeId":1,"CurrentConn":100,"CurrentBandwidth":54241241,"DiskTotalSpace":64132131634,"DiskFreeSpace":45431,"CpuUsage":60,"MemUsage":40,"WanUsage":60,"LanUsage":40,"IoUsage":15,"LanIpState":1,"WanIpState":1}
-*/
-
-//  sprintf(content,
-//    "{"
-//    "\"EpochTime\":\"%lx\","
-//    "\"NodeId\":%d,"
-//    "\"CurrentConn\":%lld,"
-//    "\"CurrentBandwidth\":%d,"
-//    "\"DiskTotalSpace\":%lld,"
-//    "\"DiskFreeSpace\":%lld,"
-//    "\"CpuUsage\":%d,"
-//    "\"MemUsage\":%d,"
-//    "\"WanUsage\":%d,"
-//    "\"LanUsage\":%d,"
-//    "\"IoUsage\":%d,"
-//    "\"LanIpState\":%d,"
-//    "\"WanIpState\":%d"
-//    "}",
-//    nrs->EpochTime,
-//    nrs->NodeId,
-//    nrs->CurrentConn,     
-//    nrs->CurrentBandwidth,
-//    nrs->DiskTotalSpace,
-//    nrs->DiskFreeSpace,
-//    (int)nrs->CpuUsage,
-//    (int)nrs->MemUsage,
-//    (int)nrs->WanUsage,
-//    (int)nrs->LanUsage,
-//    (int)nrs->IoUsage,
-//    nrs->LanIpState,
-//    nrs->WanIpState
-//  );
+  if(transfered) return 0;
 
   root=cJSON_CreateObject();
 
@@ -126,93 +66,154 @@ void ReportNodeStatus(struct NodeStatusList* nsl, struct NodeResourceStatus* nrs
 
   free(out);
 
-  strcpy(content_send, content);
-
-  if((strlen(report_type_s_o) && strcasecmp(report_type_s_o, report_type_s))  ||
-     ((report_type == SOCK_STREAM) && port_tcp_o && (port_tcp_o != port_tcp)) ||
-     ((report_type == SOCK_DGRAM)  && port_udp_o && (port_udp_o != port_udp))
-      ) {
-    closeHttp(sockfd);
-    sockfd = -1;
+if (debugl >= 1) {
+  time_t t=time(NULL);
+  strftime(buf, 64, "%Y-%m-%d %H:%M:%S", localtime(&t));  
+  printf("[%s] sent     to   %s:\t%s\n",buf,"ReportNodeStatus",content);
+}
+  length = ContentEncode(NODE_3DES_KEY, NODE_3DES_IV, content, &cipher, strlen(content));
+  if(length<0){
+    fprintf(stderr,"ENDEC ContentEncode() failed");	      
+    return CURL_READFUNC_ABORT;
   }
 
-  strcpy(report_type_s_o, report_type_s);
-  port_udp_o = port_udp;
-  port_tcp_o = port_tcp;
+  memcpy(ptr,cipher,length);
 
-CREATEHTTP:
-  if(sockfd == -1) {
-    sockfd = createHttp(ip,port,report_type,(report_type==SOCK_STREAM)?-1:-2);
+  free(cipher);
+
+  transfered=1;
+
+  return length;
+}
+
+static size_t writefunction( void *ptr, size_t size, size_t nmemb, void *userdata)
+{
+  int length = -1;
+  char * plain = NULL;
+  cJSON *root=NULL, *item=NULL;
+  struct NodeResourceStatus * nrs = (struct NodeResourceStatus *)userdata;
+  char buf[128] = {0};
+
+  if(size*nmemb == 0) return 0;
+
+  length = ContentDecode(NODE_3DES_KEY, NODE_3DES_IV, ptr, &plain, nStripNewLine(ptr, size*nmemb));
+
+  if(length<0) {
+    fprintf(stderr,"ENDEC ContentDecode() failed");	      
+    return 0;
   }
 
-  sendHttp(&sockfd, url, connection, content_send, 1, NULL, (report_type==SOCK_STREAM)?1:0);
-
-  if(sockfd == -1) goto CREATEHTTP;
-
-  memset(content, 0, sizeof(content));
-
-  if(report_type == SOCK_STREAM) {
-    recvHttp(&sockfd,url,content,1);
-    if(sockfd == -1) goto CREATEHTTP;
+if (debugl >= 1) {
+  time_t t=time(NULL);
+  strftime(buf, 64, "%Y-%m-%d %H:%M:%S", localtime(&t));  
+  printf("[%s] received from %s:\t%s\n",buf,"ReportNodeStatus", plain);
+}
+  if((root = cJSON_Parse(plain)) == NULL) {
+    fprintf(stderr,"JSON cJSON_Parse() failed: %s",cJSON_GetErrorPtr());	      
+    return 0;
   }
 
-/*analyze http content received
-{"Status":1,"StatusDesc":"success"}
+  item = cJSON_GetObjectItem(root,"Status");
+  nrs->Status = item->valueint;
 
-{"Status":0,"StatusDesc":"CheckFailed"}
-*/
-  //printf("ReportNodeStatusList() http content received:\n%s\n",content);
+  item = cJSON_GetObjectItem(root,"StatusDesc");
+  strcpy(nrs->StatusDesc, item->valuestring);
 
-//  ret = sscanf(content,
-//    "{"
-//    "\"Status\":%d,"
-//    "\"StatusDesc\":\"%[^\"]\""
-//    "}",
-//    &nrs->Status,
-//    nrs->StatusDesc
-//  );
+  cJSON_Delete(root);
+  
+  if(nrs->Status == FAIL) {
+    fprintf(stderr,"POST FAIL received");	  
+    return 0;
+  }
 
-  if(strlen(content)) {
-    if((root = cJSON_Parse(content)) == NULL) {
-      fprintf(stderr,"Error before: [%s]\n",cJSON_GetErrorPtr());
+  free(plain);
+  return size*nmemb;
+}  
+
+void ReportNodeStatus(struct NodeStatusList* nsl, struct NodeResourceStatus* nrs, char * url)
+{
+  GetNodeResourceStatus(nsl, nrs);
+
+  nrs->EpochTime = GetLocaltimeSeconds(servertimezone);
+
+  nrs->NodeId = nsl->NodeId;
+
+  int  report_type;
+
+  if(!strcasecmp(report_type_s,"TCP") || !strcasecmp(report_type_s,"0")) report_type = SOCK_STREAM;
+  else if(!strcasecmp(report_type_s,"UDP") || !strcasecmp(report_type_s,"1")) report_type = SOCK_DGRAM;
+  else report_type = SOCK_STREAM;
+
+if(report_type == SOCK_DGRAM) {
+  static int    sockfd=0;
+  if(!sockfd){
+    if((sockfd = socket(AF_INET, report_type, 0)) < 0) {
+      perror("ERROR socket()");
       exit(1);
     }
+  }
 
-    //item = root->child;
+  struct hostent        *he;
+  struct sockaddr_in  server;
+  socklen_t addrlen = sizeof(struct sockaddr_in);
 
-    item = cJSON_GetObjectItem(root,"Status");
-    nrs->Status = item->valueint;
+  /* resolve hostname */
+  if ( (he = gethostbyname(url) ) == NULL ) {
+      perror("ERROR gethostbyname()");
+      exit(1); /* error */
+  }
 
-    item = cJSON_GetObjectItem(root,"StatusDesc");
-    strcpy(nrs->StatusDesc, item->valuestring);
+  /* copy the network address to sockaddr_in structure */
+  memcpy(&server.sin_addr, he->h_addr_list[0], he->h_length);
+  server.sin_family = AF_INET;
+  server.sin_port = htons(port_udp);
 
-    cJSON_Delete(root);
-    
-if (debugl >= 3) {
-    printf("ReportNodeStatus()\n"
-      "{"
-      "\"Status\":%d,"
-      "\"StatusDesc\":\"%s\""
-      "}"
-      "\n",
-      nrs->Status,
-      nrs->StatusDesc
-    );
+  char content[CONTENT_LEN] = {0};
+  int len = readfunction(content,CONTENT_LEN,1, nrs);
+
+  sendto(sockfd,content, len, 0, (struct sockaddr *)(&server), addrlen);
+  return;
 }
-  }
-  else {
+  //memset(nrs,0,sizeof(struct NodeResourceStatus));
+
+  CURLcode res;
+
+  char posturl[URL_LEN]={0};
+  sprintf(posturl,"%s",url);
+
+  static struct curl_slist *header = NULL;
+  if(!header) {
+    header = curl_slist_append(header, "Transfer-Encoding: chunked");
+    header = curl_slist_append(header, "Connection: keep-alive");
   }
 
-  if(!strcasecmp(connection, "Close")){
-    closeHttp(sockfd);
-    sockfd = -1;
+  transfered=0;
+
+  static  CURL *curl=NULL;
+  static char error[CURL_ERROR_SIZE]={0};
+  if(!curl) {
+    curl = curl_easy_init();  
+    curl_easy_setopt(curl, CURLOPT_POST, 1);  
+    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, header);
+    curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, error);
+
+    curl_easy_setopt(curl, CURLOPT_READFUNCTION, readfunction);  
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writefunction);  
   }
 
-if(debugl >= 2) {
-    if(nrs->Status == FAIL) {
-      fprintf(stderr,"ERROR: ReportNodeStatus() received FAIL: %s\n", nrs->StatusDesc);
-    //  exit(1);
-    }
-}
+  curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, connect_timeout);
+  curl_easy_setopt(curl, CURLOPT_TIMEOUT, transmit_timeout);
+
+  curl_easy_setopt(curl, CURLOPT_URL, posturl);  
+  curl_easy_setopt(curl, CURLOPT_READDATA, nrs);  
+  curl_easy_setopt(curl, CURLOPT_WRITEDATA, nrs);  
+
+  res = curl_easy_perform(curl);  
+  //curl_easy_cleanup(curl);  
+  //curl_slist_free_all(header);
+  if(CURLE_OK != res) {
+    fprintf(stderr, "ERROR: %s\n", error);
+    //exit(1);
+  }
 }
 

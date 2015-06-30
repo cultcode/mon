@@ -10,10 +10,16 @@
 
 #define DEFAULT_SERVERTIMEZONE 8
 
+extern int connect_timeout;
+extern int transmit_timeout;
+extern int connect_timeout_nms;
+extern int transmit_timeout_nms;
+
 extern char file_stdout[FN_LEN];
 extern char file_stderr[FN_LEN];
 extern int  getlist_interval;
 
+extern int nStripNewLine(char *buf, int length);
 extern void StripNewLine(char *buf);
 
 extern long GetLocaltimeSeconds();

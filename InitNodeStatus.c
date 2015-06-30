@@ -15,6 +15,8 @@
 #include <linux/ethtool.h>
 #include <linux/sockios.h>
 #include <netinet/in.h>
+#include <curl/curl.h>
+#include "Security.h"
 #include "SocketHttp.h"
 #include "InitNodeStatus.h"
 #include "cJSON.h"
@@ -24,54 +26,19 @@ int svrtype=DEFAULT_SVRTYPE;
 
 __attribute__((weak)) int servertimezone=DEFAULT_SERVERTIMEZONE;
 __attribute__((weak)) int debugl = DEFAULT_DEBUGL;
+static int transfered;
 
-void InitNodeStatus(struct NodeStatus* ns, char* url_o)
+static size_t readfunction( void *ptr, size_t size, size_t nmemb, void *userdata)
 {
-  static int sockfd=-1;
-  char content_send[CONTENT_LEN]={0};
-  char content[CONTENT_LEN]={0};
-  char connection[CONNECTION_LEN] = "Close";
-  //int ret=0;
-  char ip[IP_LEN] = {0};
-  short port=0;
-  char url[URL_LEN]={0};
-
+  int length = -1;
+  char * cipher=NULL, content[CONTENT_LEN]={0};
   char *out=NULL;
   char EpochTime[16]={0};
-  cJSON *root=NULL, *item=NULL;
+  cJSON *root=NULL;
+  struct NodeStatus * ns = (struct NodeStatus *)userdata;
+  char buf[128] = {0};
 
-  InsertPort(url, url_o, 80, 0);
-
-  ParseUrl(url,NULL, ip, &port, NULL);
-/*structure http request
-{"EpochTime":" 97d76a","NodeName":"Imgo-1","Version":"3.0"}
-*/
-  memset(ns,0,sizeof(struct NodeStatus));
-
-  ns->EpochTime = GetLocaltimeSeconds(servertimezone);
-
-  gethostname(ns->NodeName,NODENAME_LEN);
-
-  sprintf(ns->Version,"%s",VERSION);
-  ns->SvrType = svrtype;
-
-//  sprintf(content,
-//    "{"
-//    "\"EpochTime\":\"%lx\","
-//    "\"NodeName\":\"%s\""
-//#if SERVER_VERSION==2
-//    ","
-//    "\"Version\":\"%s\""
-//#endif
-//    "}",
-//    ns->EpochTime,
-//    ns->NodeName
-//#if SERVER_VERSION==2
-//    ,
-//    ns->Version
-//#endif
-//
-//  );
+  if(transfered) return 0;
 
   root=cJSON_CreateObject();
 
@@ -91,90 +58,122 @@ if(svrtype) {
 
   free(out);
 
-  strcpy(content_send, content);
-
-CREATEHTTP:
-  if(sockfd == -1) {
-    sockfd = createHttp(ip,port,SOCK_STREAM,-1);
-  }
-
-  sendHttp(&sockfd, url, connection, content_send, 1, NULL, 1);
-
-  if(sockfd == -1) goto CREATEHTTP;
-
-  memset(content, 0, sizeof(content));
-
-  recvHttp(&sockfd,url,content,1);
-
-  if(sockfd == -1) goto CREATEHTTP;
-
-/*analyze http content received
-{"Status":1,"StatusDesc":"success","NodeId":1}
-{"Status":0,"StatusDesc":"CheckFailed","NodeId ":0}
-*/
-
-//if (debugl >= 3) {
-//  printf("InitNodeStatus() http content received:\n%s\n",content);
-//}
-
-//  ret = sscanf(content,
-//    "{"
-//    "\"Status\":%d,"
-//    "\"StatusDesc\":\"%[^\"]\","
-//    "\"NodeId\":%d"
-//    "}",
-//    &ns->Status,
-//     ns->StatusDesc,
-//    &ns->NodeId
-//  );
-
-  if(strlen(content)) {
-    if((root = cJSON_Parse(content)) == NULL) {
-      fprintf(stderr,"Error before: [%s]\n",cJSON_GetErrorPtr());
-      exit(1);
-    }
-
-//    item = root->child;
-
-    item = cJSON_GetObjectItem(root,"Status");
-    ns->Status = item->valueint;
-  
-    item = cJSON_GetObjectItem(root,"StatusDesc");
-    strcpy(ns->StatusDesc, item->valuestring);
-
-    if(ns->Status == SUCESS) {
-      item = cJSON_GetObjectItem(root,"NodeId");
-      ns->NodeId = item->valueint;
-    }
-
-    cJSON_Delete(root);
-    
-if (debugl >= 3) {
-    printf("InitNodeStatus()\n"
-      "{"
-      "\"Status\":%d,"
-      "\"StatusDesc\":\"%s\","
-      "\"NodeId\":%d"
-      "}"
-      "\n",
-      ns->Status,
-      ns->StatusDesc,
-      ns->NodeId
-    );
+if (debugl >= 1) {
+  time_t t=time(NULL);
+  strftime(buf, 64, "%Y-%m-%d %H:%M:%S", localtime(&t));  
+  printf("[%s] sent     to   %s:\t%s\n",buf,"InitNodeStatus",content);
 }
-  }
-  else {
-  }
-
-  if(!strcasecmp(connection, "Close")){
-    closeHttp(sockfd);
-    sockfd = -1;
+  length = ContentEncode(NODE_3DES_KEY, NODE_3DES_IV, content, &cipher, strlen(content));
+  if(length<0){
+    fprintf(stderr,"ENDEC ContentEncode() failed");	      
+    return CURL_READFUNC_ABORT;
   }
 
+  memcpy(ptr,cipher,length);
+
+  free(cipher);
+
+  transfered=1;
+
+  return length;
+}
+
+static size_t writefunction( void *ptr, size_t size, size_t nmemb, void *userdata)
+{
+  int length = -1;
+  char * plain = NULL;
+  cJSON *root=NULL, *item=NULL;
+  struct NodeStatus * ns = (struct NodeStatus *)userdata;
+  char buf[128] = {0};
+
+  if(size*nmemb == 0) return 0;
+
+  length = ContentDecode(NODE_3DES_KEY, NODE_3DES_IV, ptr, &plain, nStripNewLine(ptr, size*nmemb));
+
+  if(length<0) {
+    fprintf(stderr,"ENDEC ContentDecode() failed");	      
+    return 0;
+  }
+
+if (debugl >= 1) {
+  time_t t=time(NULL);
+  strftime(buf, 64, "%Y-%m-%d %H:%M:%S", localtime(&t));  
+  printf("[%s] received from %s:\t%s\n",buf,"InitNodeStatus", plain);
+}
+  if((root = cJSON_Parse(plain)) == NULL) {
+    fprintf(stderr,"JSON cJSON_Parse() failed: %s",cJSON_GetErrorPtr());	      
+    return 0;
+  }
+
+  item = cJSON_GetObjectItem(root,"Status");
+  ns->Status = item->valueint;
+
+  item = cJSON_GetObjectItem(root,"StatusDesc");
+  strcpy(ns->StatusDesc, item->valuestring);
+
+  if(ns->Status == SUCCESS) {
+    item = cJSON_GetObjectItem(root,"NodeId");
+    ns->NodeId = item->valueint;
+  }
+
+  cJSON_Delete(root);
+  
   if(ns->Status == FAIL) {
-    fprintf(stderr,"ERROR: InitNodeStatus() received FAIL: %s\n", ns->StatusDesc);
+    fprintf(stderr,"POST FAIL received");	  
+    return 0;
+  }
+
+  free(plain);
+  return size*nmemb;
+}  
+
+void InitNodeStatus(struct NodeStatus* ns, char* url)
+{
+  memset(ns,0,sizeof(struct NodeStatus));
+
+  ns->EpochTime = GetLocaltimeSeconds(servertimezone);
+
+  gethostname(ns->NodeName,NODENAME_LEN);
+
+  sprintf(ns->Version,"%s",VERSION);
+  ns->SvrType = svrtype;
+
+  CURLcode res;
+
+  char posturl[URL_LEN]={0};
+  sprintf(posturl,"%s",url);
+
+  static struct curl_slist *header = NULL;
+  if(!header) {
+    header = curl_slist_append(header, "Transfer-Encoding: chunked");
+    header = curl_slist_append(header, "Connection: Close");
+  }
+
+  transfered=0;
+
+  static  CURL *curl=NULL;
+  static char error[CURL_ERROR_SIZE]={0};
+  if(!curl) {
+    curl = curl_easy_init();  
+    curl_easy_setopt(curl, CURLOPT_POST, 1);  
+    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, header);
+    curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, error);
+
+    curl_easy_setopt(curl, CURLOPT_READFUNCTION, readfunction);  
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writefunction);  
+  }
+
+  curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, connect_timeout);
+  curl_easy_setopt(curl, CURLOPT_TIMEOUT, transmit_timeout);
+  curl_easy_setopt(curl, CURLOPT_URL, posturl);  
+  curl_easy_setopt(curl, CURLOPT_READDATA, ns);  
+  curl_easy_setopt(curl, CURLOPT_WRITEDATA, ns);  
+
+  res = curl_easy_perform(curl);  
+  //curl_easy_cleanup(curl);  
+  //curl_slist_free_all(header);
+  if(CURLE_OK != res) {
+    fprintf(stderr, "ERROR: %s\n", error);
     exit(1);
   }
-
 }
-

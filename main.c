@@ -16,6 +16,7 @@
 #include <linux/sockios.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <curl/curl.h>
 #include "NodeResourceStatus.h"
 #include "InitNodeStatus.h"
 #include "GetNodeSvrSysParamList.h"
@@ -159,6 +160,16 @@ if(!standalone) {
 
   signal(SIGUSR1,ReopenLog);
 
+
+/********************************************************
+ * Init
+ ********************************************************/
+  CURLcode res = curl_global_init(CURL_GLOBAL_DEFAULT);
+  if(CURLE_OK != res) {
+    printf("init libcurl failed.\n");
+    exit(1);
+  }
+
 /********************************************************
  * InitNodeStatus
  ********************************************************/
@@ -247,6 +258,8 @@ if (debugl >= 3) {
   }
 
 }
+
+curl_global_cleanup();
 
 return 0;
 }

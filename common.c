@@ -16,6 +16,11 @@ char file_stdout[FN_LEN];
 char file_stderr[FN_LEN];
 int  getlist_interval=300;
 
+int connect_timeout=5;
+int transmit_timeout=10;
+int connect_timeout_nms=3;
+int transmit_timeout_nms=5;
+
 int mkdirs(const char *pathname, mode_t mode) {
   char *p=NULL,tmp[1024]={0};
   int ret=-1;
@@ -180,6 +185,24 @@ int JoinChunk(char * chunked, char * seperator, char * content) {
 
   return length;
 }
+
+int nStripNewLine(char *buf, int length)
+{
+  int i=0;
+  int sum=0;
+  //strip the character of line feed / carrier return
+  for (i = length-1; i>=0; i--) {
+    if((buf[i] == '\n') || (buf[i] == '\r')) {
+      sum += 1;
+    }
+    else {
+      break;
+    }
+  }
+
+ return(length-sum);
+}
+
 
 void StripNewLine(char *buf)
 {

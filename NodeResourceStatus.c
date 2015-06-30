@@ -1440,6 +1440,10 @@ unsigned ConvertIpC2I(char * ip_char) {
   return ip_int;
 
 }
+static size_t readfunction( void *ptr, size_t size, size_t nmemb, void *userdata)
+{
+  return 0;
+}
 
 unsigned long long http_cons(char* ip, short port)
 {
@@ -1472,11 +1476,13 @@ unsigned long long http_cons(char* ip, short port)
     curl_easy_setopt(curl, CURLOPT_URL, url);  
     curl_easy_setopt(curl, CURLOPT_POST, 1);  
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, header);
-    curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 5);
-    curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10);
     curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, error);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, writedata);  
+    curl_easy_setopt(curl, CURLOPT_READFUNCTION, readfunction);  
    }
+
+  curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, connect_timeout_nms);
+  curl_easy_setopt(curl, CURLOPT_TIMEOUT, transmit_timeout_nms);
 
   res = curl_easy_perform(curl);  
   //curl_easy_cleanup(curl);  
@@ -1501,7 +1507,7 @@ unsigned long long http_cons(char* ip, short port)
   {
     cons = 0;
     if(debugl >= 2) {
-      printf("%s", error);
+      printf("ERROR: %s\n", error);
     }
   }
 

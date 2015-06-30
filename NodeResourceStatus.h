@@ -68,7 +68,7 @@ if(!p->dk[i].member) {\
 
 enum {
   FAIL=0,
-  SUCESS=1
+  SUCCESS=1
 };
 struct proc{
   int size;
