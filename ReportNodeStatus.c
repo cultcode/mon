@@ -156,10 +156,13 @@ if(report_type == SOCK_DGRAM) {
   struct hostent        *he;
   struct sockaddr_in  server;
   socklen_t addrlen = sizeof(struct sockaddr_in);
+  char domain[URL_LEN]={0};
+  char *temp=strstr(url,"://");
 
+  sscanf(temp?temp+3:url, "%[^/]", domain);
   /* resolve hostname */
-  if ( (he = gethostbyname(url) ) == NULL ) {
-      perror("ERROR gethostbyname()");
+  if ( (he = gethostbyname(domain) ) == NULL ) {
+      herror("ERROR gethostbyname()");
       exit(1); /* error */
   }
 
@@ -167,6 +170,8 @@ if(report_type == SOCK_DGRAM) {
   memcpy(&server.sin_addr, he->h_addr_list[0], he->h_length);
   server.sin_family = AF_INET;
   server.sin_port = htons(port_udp);
+
+  transfered=0;
 
   char content[CONTENT_LEN] = {0};
   int len = readfunction(content,CONTENT_LEN,1, nrs);
