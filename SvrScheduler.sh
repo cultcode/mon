@@ -10,14 +10,14 @@ if [ "$#" -ne 2 ];then
   exit 1;
 fi;
 
-if [ ! -x "$1" ];then
-  echo "$1 is not existent or not executable"
-  exit 1;
-fi;
+#if [ ! -x "$1" ];then
+#  echo "$1 is not existent or not executable"
+#  exit 1;
+#fi;
 
 SERVICE_DIR=$(dirname "$1")
 SERVICE_NAME=$(basename "$1")
-IFS=$'\n'
+#IFS=$'\n'
 
 COMMAND=$2
 RETVAL=0
@@ -82,7 +82,7 @@ stop () {
     RETVAL=$?
     sleep 3;
   else
-    echo "$SERVICE_NAME doesn't run"
+    echo "$SERVICE_NAME doesnot run"
     RETVAL=$?
     return $RETVAL;
   fi;
@@ -103,7 +103,7 @@ status() {
   if [ "${#items}" -gt 0 ];then
     echo "$SERVICE_NAME already run"
   else	
-    echo "$SERVICE_NAME doesn't run"
+    echo "$SERVICE_NAME doesnot run"
   fi;
 
   RETVAL=$?    
